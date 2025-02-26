@@ -1,6 +1,7 @@
 import Layout from "./layout";
 import '../styles/globals.css';
 import ButtonWithArrow from "@/components/ButtonWithArrow";
+import Footer from "@/components/Footer";  
 
 export default function Home() {
   return (
@@ -111,6 +112,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <Footer />
     </Layout>
   );
 }

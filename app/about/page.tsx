@@ -1,0 +1,63 @@
+export default function About() {
+  return (
+    <section className="flex flex-col items-center justify-center min-h-screen px-6 bg-white">
+      <h1 className="text-4xl font-bold text-blue-900 text-center mt-12 mb-10">
+        Tentang PantauTular
+      </h1>
+
+      <div className="max-w-6xl mx-auto w-full flex flex-col items-center text-center mt-10 mb-10">
+        <p className="text-[525252]">
+          <strong className="italic">PantauTular</strong> adalah platform inovatif penyedia informasi sebaran penyakit menular di seluruh wilayah Indonesia. Bekerja sama dengan Badan Riset dan Inovasi Nasional (BRIN), PantauTular berkomitmen untuk menyajikan data yang akurat dan terkini tentang kondisi kesehatan masyarakat sehingga memungkinkan pengguna untuk memantau dan mengantisipasi penyebaran penyakit menular dengan lebih efektif.
+        </p>
+      </div>
+
+      <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mt-10 mb-16">
+        <div className="flex-1 flex justify-center">
+          <img src="/tentang_kami.jpeg" alt="PantauTular_tentang_kami" className="w-full max-w-md h-auto" />
+        </div>
+
+        <div className="flex-1 text-center md:text-left">
+          <h2 className="heading-primary">
+            Melalui <em>PantauTular</em>,
+          </h2>
+          <p className="paragraph-primary">
+            Pengguna dapat dengan mudah mengakses peta interaktif yang menampilkan titik-titik lokasi di mana penyakit menular telah terdeteksi. Informasi ini disajikan secara real-time, membantu individu, komunitas, serta pihak berwenang untuk mengambil tindakan pencegahan yang tepat, seperti isolasi diri, vaksinasi, atau langkah-langkah lain yang diperlukan untuk melindungi diri dan orang-orang terdekat.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto w-full flex flex-col items-center text-center mt-10 mb-10">
+        <h2 className="text-2xl font-bold mb-4">Kami memahami pentingnya</h2>
+        <p className="text-[525252]">
+          <strong className="italic">akses cepat dan mudah</strong> terhadap informasi kesehatan, terutama dalam situasi krisis. Oleh karena itu, PantauTular dirancang dengan <strong className="italic">antarmuka yang ramah pengguna</strong> dan <strong className="italic">dapat diakses melalui berbagai platform</strong>, termasuk web dan mobile, sehingga memungkinkan siapa pun untuk memanfaatkannya tanpa hambatan.
+        </p>
+      </div>
+
+      <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mb-20 mt-20">
+        <div className="flex-1 text-center md:text-right">
+          <h2 className="heading-primary">
+            Latar Belakang <em>PantauTular</em>
+          </h2>
+          <p className="paragraph-primary">
+            Pembuatan <strong className="italic"> PantauTular</strong> dipicu oleh kebutuhan akan sumber informasi yang handal dan terpercaya mengenai penyebaran penyakit menular di Indonesia. Kami menyadari bahwa dalam menghadapi ancaman kesehatan seperti pandemi atau wabah penyakit, informasi yang tepat waktu dan akurat dapat menjadi kunci untuk mengurangi risiko penularan dan meminimalkan dampak yang ditimbulkan.
+          </p>
+        </div>
+
+        <div className="flex-1 flex justify-center">
+          <img src="/latar_belakang.jpeg" alt="PantauTular_latarbelakang" className="w-full max-w-md h-auto" />
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto w-full flex flex-col items-center text-center mt-10 mb-20">
+        <h2 className="text-2xl font-bold mb-4">Dengan demikian,</h2>
+        <p className="text-[525252]">
+          kami mengumpulkan <strong className="italic">tim ahli dalam bidang kesehatan dan teknologi informasi</strong> untuk mengembangkan platform yang dapat memberikan solusi konkret bagi masyarakat Indonesia. Kami berkomitmen untuk menyediakan sumber informasi yang dapat diandalkan, mudah diakses, dan dapat dipahami oleh semua lapisan masyarakat, sehingga setiap individu dapat berperan aktif dalam menjaga kesehatan diri dan komunitasnya.
+        </p>
+        <p className="text-[525252] mt-3">
+        <strong className="italic">PantauTular menjadi wujud kolaborasi</strong> antara inovasi teknologi dan kepedulian terhadap kesehatan masyarakat, oleh karena itu diharapkan <strong className="italic">PantauTular dapat terus berkembang dan memberikan manfaat</strong> yang nyata bagi Indonesia.
+        </p>
+      </div>
+
+    </section>
+  );
+}

@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Home from "@/app/page";
+import Home from "../app/page";
+
+jest.mock("../styles/globals.css", () => ({}));
 
 describe("Home Page", () => {
   it("menampilkan judul utama", () => {
@@ -10,18 +12,23 @@ describe("Home Page", () => {
 
   it("menampilkan gambar utama", () => {
     render(<Home />);
-    const image = screen.getByAltText("PantauTular");
+    screen.debug(); 
+    const image = screen.getByAltText("PantauTular_home");
     expect(image).toBeInTheDocument();
   });
 
   it("menampilkan paragraf utama dengan BRIN", () => {
     render(<Home />);
-    expect(screen.getByText(/Bekerja sama dengan Badan Riset dan Inovasi Nasional/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Bekerja sama dengan Badan Riset dan Inovasi Nasional/i)
+    ).toBeInTheDocument();
   });
 
   it("tombol 'Gunakan Sekarang!' bisa ditemukan", () => {
     render(<Home />);
-    expect(screen.getByRole("button", { name: "Gunakan Sekarang!" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Gunakan Sekarang!" })
+    ).toBeInTheDocument();
   });
 
   it("menampilkan bagian 'Tentang Kami'", () => {
@@ -29,9 +36,11 @@ describe("Home Page", () => {
     expect(screen.getByText("Tentang Kami")).toBeInTheDocument();
   });
 
-  it("tombol 'Gunakan Sekarang!' bisa ditemukan", () => {
+  it("tombol 'Lihat Sekarang' bisa ditemukan", () => {
     render(<Home />);
-    expect(screen.getByRole("button", { name: "Lihat Sekarang" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Lihat Sekarang" })
+    ).toBeInTheDocument();
   });
 
   it("menampilkan bagian 'Bantuan'", () => {
@@ -39,24 +48,22 @@ describe("Home Page", () => {
     expect(screen.getByText("Bantuan")).toBeInTheDocument();
   });
 
-  it("tombol 'Gunakan Sekarang!' bisa ditemukan", () => {
+  it("tombol 'Baca Selengkapnya' bisa ditemukan", () => {
     render(<Home />);
-    expect(screen.getByRole("button", { name: "Baca selengkapnya" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Baca Selengkapnya" })
+    ).toBeInTheDocument();
   });
 
   it("tidak menampilkan elemen dengan teks yang salah", () => {
     render(<Home />);
-    expect(screen.queryByText("Selamat Datang di Fasilkom-C02!"))
-      .not.toBeInTheDocument();
-    expect(screen.queryByText("Pusat Informasi Penyakit"))
-      .not.toBeInTheDocument();
+    expect(screen.queryByText("Selamat Datang di Fasilkom-C02!")).not.toBeInTheDocument();
+    expect(screen.queryByText("Pusat Informasi Penyakit")).not.toBeInTheDocument();
   });
 
   it("tidak menampilkan tombol yang tidak ada di halaman", () => {
     render(<Home />);
-    expect(screen.queryByRole("button", { name: "Mulai Sekarang" }))
-      .not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Daftar" }))
-      .not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Mulai Sekarang" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Daftar" })).not.toBeInTheDocument();
   });
 });

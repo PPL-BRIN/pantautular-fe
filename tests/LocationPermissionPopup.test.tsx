@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import LocationPermissionPopup from "../app/components/LocationPermissionPopup";
+import LocationPermissionPopup from "../app/components/LocationPermissionPopUp";
 
 describe("LocationPermissionPopup", () => {
   test("tidak menampilkan popup saat 'open' adalah 'false'", () => {

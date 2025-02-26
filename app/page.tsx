@@ -33,7 +33,47 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mb-20">
+        <div className="max-w-3xl mx-auto w-full flex flex-col items-center text-center mt-20">
+          <h2 className="heading-primary">Mengapa PantauTular?</h2>
+          <p className="paragraph-primary">
+            <strong className="italic">PantauTular</strong> memberikan beberapa keuntungan menarik dalam pengaksesan informasi 
+            sebaran penyakit menular di seluruh jangkauan wilayah Indonesia, lho!
+          </p>
+        </div>
+
+        <div className="relative w-full h-auto">
+
+        <div className="bg-gradient-to-br from-green-100/30 to-transparent w-full h-1/2 absolute top-0 left-0 z-0"></div> 
+
+
+        <div className="relative w-full h-auto grid grid-cols-1 md:grid-cols-3 gap-4 p-6 z-10 max-w-7xl mx-auto">
+          <div className="text-left mx-auto w-3/4 md:w-[350px]">
+            <h3 className="text-2xl font-bold mb-2">Akses Mudah dan Cepat</h3>
+            <p className="text-gray-700 text-justify text-base">
+              Akses serbaguna baik bagi masyarakat umum maupun profesional kesehatan dalam
+              <em> memperoleh informasi yang dibutuhkan dengan cepat.</em>
+            </p>
+          </div>
+
+          <div className="text-left mx-auto w-3/4 md:w-[350px]">
+            <h3 className="text-2xl font-bold mb-2">Data Akurat dan Terkini</h3>
+            <p className="text-gray-700 text-justify text-base">
+              <em>Menyajikan data aktual yang dapat diandalkan</em> untuk membantu proses
+              pengambilan tindakan pencegahan yang tepat terhadap penyakit menular.
+            </p>
+          </div>
+
+          <div className="text-left mx-auto w-3/4 md:w-[350px]">
+            <h3 className="text-2xl font-bold mb-2">Pemantauan Efektif</h3>
+            <p className="text-gray-700 text-justify text-base">
+              Menyediakan <em>beragam fitur dan peta interaktif</em> yang memungkinkan pengguna
+              mengetahui kondisi di wilayah Indonesia secara lebih mendalam.
+            </p>
+          </div>
+        </div>
+      </div>
+
+        <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mb-20 mt-20">
           <div className="flex-1 text-center md:text-right">
             <h2 className="heading-primary">
               Tentang Kami

@@ -1,3 +1,6 @@
+import BackgroundCircle from "@/components/BackgroundCircle";
+import SectionContainer from "@/components/SectionContainer";
+
 export default function About() {
   return (
     <section className="flex flex-col items-center justify-center min-h-screen px-6 bg-white">
@@ -5,11 +8,11 @@ export default function About() {
         Tentang PantauTular
       </h1>
 
-      <div className="max-w-6xl mx-auto w-full flex flex-col items-center text-center mt-10 mb-10">
+      <SectionContainer className="text-center mt-10 mb-10">
         <p className="text-[525252]">
           <strong className="italic">PantauTular</strong> adalah platform inovatif penyedia informasi sebaran penyakit menular di seluruh wilayah Indonesia. Bekerja sama dengan Badan Riset dan Inovasi Nasional (BRIN), PantauTular berkomitmen untuk menyajikan data yang akurat dan terkini tentang kondisi kesehatan masyarakat sehingga memungkinkan pengguna untuk memantau dan mengantisipasi penyebaran penyakit menular dengan lebih efektif.
         </p>
-      </div>
+      </SectionContainer>
 
       <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mt-10 mb-16">
         <div className="flex-1 flex justify-center">
@@ -26,13 +29,13 @@ export default function About() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto w-full flex flex-col items-center text-center mt-10 mb-10 relative">
-        <div className="absolute left-1/2 top-[-30px] transform -translate-x-1/2 w-[520px] h-[200px] bg-[#E3EFE8] rounded-full blur-2xl z-0"></div>
+      <SectionContainer className="flex flex-col text-center mt-10 mb-10 relative">
+        <BackgroundCircle size={{ width: "720px", height: "200px" }} position="left-1/2"/>        
         <h2 className="text-2xl font-bold mb-4 z-10">Kami memahami pentingnya</h2>
         <p className="raltive text-[525252] z-10">
           <strong className="italic">akses cepat dan mudah</strong> terhadap informasi kesehatan, terutama dalam situasi krisis. Oleh karena itu, PantauTular dirancang dengan <strong className="italic">antarmuka yang ramah pengguna</strong> dan <strong className="italic">dapat diakses melalui berbagai platform</strong>, termasuk web dan mobile, sehingga memungkinkan siapa pun untuk memanfaatkannya tanpa hambatan.
         </p>
-      </div>
+      </SectionContainer>
 
       <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mb-20 mt-20">
         <div className="flex-1 text-center md:text-right">
@@ -49,17 +52,17 @@ export default function About() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto w-full flex flex-col items-center text-center mt-10 mb-20">
+      <SectionContainer className="flex flex-col text-center mt-10 mb-20">
         <h2 className="text-2xl font-bold mb-4 z-10">Dengan demikian,</h2>
-        <div className="absolute left-1/10 transform -translate-x-1/2 w-[400px] h-[200px] bg-[#E3EFE8] rounded-full blur-2xl z-0"></div>
-        <div className="absolute left-3/4 transform -translate-x-3/4 w-[400px] h-[100px] bg-[#E3EFE8] rounded-full blur-2xl z-0"></div>
+        <BackgroundCircle size={{ width: "400px", height: "200px" }} position="left-1/10"/>
+        <BackgroundCircle size={{ width: "400px", height: "100px" }} position="left-3/4"/>
         <p className="text-[525252] z-10">
           kami mengumpulkan <strong className="italic">tim ahli dalam bidang kesehatan dan teknologi informasi</strong> untuk mengembangkan platform yang dapat memberikan solusi konkret bagi masyarakat Indonesia. Kami berkomitmen untuk menyediakan sumber informasi yang dapat diandalkan, mudah diakses, dan dapat dipahami oleh semua lapisan masyarakat, sehingga setiap individu dapat berperan aktif dalam menjaga kesehatan diri dan komunitasnya.
         </p>
         <p className="text-[525252] mt-3 z-10">
         <strong className="italic">PantauTular menjadi wujud kolaborasi</strong> antara inovasi teknologi dan kepedulian terhadap kesehatan masyarakat, oleh karena itu diharapkan <strong className="italic">PantauTular dapat terus berkembang dan memberikan manfaat</strong> yang nyata bagi Indonesia.
         </p>
-      </div>
+      </SectionContainer>
 
     </section>
   );

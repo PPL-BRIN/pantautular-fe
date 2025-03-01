@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function AboutSection() {
   return (
-    <section className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mb-20 mt-20">
+    <section className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mb-20 mt-40">
       <div className="flex-1 text-center md:text-right">
         <h2 className="heading-primary">Tentang Kami</h2>
         <p className="paragraph-primary">

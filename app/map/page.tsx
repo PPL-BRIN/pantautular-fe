@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react"
 import * as am5 from "@amcharts/amcharts5"
 import * as am5map from "@amcharts/amcharts5/map"
-import am5geodata_indonesiaHigh from "@amcharts/amcharts5-geodata/indonesiaHigh"
+import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow"
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated"
 
 export default function IndonesiaMap() {
@@ -32,7 +32,7 @@ export default function IndonesiaMap() {
   
       const polygonSeries = chart.series.push(
         am5map.MapPolygonSeries.new(root, {
-          geoJSON: am5geodata_indonesiaHigh,
+          geoJSON: am5geodata_indonesiaLow,
           exclude: ["MY-12", "MY-13", "BN", "TL"],
         })
       );

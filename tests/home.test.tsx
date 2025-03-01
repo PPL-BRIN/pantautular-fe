@@ -62,4 +62,29 @@ describe("Home Page", () => {
     expect(screen.queryByRole("button", { name: "Mulai Sekarang" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Daftar" })).not.toBeInTheDocument();
   });
+
+  it("menampilkan tiga gambar dalam MapGallery", () => {
+    const images = [
+      "Peta Sebaran 1",
+      "Peta Sebaran 2",
+      "Peta Sebaran 3"
+    ];
+
+    images.forEach((altText) => {
+      expect(screen.getByAltText(altText)).toBeInTheDocument();
+    });
+  });
+
+  it("tidak menampilkan gambar yang tidak seharusnya ada", () => {
+    const nonExistentImages = [
+      "Peta Sebaran 200",
+      "Peta Sebaran Tidak Ada",
+      "Peta Dummy"
+    ];
+  
+    nonExistentImages.forEach((altText) => {
+      expect(screen.queryByAltText(altText)).not.toBeInTheDocument();
+    });
+  });
+  
 });

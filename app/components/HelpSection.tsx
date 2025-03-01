@@ -16,7 +16,10 @@ export default function HelpSection() {
           menular berdasarkan nama penyakit, lokasi, sumber berita, tanggal 
           kejadian, tingkat kewaspaan, dan masih banyak lagi!
         </p>
-        <ButtonWithArrow>Baca Selengkapnya</ButtonWithArrow>
+        <div className="mt-4 flex justify-start">
+        <ButtonWithArrow href="/help">Baca Sekarang</ButtonWithArrow>
+        </div>
+        
       </div>
     </section>
   );

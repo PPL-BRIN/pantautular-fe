@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ButtonBase from "@/components/ButtonBase";
 
 export default function HeroSection() {
   return (
@@ -23,7 +24,7 @@ export default function HeroSection() {
             memungkinkan pengguna untuk memantau dan mengantisipasi 
             penyebaran penyakit menular dengan lebih efektif.
           </p>
-          <button className="button-primary">Gunakan Sekarang!</button>
+          <ButtonBase href="/">Gunakan Sekarang!</ButtonBase>
         </div>
       </div>
     </section>

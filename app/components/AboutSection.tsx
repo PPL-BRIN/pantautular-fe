@@ -11,8 +11,9 @@ export default function AboutSection() {
           mewujudkan pemantauan serta pencegahan berdasarkan kondisi penyakit menular di wilayah Indonesia, yuk!
         </p>
         <div className="mt-4 flex justify-end">
-          <ButtonWithArrow>Lihat Sekarang</ButtonWithArrow>
+        <ButtonWithArrow href="/about">Lihat Sekarang</ButtonWithArrow>
         </div>
+
       </div>
 
       <div className="flex-1 flex justify-center">

@@ -33,7 +33,7 @@ jest.mock("@amcharts/amcharts5/map", () => ({
   geoMercator: jest.fn(),
 }));
 
-jest.mock("@amcharts/amcharts5-geodata/indonesiaHigh", () => jest.fn());
+jest.mock("@amcharts/amcharts5-geodata/indonesiaLow", () => jest.fn());
 jest.mock("@amcharts/amcharts5/themes/Animated", () => ({ new: jest.fn() }));
 
 describe("IndonesiaMap Component", () => {
@@ -41,4 +41,4 @@ describe("IndonesiaMap Component", () => {
     render(<IndonesiaMap />);
     expect(await screen.getByTestId("chartdiv")).toBeInTheDocument();
   });
-});
+}); 

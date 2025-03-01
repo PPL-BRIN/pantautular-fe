@@ -8,6 +8,11 @@ const mockOnAllow = jest.fn();
 const mockOnDeny = jest.fn();
 
 describe("LocationPermissionPopup", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+
   test("tidak menampilkan popup saat 'open' adalah 'false'", () => {
     render(
       <LocationPermissionPopup
@@ -73,6 +78,36 @@ describe("LocationPermissionPopup", () => {
 
     expect(mockOnClose).toHaveBeenCalled();
     expect(mockOnAllow).toHaveBeenCalled();
+  });
+
+  test("mengembalikan null ketika popup tidak terbuka", () => {
+    render(
+      <LocationPermissionPopup
+        open={false}
+        onClose={mockOnClose}
+        onAllow={mockOnAllow}
+        onDeny={mockOnDeny}
+      />
+    );
+
+    const overlayElement = screen.queryByText(/Lokasi Diperlukan/i);
+    expect(overlayElement).toBeNull();
+  });
+
+  test("mengembalikan null ketika izin sudah diberikan", () => {
+    localStorage.setItem("locationPermission", "granted");
+
+    render(
+      <LocationPermissionPopup
+        open={true}
+        onClose={mockOnClose}
+        onAllow={mockOnAllow}
+        onDeny={mockOnDeny}
+      />
+    );
+
+    const overlayElement = screen.queryByText(/Lokasi Diperlukan/i);
+    expect(overlayElement).toBeNull();
   });
 
 });

@@ -49,7 +49,7 @@ const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({ open,
 
   if (!open || permissionGranted) return null; // Jika sudah diizinkan, tidak tampilkan popup lagi
 
-  return open ? (
+  return (
     <Overlay>
       <Modal>
         <WarningHeader>Lokasi Diperlukan</WarningHeader>
@@ -60,7 +60,7 @@ const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({ open,
         </ButtonContainer>
       </Modal>
     </Overlay>
-  ) : null;
+  );
 };
 
 export default LocationPermissionPopup;

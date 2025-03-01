@@ -17,7 +17,7 @@ export default function HelpSection() {
           kejadian, tingkat kewaspaan, dan masih banyak lagi!
         </p>
         <div className="mt-4 flex justify-start">
-        <ButtonWithArrow href="/help">Baca Sekarang</ButtonWithArrow>
+        <ButtonWithArrow href="/help">Baca Selengkapnya</ButtonWithArrow>
         </div>
         
       </div>

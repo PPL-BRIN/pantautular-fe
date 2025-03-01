@@ -32,7 +32,7 @@ describe("Home Page", () => {
       screen.getByRole("button", { name: "Gunakan Sekarang!" })
     ).toBeInTheDocument();
   });
-
+  
   it("menampilkan bagian 'Tentang Kami'", () => {
     expect(screen.getByText("Tentang Kami")).toBeInTheDocument();
   });

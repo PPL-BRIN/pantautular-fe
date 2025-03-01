@@ -8,7 +8,7 @@ interface ButtonBaseProps {
 
 export default function ButtonBase({ children, href, className = "" }: ButtonBaseProps) {
   return (
-    <Link href={href} className={`button-primary ${className}`}>
+    <Link href={href} role="button" className={`button-primary ${className}`}>
       {children}
     </Link>
   );

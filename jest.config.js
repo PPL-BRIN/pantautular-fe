@@ -6,7 +6,7 @@ module.exports = {
   },
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-    "^@amcharts/amcharts5$": "<rootDir>/__mocks__/amcharts5.js",
+    "^@amcharts/amcharts5$": "<rootDir>/__mocks__/@amcharts/amcharts5.js",
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 };

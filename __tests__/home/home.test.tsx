@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Home from "../app/page";
+import Home from "../../app/page";
 
-jest.mock("../app/layout", () => ({
+jest.mock("../../app/layout", () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

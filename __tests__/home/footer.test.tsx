@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Footer from "../app/components/Footer";
+import Footer from "../../app/components/Footer";
 
 describe("Footer Component", () => {
   it("menampilkan judul 'Saluran Bantuan'", () => {

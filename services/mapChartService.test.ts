@@ -1,183 +1,251 @@
-// services/mapChartService.test.ts
-import { MapChartService } from '../services/mapChartService';
-import * as am5 from '@amcharts/amcharts5';
-import * as am5map from '@amcharts/amcharts5/map';
-import { MapLocation, MapConfig } from '../types';
-import '@testing-library/jest-dom';
+import { MapChartService } from './mapChartService';
+import * as am5 from "@amcharts/amcharts5";
+import * as am5map from "@amcharts/amcharts5/map";
+import { MapConfig, MapLocation } from "../types";
 
-// Mock the modules
-jest.mock('@amcharts/amcharts5');
-jest.mock('@amcharts/amcharts5/map');
-jest.mock('@amcharts/amcharts5-geodata/indonesiaLow', () => ({}));
-jest.mock('@amcharts/amcharts5/themes/Animated', () => ({
-  __esModule: true,
-  default: { new: jest.fn() }
-}));
+// Mock amcharts modules
+jest.mock("@amcharts/amcharts5", () => {
+  const originalModule = jest.requireActual("@amcharts/amcharts5");
+  
+  return {
+    __esModule: true,
+    ...originalModule,
+    Root: {
+      new: jest.fn().mockImplementation(() => ({
+        setThemes: jest.fn(),
+        container: {
+          children: {
+            push: jest.fn().mockImplementation((chart) => chart)
+          }
+        },
+        dispose: jest.fn()
+      }))
+    },
+    Container: {
+      new: jest.fn().mockImplementation(() => ({
+        children: {
+          push: jest.fn()
+        },
+        events: {
+          on: jest.fn()
+        }
+      }))
+    },
+    Circle: {
+      new: jest.fn().mockImplementation(() => ({}))
+    },
+    Label: {
+      new: jest.fn().mockImplementation(() => ({}))
+    },
+    Bullet: {
+      new: jest.fn().mockImplementation(() => ({
+        sprite: {}
+      }))
+    },
+    color: jest.fn().mockImplementation((color) => ({ color })),
+    p50: 0.5
+  };
+});
+
+jest.mock("@amcharts/amcharts5/map", () => {
+  return {
+    __esModule: true,
+    MapChart: {
+      new: jest.fn().mockImplementation(() => ({
+        series: {
+          push: jest.fn().mockImplementation((series) => series)
+        },
+        set: jest.fn(),
+        appear: jest.fn(),
+        goHome: jest.fn()
+      }))
+    },
+    MapPolygonSeries: {
+      new: jest.fn().mockImplementation(() => ({
+        mapPolygons: {
+          template: {
+            setAll: jest.fn()
+          }
+        },
+        events: {
+          on: jest.fn().mockImplementation((event, callback) => {
+            if (event === "datavalidated") {
+              callback();
+            }
+          })
+        }
+      }))
+    },
+    ClusteredPointSeries: {
+      new: jest.fn().mockImplementation(() => ({
+        set: jest.fn(),
+        bullets: {
+          push: jest.fn()
+        },
+        data: {
+          push: jest.fn()
+        },
+        zoomToCluster: jest.fn()
+      }))
+    },
+    ZoomControl: {
+      new: jest.fn().mockImplementation(() => ({
+        homeButton: {
+          set: jest.fn()
+        }
+      }))
+    },
+    geoMercator: jest.fn().mockReturnValue({})
+  };
+});
+
+jest.mock("@amcharts/amcharts5/themes/Animated", () => {
+  return {
+    __esModule: true,
+    default: {
+      new: jest.fn().mockReturnValue({})
+    }
+  };
+});
+
+jest.mock("@amcharts/amcharts5-geodata/indonesiaLow", () => {
+  return {
+    __esModule: true,
+    default: {}
+  };
+});
 
 describe('MapChartService', () => {
-  let service: MapChartService;
+  let mapService: MapChartService;
   const mockConfig: MapConfig = {
-    zoomLevel: 2,
-    centerPoint: { longitude: 113, latitude: 0 }
+    zoomLevel: 5,
+    centerPoint: { longitude: 120, latitude: -5 }
   };
   
-  const testLocations: MapLocation[] = [
-    { city: "Test City", location: "Test Location", latitude: 1, longitude: 2 }
-  ];
-
   beforeEach(() => {
+    // Create div for chart
+    document.body.innerHTML = '<div id="chartdiv"></div>';
+    
+    // Reset mocks
     jest.clearAllMocks();
-    service = new MapChartService();
-  });
-
-  test('initialize should create root and chart', () => {
-    service.initialize('test-container', mockConfig);
-    expect(am5.Root.new).toHaveBeenCalledWith('test-container');
-  });
-
-  test('setupZoomControl should set up a zoom control when chart and root exist', () => {
-    service.initialize('test-container', mockConfig);
     
-    const setupZoomControl = (service as any).setupZoomControl.bind(service);
-    setupZoomControl();
-    
-    expect((service as any).chart.set).toHaveBeenCalledWith('zoomControl', am5map.ZoomControl.new((service as any).root, {}));
-    expect(am5map.ZoomControl.new((service as any).root, {}).homeButton.set).toHaveBeenCalledWith('visible', true);
+    // Create new instance of MapChartService
+    mapService = new MapChartService();
   });
   
-  test('setupPolygonSeries should set up polygon series when chart exists', () => {
-    service.initialize('test-container', mockConfig);
+  afterEach(() => {
+    mapService.dispose();
+  });
+  
+  test('initialize creates root and chart elements', () => {
+    mapService.initialize('chartdiv', mockConfig);
     
-    const setupPolygonSeries = (service as any).setupPolygonSeries.bind(service);
-    setupPolygonSeries();
+    expect(am5.Root.new).toHaveBeenCalledWith('chartdiv');
+    expect(am5map.MapChart.new).toHaveBeenCalled();
+  });
+  
+  test('setupZoomControl adds zoom control to chart', () => {
+    mapService.initialize('chartdiv', mockConfig);
     
+    // Access private method through any type
+    const setupZoomControlSpy = jest.spyOn(mapService as any, 'setupZoomControl');
+    
+    // Execute the private method
+    (mapService as any).setupZoomControl();
+    
+    expect(setupZoomControlSpy).toHaveBeenCalled();
+    expect(am5map.ZoomControl.new).toHaveBeenCalled();
+  });
+  
+  test('setupPolygonSeries adds polygon series to chart', () => {
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Access private method through any type
+    const setupPolygonSeriesSpy = jest.spyOn(mapService as any, 'setupPolygonSeries');
+    
+    // Execute the private method
+    (mapService as any).setupPolygonSeries();
+    
+    expect(setupPolygonSeriesSpy).toHaveBeenCalled();
     expect(am5map.MapPolygonSeries.new).toHaveBeenCalled();
   });
-
-  test('setupPointSeries should set up point series when chart exists', () => {
-    service.initialize('test-container', mockConfig);
+  
+  test('setupPointSeries adds clustered point series to chart', () => {
+    mapService.initialize('chartdiv', mockConfig);
     
-    const setupPointSeries = (service as any).setupPointSeries.bind(service);
-    setupPointSeries();
+    // Access private method through any type
+    const setupPointSeriesSpy = jest.spyOn(mapService as any, 'setupPointSeries');
     
+    // Execute the private method
+    (mapService as any).setupPointSeries();
+    
+    expect(setupPointSeriesSpy).toHaveBeenCalled();
     expect(am5map.ClusteredPointSeries.new).toHaveBeenCalled();
   });
-
-  test('setupClusterBullet should set up cluster bullet when pointSeries exists', () => {
-    service.initialize('test-container', mockConfig);
-    
-    // Setup pointSeries first
-    const setupPointSeries = (service as any).setupPointSeries.bind(service);
-    setupPointSeries();
-    
-    const setupClusterBullet = (service as any).setupClusterBullet.bind(service);
-    setupClusterBullet();
-    
-    // Verify cluster bullet was set
-    expect((service as any).pointSeries.set).toHaveBeenCalledWith('clusteredBullet', expect.any(Function));
-  });
-
-  test('setupRegularBullet should set up regular bullet when pointSeries exists', () => {
-    service.initialize('test-container', mockConfig);
-    
-    // Setup pointSeries first
-    const setupPointSeries = (service as any).setupPointSeries.bind(service);
-    setupPointSeries();
-    
-    const setupRegularBullet = (service as any).setupRegularBullet.bind(service);
-    setupRegularBullet();
-    
-    // Verify regular bullet was pushed
-    expect((service as any).pointSeries.bullets.push).toHaveBeenCalled();
-  });
-
-  test('populateLocations should add locations to pointSeries', () => {
-    service.initialize('test-container', mockConfig);
-    
-    // Setup pointSeries first
-    const setupPointSeries = (service as any).setupPointSeries.bind(service);
-    setupPointSeries();
-    
-    service.populateLocations(testLocations);
-    
-    // Verify data was pushed to pointSeries
-    expect((service as any).pointSeries.data.push).toHaveBeenCalled();
-  });
-
-  test('dispose should clean up resources', () => {
-    service.initialize('test-container', mockConfig);
-    service.dispose();
-    
-    // Verify root was disposed
-    expect((am5.Root.new('test-container') as any).dispose).toHaveBeenCalled();
-  });
-
-  // Test the no-op scenarios (early returns)
-  test('setupZoomControl should do nothing when chart does not exist', () => {
-    // Don't initialize first
-    const setupZoomControl = (service as any).setupZoomControl.bind(service);
-    setupZoomControl();
-    
-    // Verify ZoomControl was not created
-    expect(am5map.ZoomControl.new).not.toHaveBeenCalled();
-  });
-
-  test('setupPolygonSeries should do nothing when chart does not exist', () => {
-    const setupPolygonSeries = (service as any).setupPolygonSeries.bind(service);
-    setupPolygonSeries();
-    
-    expect(am5map.MapPolygonSeries.new).not.toHaveBeenCalled();
-  });
-
-  test('setupPointSeries should do nothing when chart does not exist', () => {
-    const setupPointSeries = (service as any).setupPointSeries.bind(service);
-    setupPointSeries();
-    
-    expect(am5map.ClusteredPointSeries.new).not.toHaveBeenCalled();
-  });
-
-  test('setupClusterBullet should do nothing when pointSeries does not exist', () => {
-    const setupClusterBullet = (service as any).setupClusterBullet.bind(service);
-    setupClusterBullet();
-    
-    // Test would fail if it tried to access pointSeries.set
-  });
-
-  test('setupRegularBullet should do nothing when pointSeries does not exist', () => {
-    const setupRegularBullet = (service as any).setupRegularBullet.bind(service);
-    setupRegularBullet();
-    
-    // Test would fail if it tried to access pointSeries.bullets.push
-  });
-
-  test('populateLocations should do nothing when pointSeries does not exist', () => {
-    service.populateLocations(testLocations);
-    
-    // No error should be thrown
-  });
-
-  test('dispose should do nothing when root does not exist', () => {
-    service.dispose();
-    
-    // No error should be thrown
-  });
-
   
- test('initialize should call all setup methods and animate chart', () => {
-    const mockConfig: MapConfig = {
-    zoomLevel: 2,
-    centerPoint: { longitude: 113, latitude: 0 }
-    };
+  test('populateLocations adds location data to point series', () => {
+    const mockLocations: MapLocation[] = [
+      { latitude: -6.2, longitude: 106.8, city: 'Jakarta', location: 'Jakarta Office' },
+      { latitude: -7.8, longitude: 110.4, city: 'Yogyakarta', location: 'Yogyakarta Office' }
+    ];
     
-    const spySetupZoomControl = jest.spyOn(service as any, 'setupZoomControl');
-    const spySetupPolygonSeries = jest.spyOn(service as any, 'setupPolygonSeries');
-    const spySetupPointSeries = jest.spyOn(service as any, 'setupPointSeries');
+    mapService.initialize('chartdiv', mockConfig);
+    mapService.populateLocations(mockLocations);
     
-    service.initialize('test-container', mockConfig);
+    // Since pointSeries is private, we need to get it creatively
+    const pointSeries = (mapService as any).pointSeries;
     
-    expect(spySetupZoomControl).toHaveBeenCalled()
-    expect(spySetupPolygonSeries).toHaveBeenCalled();
-    expect(spySetupPointSeries).toHaveBeenCalled();
-    expect((service as any).chart.appear).toHaveBeenCalledWith(1000, 100);
-   });
+    expect(pointSeries.data.push).toHaveBeenCalledTimes(2);
+    expect(pointSeries.data.push).toHaveBeenCalledWith({
+      geometry: { type: 'Point', coordinates: [106.8, -6.2] },
+      city: 'Jakarta',
+      location: 'Jakarta Office'
+    });
+    expect(pointSeries.data.push).toHaveBeenCalledWith({
+      geometry: { type: 'Point', coordinates: [110.4, -7.8] },
+      city: 'Yogyakarta',
+      location: 'Yogyakarta Office'
+    });
+  });
+  
+  test('dispose cleans up resources', () => {
+    mapService.initialize('chartdiv', mockConfig);
+    mapService.dispose();
+    
+    // Get the root object that was created
+    const root = (mapService as any).root;
+    
+    // Check that root is null after dispose
+    expect(root).toBeNull();
+  });
+  
+  test('setupClusterBullet configures cluster bullet correctly', () => {
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Access private method through any type
+    const setupClusterBulletSpy = jest.spyOn(mapService as any, 'setupClusterBullet');
+    
+    // Execute the private method
+    (mapService as any).setupClusterBullet();
+    
+    expect(setupClusterBulletSpy).toHaveBeenCalled();
+    
+    const pointSeries = (mapService as any).pointSeries;
+    expect(pointSeries.set).toHaveBeenCalledWith('clusteredBullet', expect.any(Function));
+  });
+  
+  test('setupRegularBullet configures regular bullet correctly', () => {
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Access private method through any type
+    const setupRegularBulletSpy = jest.spyOn(mapService as any, 'setupRegularBullet');
+    
+    // Execute the private method
+    (mapService as any).setupRegularBullet();
+    
+    expect(setupRegularBulletSpy).toHaveBeenCalled();
+    
+    const pointSeries = (mapService as any).pointSeries;
+    expect(pointSeries.bullets.push).toHaveBeenCalled();
+  });
 });

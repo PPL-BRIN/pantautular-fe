@@ -3,15 +3,16 @@ import * as am5map from "@amcharts/amcharts5/map";
 import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import { MapLocation, MapConfig } from "../types";
-import { console } from "inspector";
 
 export class MapChartService {
   private root: am5.Root | null = null;
   private chart: am5map.MapChart | null = null;
   private pointSeries: am5map.ClusteredPointSeries | null = null;
-
+ 
   initialize(containerId: string, config: MapConfig): void {
     // Create root element
+    // if (!am5.Root) return;
+
     this.root = am5.Root.new(containerId);
     this.root.setThemes([am5themes_Animated.new(this.root)]);
 
@@ -26,8 +27,6 @@ export class MapChartService {
       })
     );
 
-    if (!this.chart) return;
-
     // Add zoom control
     this.setupZoomControl();
     
@@ -39,14 +38,16 @@ export class MapChartService {
     
     // Animate chart appearance
     this.chart.appear(1000, 100);
+
   }
 
   private setupZoomControl(): void {
     if (!this.chart || !this.root) return;
     
-    console.log('zoom control')
     let zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(this.root, {}));
-    zoomControl.homeButton.set("visible", true);
+    if (zoomControl?.homeButton) {
+        zoomControl.homeButton.set("visible", true);
+    }
   }
 
   private setupPolygonSeries(): void {

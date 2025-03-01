@@ -23,7 +23,7 @@ describe('IndonesiaMap', () => {
     
     const container = screen.getByTestId('map-container');
     expect(container).toBeInTheDocument();
-    expect(container).toHaveAttribute('id', 'indonesia-map-container');
+    expect(container).toHaveAttribute('id', 'chartdiv');
     expect(container).toHaveStyle({
       width: '100%',
       height: '550px'
@@ -31,7 +31,7 @@ describe('IndonesiaMap', () => {
     
     // Verify hook was called with defaults
     expect(useIndonesiaMap).toHaveBeenCalledWith(
-      'indonesia-map-container',
+      'chartdiv',
       mockLocations,
       expect.objectContaining({
         zoomLevel: 2,
@@ -63,7 +63,7 @@ describe('IndonesiaMap', () => {
     
     // Verify hook was called with custom config
     expect(useIndonesiaMap).toHaveBeenCalledWith(
-      'indonesia-map-container',
+      'chartdiv',
       mockLocations,
       expect.objectContaining({
         zoomLevel: 5,
@@ -85,7 +85,7 @@ describe('IndonesiaMap', () => {
     
     // Verify hook was called with merged config
     expect(useIndonesiaMap).toHaveBeenCalledWith(
-      'indonesia-map-container',
+      'chartdiv',
       mockLocations,
       expect.objectContaining({
         zoomLevel: 3,

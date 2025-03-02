@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
-
-const LOCATION_PERMISSION_KEY = "locationPermission";
+import { ILocationPermissionService } from "../services/LocationPermissionService";
 
 export const useLocationPermission = (
   open: boolean,
   onAllow: () => void,
-  onClose: () => void
+  onClose: () => void,
+  permissionService: ILocationPermissionService
 ) => {
   const [permissionGranted, setPermissionGranted] = useState(false);
 
   useEffect(() => {
     if (open) {
-      const storedPermission = localStorage.getItem(LOCATION_PERMISSION_KEY);
+      const storedPermission = permissionService.getPermission();
       if (storedPermission === "granted") {
         setPermissionGranted(true);
         onClose();
         onAllow();
       }
     }
-  }, [open, onAllow, onClose]);
+  }, [open, onAllow, onClose, permissionService]);
 
   const allowPermission = () => {
-    localStorage.setItem(LOCATION_PERMISSION_KEY, "granted");
+    permissionService.setPermission("granted");
     setPermissionGranted(true);
     onAllow();
     onClose();

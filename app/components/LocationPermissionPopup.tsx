@@ -8,6 +8,7 @@ import {
   Button 
 } from "../../styles/LocationPermissionPopup.styles";
 import { useLocationPermission } from "../../hooks/useLocationPermission";
+import { LocalStoragePermissionService } from "../../services/LocationPermissionService";
 
 interface LocationPermissionPopupProps {
   open: boolean;
@@ -16,8 +17,12 @@ interface LocationPermissionPopupProps {
   onDeny: () => void;
 }
 
+// Inisialisasi service untuk penyimpanan izin lokasi
+const permissionService = new LocalStoragePermissionService();
+
 const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({ open, onClose, onAllow, onDeny }) => {
-  const { permissionGranted, allowPermission, denyPermission } = useLocationPermission(open, onAllow, onClose);
+  // Gunakan custom hook untuk mengelola izin lokasi
+  const { permissionGranted, allowPermission, denyPermission } = useLocationPermission(open, onAllow, onClose, permissionService);
 
   if (!open || permissionGranted) return null;
 

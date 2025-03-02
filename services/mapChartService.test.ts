@@ -172,6 +172,32 @@ describe('MapChartService', () => {
     expect(am5.Root.new).toHaveBeenCalledWith('chartdiv');
     expect(am5map.MapChart.new).toHaveBeenCalled();
   });
+
+  test('initialize applies correct chart settings', () => {
+    // Setup
+    const customConfig: MapConfig = {
+      zoomLevel: 10,
+      centerPoint: { longitude: 130, latitude: -8 }
+    };
+    
+    // Execute
+    mapService.initialize('chartdiv', customConfig);
+    
+    // Verify
+    expect(am5map.MapChart.new).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      homeZoomLevel: 10,
+      homeGeoPoint: { longitude: 130, latitude: -8 }
+    }));
+  });
+  
+  test('initialize applies animated theme', () => {
+    // Execute
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Verify
+    const root = (mapService as any).root;
+    expect(root.setThemes).toHaveBeenCalled();
+  });
   
   test("setupZoomControl should return early if chart or root is null", () => {
     // Spy on the method to check if it executes fully
@@ -189,17 +215,11 @@ describe('MapChartService', () => {
   });
 
   test('setupZoomControl adds zoom control to chart', () => {
+    // Execute
     mapService.initialize('chartdiv', mockConfig);
     
-    // Access private method through any type
-    const setupZoomControlSpy = jest.spyOn(mapService as any, 'setupZoomControl');
-    
-    // Execute the private method
-    (mapService as any).setupZoomControl();
-    
-    expect(setupZoomControlSpy).toHaveBeenCalled();
+    // Verify that ZoomControl was created during initialization
     expect(am5map.ZoomControl.new).toHaveBeenCalled();
-
     const zoomControlSet = am5map.ZoomControl.new((mapService as any).root, {}).homeButton?.set;
     
     // Verify it was called with the correct parameters
@@ -308,6 +328,78 @@ describe('MapChartService', () => {
       city: 'Yogyakarta',
       location: 'Yogyakarta Office'
     });
+  });
+
+  test('populateLocations with invalid data should not break chart', () => {
+    // Setup
+    mapService.initialize('chartdiv', mockConfig);
+    const pointSeries = (mapService as any).pointSeries;
+
+    // Execute with invalid data (null values)
+    const invalidLocations = [
+    { latitude: null, longitude: 106.8, city: 'Jakarta', location: 'Jakarta Office' },
+    { latitude: -6.2, longitude: null, city: 'Invalid', location: 'Invalid Office' },
+    { latitude: -6.2, longitude: 106.8, city: null, location: 'No City' }
+    ];
+
+    // @ts-ignore - intentionally passing invalid data for test
+    mapService.populateLocations(invalidLocations);
+
+    // Verify the chart still functions after receiving invalid data
+    // This would be testing that it silently fails rather than throwing exceptions
+    expect(pointSeries.data.push).toHaveBeenCalled();
+
+    // You might also verify that valid entries in the array were still processed
+    expect(pointSeries.data.push).toHaveBeenCalledWith(expect.objectContaining({
+    geometry: { type: 'Point', coordinates: expect.anything() }
+    }));
+  });
+
+  test('populateLocations with empty array should not cause errors', () => {
+    // Setup
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Execute
+    mapService.populateLocations([]);
+    
+    // Verify no errors - test passes if no exception thrown
+    expect((mapService as any).pointSeries.data.push).not.toHaveBeenCalled();
+  });
+  
+  test('populateLocations with extreme coordinate values should work correctly', () => {
+    // Setup
+    const extremeLocations: MapLocation[] = [
+      { latitude: 90, longitude: 180, city: 'Edge', location: 'Edge of the map' },
+      { latitude: -90, longitude: -180, city: 'Other Edge', location: 'Other edge' }
+    ];
+    
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Execute
+    mapService.populateLocations(extremeLocations);
+    
+    // Verify coordinates are passed correctly
+    expect((mapService as any).pointSeries.data.push).toHaveBeenCalledWith({
+      geometry: { type: 'Point', coordinates: [180, 90] },
+      city: 'Edge',
+      location: 'Edge of the map'
+    });
+  });
+  
+  test('chart handles extreme zoom levels', () => {
+    // Setup
+    const extremeZoomConfig: MapConfig = {
+      zoomLevel: 100, // Very high zoom level
+      centerPoint: { longitude: 120, latitude: -5 }
+    };
+    
+    // Execute
+    mapService.initialize('chartdiv', extremeZoomConfig);
+    
+    // Verify chart is created successfully with this zoom level
+    expect(am5map.MapChart.new).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      homeZoomLevel: 100
+    }));
   });
   
   test('dispose cleans up resources', () => {
@@ -490,4 +582,5 @@ describe('MapChartService', () => {
     // Verify the returned object is a Bullet
     expect(createdBullet).toHaveProperty('type', 'Bullet');
   });
+
 });

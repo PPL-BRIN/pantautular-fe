@@ -260,6 +260,15 @@ describe('MapChartService', () => {
     
     expect(setupPointSeriesSpy).toHaveBeenCalled();
     expect(am5map.ClusteredPointSeries.new).toHaveBeenCalled();
+
+    // Check for scatter attributes to compensate overlap bullets
+    expect(am5map.ClusteredPointSeries.new).toHaveBeenCalledWith(expect.anything(), {
+        groupIdField: "city",
+        minDistance: expect.anything(),
+        scatterDistance: expect.anything(),
+        scatterRadius: expect.anything(),
+        stopClusterZoom: expect.anything()
+      });
   });
   
   test("populateLocations should return early if chart or root is null", () => {

@@ -48,6 +48,15 @@ jest.mock("@amcharts/amcharts5", () => {
 });
 
 jest.mock("@amcharts/amcharts5/map", () => {
+    const mockHomeButton = {
+        set: jest.fn()
+      };
+      
+    // Mock for the ZoomControl with the homeButton
+    const mockZoomControl = {
+     homeButton: mockHomeButton
+    };
+    
   return {
     __esModule: true,
     MapChart: {
@@ -55,7 +64,13 @@ jest.mock("@amcharts/amcharts5/map", () => {
         series: {
           push: jest.fn().mockImplementation((series) => series)
         },
-        set: jest.fn(),
+        set: jest.fn().mockImplementation((property, value) => {
+            // When setting zoomControl, return the mockZoomControl
+            if (property === "zoomControl") {
+              return mockZoomControl;
+            }
+            return null;
+          }),
         appear: jest.fn(),
         goHome: jest.fn()
       }))
@@ -89,11 +104,7 @@ jest.mock("@amcharts/amcharts5/map", () => {
       }))
     },
     ZoomControl: {
-      new: jest.fn().mockImplementation(() => ({
-        homeButton: {
-          set: jest.fn()
-        }
-      }))
+        new: jest.fn().mockImplementation(() => mockZoomControl)
     },
     geoMercator: jest.fn().mockReturnValue({})
   };
@@ -155,6 +166,11 @@ describe('MapChartService', () => {
     
     expect(setupZoomControlSpy).toHaveBeenCalled();
     expect(am5map.ZoomControl.new).toHaveBeenCalled();
+
+    const zoomControlSet = am5map.ZoomControl.new((mapService as any).root, {}).homeButton?.set;
+    
+    // Verify it was called with the correct parameters
+    expect(zoomControlSet).toHaveBeenCalledWith("visible", true);
   });
   
   test('setupPolygonSeries adds polygon series to chart', () => {

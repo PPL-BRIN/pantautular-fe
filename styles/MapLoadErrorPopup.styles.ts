@@ -47,7 +47,7 @@ export const ButtonContainer = styled.div`
 `;
 
 export const Button = styled.button`
-  padding: 9px 10px;
+  padding: 5px 10px;
   border: none;
   border-radius: 10px;
   cursor: pointer;

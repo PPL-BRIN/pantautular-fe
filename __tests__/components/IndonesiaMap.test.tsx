@@ -29,7 +29,7 @@ describe("IndonesiaMap Component", () => {
       render(<IndonesiaMap onError={mockOnError} />);
     });
 
-    expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi nanti.");
+    expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
 
     jest.restoreAllMocks();
   });

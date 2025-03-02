@@ -33,7 +33,7 @@ export default function IndonesiaMap({ onError }: IndonesiaMapProps) {
           })
         );
 
-        if (!chart) throw new Error("Gagal membuat peta!");
+        if (!chart) throw new Error("Gagal memuat peta. Silakan coba lagi.");
 
         const polygonSeries = chart.series.push(
           am5map.MapPolygonSeries.new(root, {
@@ -65,7 +65,7 @@ export default function IndonesiaMap({ onError }: IndonesiaMapProps) {
       }
     } catch (err) {
       console.error("Error loading map:", err);
-      onError("Gagal memuat peta. Silakan coba lagi nanti.");
+      onError("Gagal memuat peta. Silakan coba lagi.");
     }
 
     return () => {

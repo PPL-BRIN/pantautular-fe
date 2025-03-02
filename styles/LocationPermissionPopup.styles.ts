@@ -29,6 +29,7 @@ export const WarningHeader = styled.div`
   color: white;
   font-weight: bold;
   font-size: 1.5rem;
+  font-family: 'Inter', sans-serif;
 `;
 
 export const Message = styled.p`
@@ -36,6 +37,7 @@ export const Message = styled.p`
   font-size: 1rem;
   color: #333;
   padding: 0 10px;
+  font-family: 'Inter', sans-serif;
 `;
 
 export const ButtonContainer = styled.div`
@@ -53,6 +55,7 @@ export const Button = styled.button<{ $primary?: boolean }>`
   font-weight: bold;
   flex: 1;
   margin: 0 5px;
+  font-family: 'Inter', sans-serif;
 
   color: ${({ $primary }) => ($primary ? "white" : "#407BFF")};
   background: ${({ $primary }) => ($primary ? "#407BFF" : "white")};

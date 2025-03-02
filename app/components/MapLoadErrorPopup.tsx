@@ -1,4 +1,12 @@
 import React from "react";
+import { 
+    Overlay, 
+    Modal, 
+    PopupHeader, 
+    Message, 
+    ButtonContainer, 
+    Button 
+  } from "../../styles/MapLoadErrorPopup.styles";
 
 interface MapLoadErrorPopupProps {
   message: string;
@@ -11,13 +19,15 @@ const MapLoadErrorPopup: React.FC<MapLoadErrorPopupProps> = ({ message, onClose 
   }
   
   return (
-    <div className="popup-overlay">
-      <div className="popup-content">
-        <h2>Terjadi Kesalahan</h2>
-        <p>{message}</p>
-        <button data-testid="close-button" onClick={onClose}>Tutup</button>
-      </div>
-    </div>
+    <Overlay>
+      <Modal>
+        <PopupHeader>Terjadi Kesalahan</PopupHeader>
+        <Message>{message}</Message>
+        <ButtonContainer>
+          <Button onClick={onClose}>Tutup</Button>
+        </ButtonContainer>
+      </Modal>
+    </Overlay>
   );
 };
 

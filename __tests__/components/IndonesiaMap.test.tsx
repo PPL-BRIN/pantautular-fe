@@ -1,7 +1,7 @@
-import React from "react"
-import { render, screen } from "@testing-library/react"
-import IndonesiaMap from "../../app/map/page"
-import "@testing-library/jest-dom"
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import IndonesiaMap from "../../app/components/IndonesiaMap";
 
 jest.mock("@amcharts/amcharts5", () => {
   const actualAm5 = jest.requireActual("@amcharts/amcharts5");
@@ -38,7 +38,28 @@ jest.mock("@amcharts/amcharts5/themes/Animated", () => ({ new: jest.fn() }));
 
 describe("IndonesiaMap Component", () => {
   test("renders the map container", async () => {
-    render(<IndonesiaMap />);
+    render(<IndonesiaMap onError={jest.fn()} />);
     expect(await screen.getByTestId("chartdiv")).toBeInTheDocument();
   });
-}); 
+
+  test("calls onError when map initialization fails", () => {
+    const mockOnError = jest.fn();
+
+    // Buat mock agar amCharts memunculkan error
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Supaya error tidak mengganggu output test
+
+    jest.mock("@amcharts/amcharts5", () => ({
+      Root: {
+        new: jest.fn(() => {
+          throw new Error("Mocked amCharts initialization error");
+        }),
+      },
+    }));
+
+    render(<IndonesiaMap onError={mockOnError} />);
+
+    expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi nanti.");
+
+    (console.error as jest.Mock).mockRestore(); // Pulihkan console.error ke normal setelah test
+  });
+});

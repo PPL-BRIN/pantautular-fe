@@ -16,6 +16,7 @@ export const useIndonesiaMap = (
       mapServiceRef.current = null;
     }
 
+    
     // Create a new map service
     mapServiceRef.current = new MapChartService();
 

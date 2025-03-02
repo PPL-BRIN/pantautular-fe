@@ -110,4 +110,43 @@ describe("LocationPermissionPopup", () => {
     expect(overlayElement).toBeNull();
   });
 
+  test("tidak memanggil 'onDeny' ketika tombol 'Lanjutkan' ditekan", () => {
+    render(
+      <LocationPermissionPopup open={true} onClose={mockOnClose} onAllow={mockOnAllow} onDeny={mockOnDeny} />
+    );
+
+    const allowButton = screen.getByText("Lanjutkan");
+    fireEvent.click(allowButton);
+
+    expect(localStorage.getItem("locationPermission")).not.toBe(null);
+    expect(mockOnClose).toHaveBeenCalled();
+    expect(mockOnDeny).not.toHaveBeenCalled();
+  });
+
+  test("tidak memanggil 'onAllow' ketika tombol 'Tolak' ditekan", () => {
+    render(
+      <LocationPermissionPopup open={true} onClose={mockOnClose} onAllow={mockOnAllow} onDeny={mockOnDeny} />
+    );
+
+    const denyButton = screen.getByText("Tolak");
+    fireEvent.click(denyButton);
+
+    expect(localStorage.getItem("locationPermission")).not.toBe("granted");
+    expect(mockOnClose).toHaveBeenCalled();
+    expect(mockOnAllow).not.toHaveBeenCalled();
+  });
+
+  test("tidak mengembalikan null ketika izin belum diberikan", () => {
+    render(
+      <LocationPermissionPopup
+        open={true}
+        onClose={mockOnClose}
+        onAllow={mockOnAllow}
+        onDeny={mockOnDeny}
+      />
+    );
+
+    const overlayElement = screen.queryByText(/Lokasi Diperlukan/i);
+    expect(overlayElement).not.toBeNull();
+  });
 });

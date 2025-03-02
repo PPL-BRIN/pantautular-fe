@@ -1,15 +1,15 @@
 import Image from "next/image";
+import ImageHelp from "./components/ImageHelp";
 
 export default function BantuanPantauTular() {
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 md:px-10">
       <div className="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        {/* Judul */}
+
         <h1 className="text-3xl font-bold text-center text-blue-900 mb-4">
           Bantuan PantauTular
         </h1>
 
-        {/* Deskripsi */}
         <p className="text-gray-600 text-center italic">
           <span className="font-semibold">PantauTular</span> sebagai platform
           yang memungkinkan pengguna untuk melacak sebaran penyakit menular di
@@ -36,29 +36,9 @@ export default function BantuanPantauTular() {
             </p>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Image
-                src="/help/pt-1.png"
-                alt="Peta Penyakit Menular"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-3.png"
-                alt="Form Pencarian"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-2.png"
-                alt="Detail Penyakit"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
+                <ImageHelp src="/help/pt-1.png" alt="Peta umum" />
+                <ImageHelp src="/help/pt-2.png" alt="Detail kasus" />
+                <ImageHelp src="/help/pt-3.png" alt="Pencarian berdasarkan penyakit" />
             </div>
         </div>
 
@@ -74,29 +54,9 @@ export default function BantuanPantauTular() {
             </p>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Image
-                src="/help/pt-1.png"
-                alt="Peta Penyakit Menular"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-4.png"
-                alt="Form Pencarian"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-2.png"
-                alt="Detail Penyakit"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
+                <ImageHelp src="/help/pt-1.png" alt="Peta umum" />
+                <ImageHelp src="/help/pt-2.png" alt="Detail kasus" />
+                <ImageHelp src="/help/pt-4.png" alt="Pencarian berdasarkan lokasi" />
             </div>
         </div>
 
@@ -112,29 +72,9 @@ export default function BantuanPantauTular() {
             </p>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Image
-                src="/help/pt-1.png"
-                alt="Peta Penyakit Menular"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-5.png"
-                alt="Form Pencarian"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-2.png"
-                alt="Detail Penyakit"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
+                <ImageHelp src="/help/pt-1.png" alt="Peta umum" />
+                <ImageHelp src="/help/pt-2.png" alt="Detail kasus" />
+                <ImageHelp src="/help/pt-5.png" alt="Pencarian berdasarkan sumber berita" />
             </div>
         </div>
 
@@ -150,29 +90,9 @@ export default function BantuanPantauTular() {
             </p>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Image
-                src="/help/pt-1.png"
-                alt="Peta Penyakit Menular"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-6.png"
-                alt="Form Pencarian"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-2.png"
-                alt="Detail Penyakit"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
+                <ImageHelp src="/help/pt-1.png" alt="Peta umum" />
+                <ImageHelp src="/help/pt-2.png" alt="Detail kasus" />
+                <ImageHelp src="/help/pt-6.png" alt="Pencarian berdasarkan tanggal" />
             </div>
         </div>
 
@@ -188,29 +108,9 @@ export default function BantuanPantauTular() {
             </p>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Image
-                src="/help/pt-1.png"
-                alt="Peta Penyakit Menular"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-7.png"
-                alt="Form Pencarian"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
-            
-                <Image
-                src="/help/pt-2.png"
-                alt="Detail Penyakit"
-                width={400}
-                height={200}
-                className="w-full h-[200px] object-cover rounded-lg"
-                />
+                <ImageHelp src="/help/pt-1.png" alt="Peta umum" />
+                <ImageHelp src="/help/pt-2.png" alt="Detail kasus" />
+                <ImageHelp src="/help/pt-7.png" alt="Pencarian berdasarkan kewaspadaan" />
             </div>
         </div>
 

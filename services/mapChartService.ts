@@ -75,6 +75,10 @@ export class MapChartService {
     this.pointSeries = this.chart.series.push(
       am5map.ClusteredPointSeries.new(this.root, {
         groupIdField: "city",
+        minDistance: 30,
+        scatterDistance: 10,
+        scatterRadius: 10,
+        stopClusterZoom: 0.9
       })
     );
 

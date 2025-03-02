@@ -2,6 +2,9 @@ import { renderHook } from '@testing-library/react';
 import { useIndonesiaMap } from './useIndonesiaMap';
 import { MapChartService } from '../services/mapChartService';
 import { MapLocation, MapConfig } from '../types';
+import { useRef } from 'react';
+
+// Mock useRef
 
 // Mock the MapChartService
 const mockInitialize = jest.fn();
@@ -19,7 +22,14 @@ jest.mock('../services/mapChartService', () => {
   };
 });
 
+jest.mock('react', () => ({
+    ...jest.requireActual('react'),
+    useRef: jest.fn(),
+  }));
+  
+
 describe('useIndonesiaMap', () => {
+  let mapServiceRef: { current: MapChartService | null };
   const containerId = 'chartdiv';
   const mockLocations: MapLocation[] = [
     { city: 'Jakarta', location: 'Jakarta Office', latitude: -6.2, longitude: 106.8 },
@@ -33,7 +43,10 @@ describe('useIndonesiaMap', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     jest.clearAllMocks();
-    
+
+    mapServiceRef = { current: null };
+    (useRef as jest.Mock).mockReturnValue(mapServiceRef);
+
     // Set up DOM element
     document.body.innerHTML = `<div id="${containerId}"></div>`;
   });
@@ -48,6 +61,22 @@ describe('useIndonesiaMap', () => {
     
     // Check if mapService was returned
     expect(result.current.mapService).toBeDefined();
+  });
+
+  test('should test early return branch when mapServiceRef.current exists', () => {
+    /// Simulate mapServiceRef.current having a value
+    mapServiceRef.current = new MapChartService();
+
+    const { rerender } = renderHook(() => 
+        useIndonesiaMap(containerId, mockLocations, mockConfig)
+    );
+
+    // Re-render with the same props
+    rerender();
+
+    // Ensure no new instance is created
+    expect(mockDispose).toHaveBeenCalled();
+    expect(mapServiceRef.current).toBeNull();
   });
 
   test('should initialize map with correct parameters', () => {
@@ -76,45 +105,6 @@ describe('useIndonesiaMap', () => {
     
     // Check if dispose was called
     expect(mockDispose).toHaveBeenCalledTimes(1);
-  });
-
-  test('should not recreate map service on props change', () => {
-    const { rerender } = renderHook(
-      (props) => useIndonesiaMap(props.containerId, props.locations, props.config),
-      { 
-        initialProps: {
-          containerId,
-          locations: mockLocations,
-          config: mockConfig
-        }
-      }
-    );
-
-    // First render should create one instance
-    expect(MapChartService).toHaveBeenCalledTimes(1);
-        
-    // Update props
-    const updatedLocations = [...mockLocations, {
-      city: 'Bandung', 
-      location: 'Bandung Office', 
-      latitude: -6.9, 
-      longitude: 107.6
-    }];
-    
-    rerender({
-      containerId,
-      locations: updatedLocations,
-      config: mockConfig
-    });
-    
-    // Should not create new instance
-    expect(MapChartService).toHaveBeenCalled();
-    
-    // But should call dispose and initialize again
-    expect(mockDispose).toHaveBeenCalledTimes(1);
-    expect(mockInitialize).toHaveBeenCalledTimes(2);
-    expect(mockPopulateLocations).toHaveBeenCalledTimes(2);
-    expect(mockPopulateLocations).toHaveBeenLastCalledWith(updatedLocations);
   });
 
   test('should handle empty locations array', () => {

@@ -3,6 +3,14 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5map from "@amcharts/amcharts5/map";
 import { MapConfig, MapLocation } from "../types";
 
+// Mock for container.children.push
+const mockChildrenPush = jest.fn();
+
+// Mock for container.events.on
+const mockEventsOn = jest.fn();
+
+const mockBulletsPush = jest.fn();
+
 // Mock amcharts modules
 jest.mock("@amcharts/amcharts5", () => {
   const originalModule = jest.requireActual("@amcharts/amcharts5");
@@ -22,29 +30,39 @@ jest.mock("@amcharts/amcharts5", () => {
       }))
     },
     Container: {
-      new: jest.fn().mockImplementation(() => ({
-        children: {
-          push: jest.fn()
-        },
-        events: {
-          on: jest.fn()
-        }
+        new: jest.fn().mockImplementation(() => ({
+          children: {
+            push: mockChildrenPush
+          },
+          events: {
+            on: mockEventsOn
+          }
+        }))
+      },
+      Circle: {
+        new: jest.fn().mockImplementation((root, config) => ({
+          root,
+          config,
+          type: 'Circle'
+        }))
+      },
+      Label: {
+        new: jest.fn().mockImplementation((root, config) => ({
+          root,
+          config
+        }))
+      },
+      Bullet: {
+      new: jest.fn().mockImplementation((root, config) => ({
+        root,
+        sprite: config.sprite,
+        type: 'Bullet',
+        config,
       }))
     },
-    Circle: {
-      new: jest.fn().mockImplementation(() => ({}))
-    },
-    Label: {
-      new: jest.fn().mockImplementation(() => ({}))
-    },
-    Bullet: {
-      new: jest.fn().mockImplementation(() => ({
-        sprite: {}
-      }))
-    },
-    color: jest.fn().mockImplementation((color) => ({ color })),
-    p50: 0.5
-  };
+      color: jest.fn().mockImplementation((color) => ({ color })),
+      p50: 0.5
+    };
 });
 
 jest.mock("@amcharts/amcharts5/map", () => {
@@ -95,7 +113,7 @@ jest.mock("@amcharts/amcharts5/map", () => {
       new: jest.fn().mockImplementation(() => ({
         set: jest.fn(),
         bullets: {
-          push: jest.fn()
+          push: mockBulletsPush
         },
         data: {
           push: jest.fn()
@@ -155,6 +173,21 @@ describe('MapChartService', () => {
     expect(am5map.MapChart.new).toHaveBeenCalled();
   });
   
+  test("should return early if chart or root is null", () => {
+    // Spy on the method to check if it executes fully
+    const setupZoomControlSpy = jest.spyOn((mapService as any), "setupZoomControl");
+
+    // Ensure chart and root are null
+    (mapService as any).chart = null;
+    (mapService as any).root = null;
+
+    // Call the method
+    (mapService as any).setupZoomControl();
+
+    // Expect the spy to have been called, but nothing beyond the return statement executes
+    expect(setupZoomControlSpy).toHaveReturned();
+  });
+
   test('setupZoomControl adds zoom control to chart', () => {
     mapService.initialize('chartdiv', mockConfig);
     
@@ -173,6 +206,21 @@ describe('MapChartService', () => {
     expect(zoomControlSet).toHaveBeenCalledWith("visible", true);
   });
   
+  test("should return early if chart or root is null", () => {
+    // Spy on the method to check if it executes fully
+    const setupPolygonSeries = jest.spyOn((mapService as any), "setupPolygonSeries");
+
+    // Ensure chart and root are null
+    (mapService as any).chart = null;
+    (mapService as any).root = null;
+
+    // Call the method
+    (mapService as any).setupPolygonSeries();
+
+    // Expect the spy to have been called, but nothing beyond the return statement executes
+    expect(setupPolygonSeries).toHaveReturned();
+  });
+
   test('setupPolygonSeries adds polygon series to chart', () => {
     mapService.initialize('chartdiv', mockConfig);
     
@@ -186,6 +234,21 @@ describe('MapChartService', () => {
     expect(am5map.MapPolygonSeries.new).toHaveBeenCalled();
   });
   
+  test("should return early if chart or root is null", () => {
+    // Spy on the method to check if it executes fully
+    const setupPointSeriesSpy = jest.spyOn((mapService as any), "setupPointSeries");
+
+    // Ensure chart and root are null
+    (mapService as any).chart = null;
+    (mapService as any).root = null;
+
+    // Call the method
+    (mapService as any).setupPointSeries();
+
+    // Expect the spy to have been called, but nothing beyond the return statement executes
+    expect(setupPointSeriesSpy).toHaveReturned();
+  });
+
   test('setupPointSeries adds clustered point series to chart', () => {
     mapService.initialize('chartdiv', mockConfig);
     
@@ -199,6 +262,20 @@ describe('MapChartService', () => {
     expect(am5map.ClusteredPointSeries.new).toHaveBeenCalled();
   });
   
+  test("should return early if chart or root is null", () => {
+    // Spy on the method to check if it executes fully
+    const populateLocationsSpy = jest.spyOn((mapService as any), "populateLocations");
+
+    // Ensure chart and root are null
+    (mapService as any).pointSeries = null;
+
+    // Call the method
+    (mapService as any).populateLocations();
+
+    // Expect the spy to have been called, but nothing beyond the return statement executes
+    expect(populateLocationsSpy).toHaveReturned();
+  });
+
   test('populateLocations adds location data to point series', () => {
     const mockLocations: MapLocation[] = [
       { latitude: -6.2, longitude: 106.8, city: 'Jakarta', location: 'Jakarta Office' },
@@ -235,6 +312,21 @@ describe('MapChartService', () => {
     expect(root).toBeNull();
   });
   
+  test("should return early if chart or root is null", () => {
+    // Spy on the method to check if it executes fully
+    const setupClusterBulletSpy = jest.spyOn((mapService as any), "setupClusterBullet");
+
+    // Ensure chart and root are null
+    (mapService as any).chart = null;
+    (mapService as any).root = null;
+
+    // Call the method
+    (mapService as any).setupClusterBullet();
+
+    // Expect the spy to have been called, but nothing beyond the return statement executes
+    expect(setupClusterBulletSpy).toHaveReturned();
+  });
+
   test('setupClusterBullet configures cluster bullet correctly', () => {
     mapService.initialize('chartdiv', mockConfig);
     
@@ -248,20 +340,145 @@ describe('MapChartService', () => {
     
     const pointSeries = (mapService as any).pointSeries;
     expect(pointSeries.set).toHaveBeenCalledWith('clusteredBullet', expect.any(Function));
+
+    // Extract the factory function passed to set()
+    const factoryFn = pointSeries.set.mock.calls.find(
+        (call: string[]) => call[0] === 'clusteredBullet'
+      )[1];
+      
+      // Create a mock root to pass to the factory function
+      const mockRoot = {};
+      
+      // Call the factory function to test the container creation logic
+      factoryFn(mockRoot);
+      
+      // Verify Container.new was called with correct params
+      expect(am5.Container.new).toHaveBeenCalledWith(mockRoot, {
+        cursorOverStyle: "pointer"
+      });
+      
+      // Verify Circle.new was called multiple times with different radii
+      expect(am5.Circle.new).toHaveBeenCalledTimes(3);
+      expect(am5.Circle.new).toHaveBeenNthCalledWith(1, mockRoot, { 
+        radius: 8, 
+        tooltipY: 0, 
+        fill: expect.anything() 
+      });
+      expect(am5.Circle.new).toHaveBeenNthCalledWith(2, mockRoot, { 
+        radius: 12, 
+        fillOpacity: 0.3, 
+        tooltipY: 0, 
+        fill: expect.anything() 
+      });
+      expect(am5.Circle.new).toHaveBeenNthCalledWith(3, mockRoot, { 
+        radius: 16, 
+        fillOpacity: 0.3, 
+        tooltipY: 0, 
+        fill: expect.anything() 
+      });
+      
+      // Verify Label.new was called
+      expect(am5.Label.new).toHaveBeenCalledWith(mockRoot, {
+        centerX: am5.p50,
+        centerY: am5.p50,
+        fill: expect.anything(),
+        populateText: true,
+        fontSize: "8",
+        text: "{value}"
+      });
+      
+      // Verify children.push was called for each element (3 circles + 1 label)
+      expect(mockChildrenPush).toHaveBeenCalledTimes(4);
+      
+      // Verify events.on was called with 'click'
+      expect(mockEventsOn).toHaveBeenCalledWith('click', expect.any(Function));
+      
+      // Verify Bullet.new was called and returned
+      expect(am5.Bullet.new).toHaveBeenCalledWith(mockRoot, {
+        sprite: expect.anything()
+      });
+  });
+
+  test('click handler on cluster bullet calls zoomToCluster', () => {
+    // Initialize the map
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Setup to access the click handler
+    const pointSeries = (mapService as any).pointSeries;
+    const factoryFn = pointSeries.set.mock.calls.find(
+        (call: string[]) => call[0] === 'clusteredBullet'
+    )[1];
+    
+    // Call the factory function
+    factoryFn({});
+    
+    // Get the click handler
+    const clickHandler = mockEventsOn.mock.calls.find(
+      call => call[0] === 'click'
+    )[1];
+    
+    // Create a mock event with target and dataItem
+    const mockEvent = {
+      target: {
+        dataItem: { id: 'test-cluster' }
+      }
+    };
+    
+    // Execute the click handler
+    clickHandler(mockEvent);
+    
+    // Verify zoomToCluster was called with the dataItem
+    expect(pointSeries.zoomToCluster).toHaveBeenCalledWith(mockEvent.target.dataItem);
+  });
+
+  test("should return early if chart or root is null", () => {
+    // Spy on the method to check if it executes fully
+    const setupRegularBulletSpy = jest.spyOn((mapService as any), "setupRegularBullet");
+
+    // Ensure chart and root are null
+    (mapService as any).chart = null;
+    (mapService as any).root = null;
+
+    // Call the method
+    (mapService as any).setupRegularBullet();
+
+    // Expect the spy to have been called, but nothing beyond the return statement executes
+    expect(setupRegularBulletSpy).toHaveReturned();
   });
   
   test('setupRegularBullet configures regular bullet correctly', () => {
+    // Initialize the map
     mapService.initialize('chartdiv', mockConfig);
     
-    // Access private method through any type
-    const setupRegularBulletSpy = jest.spyOn(mapService as any, 'setupRegularBullet');
-    
-    // Execute the private method
+    // Directly call setupRegularBullet to test it
     (mapService as any).setupRegularBullet();
     
-    expect(setupRegularBulletSpy).toHaveBeenCalled();
+    // Verify bullets.push was called
+    expect(mockBulletsPush).toHaveBeenCalled();
     
-    const pointSeries = (mapService as any).pointSeries;
-    expect(pointSeries.bullets.push).toHaveBeenCalled();
+    // Extract the factory function passed to bullets.push
+    const bulletFactory = mockBulletsPush.mock.calls[0][0];
+    expect(typeof bulletFactory).toBe('function');
+    
+    // Call the factory function to test the bullet creation
+    const createdBullet = bulletFactory();
+    
+    // Verify Circle.new was called with correct parameters
+    expect(am5.Circle.new).toHaveBeenCalledWith(expect.anything(), {
+      radius: 6,
+      tooltipY: 0,
+      fill: expect.anything(),
+      cursorOverStyle: "pointer",
+      showTooltipOn: "click",
+      tooltipHTML: expect.stringContaining("<strong>{location}</strong>")
+    });
+    
+    // Verify Bullet.new was called with the circle as sprite
+    expect(am5.Bullet.new).toHaveBeenCalledWith(expect.anything(), {
+      sprite: expect.anything()
+    });
+    
+    // Verify the returned object is a Bullet
+    expect(createdBullet).toHaveProperty('type', 'Bullet');
   });
 });

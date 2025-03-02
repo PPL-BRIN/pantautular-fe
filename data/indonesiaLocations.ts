@@ -3,6 +3,7 @@ import { MapLocation, MapConfig } from "../types";
 
 export const indonesiaLocations: MapLocation[] = [
     { city: "Jakarta", location: "Monas", latitude: -6.1754, longitude: 106.8272 },
+    { city: "Jakarta", location: "Monas Juga", latitude: -6.1754, longitude: 106.8272 },
     { city: "Jakarta", location: "Gelora Bung Karno", latitude: -6.2180, longitude: 106.8014 },
     { city: "Jakarta", location: "Kota Tua", latitude: -6.1352, longitude: 106.8133 },
     { city: "Bandung", location: "Alun-Alun", latitude: -6.9219, longitude: 107.6071 },

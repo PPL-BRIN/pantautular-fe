@@ -173,7 +173,7 @@ describe('MapChartService', () => {
     expect(am5map.MapChart.new).toHaveBeenCalled();
   });
   
-  test("should return early if chart or root is null", () => {
+  test("setupZoomControl should return early if chart or root is null", () => {
     // Spy on the method to check if it executes fully
     const setupZoomControlSpy = jest.spyOn((mapService as any), "setupZoomControl");
 
@@ -206,7 +206,7 @@ describe('MapChartService', () => {
     expect(zoomControlSet).toHaveBeenCalledWith("visible", true);
   });
   
-  test("should return early if chart or root is null", () => {
+  test("setupPolygonSeries should return early if chart or root is null", () => {
     // Spy on the method to check if it executes fully
     const setupPolygonSeries = jest.spyOn((mapService as any), "setupPolygonSeries");
 
@@ -234,7 +234,7 @@ describe('MapChartService', () => {
     expect(am5map.MapPolygonSeries.new).toHaveBeenCalled();
   });
   
-  test("should return early if chart or root is null", () => {
+  test("setupPointSeries should return early if chart or root is null", () => {
     // Spy on the method to check if it executes fully
     const setupPointSeriesSpy = jest.spyOn((mapService as any), "setupPointSeries");
 
@@ -262,7 +262,7 @@ describe('MapChartService', () => {
     expect(am5map.ClusteredPointSeries.new).toHaveBeenCalled();
   });
   
-  test("should return early if chart or root is null", () => {
+  test("populateLocations should return early if chart or root is null", () => {
     // Spy on the method to check if it executes fully
     const populateLocationsSpy = jest.spyOn((mapService as any), "populateLocations");
 
@@ -312,7 +312,7 @@ describe('MapChartService', () => {
     expect(root).toBeNull();
   });
   
-  test("should return early if chart or root is null", () => {
+  test("setupClusterBullet should return early if chart or root is null", () => {
     // Spy on the method to check if it executes fully
     const setupClusterBulletSpy = jest.spyOn((mapService as any), "setupClusterBullet");
 
@@ -431,7 +431,7 @@ describe('MapChartService', () => {
     expect(pointSeries.zoomToCluster).toHaveBeenCalledWith(mockEvent.target.dataItem);
   });
 
-  test("should return early if chart or root is null", () => {
+  test("setupRegularBullet should return early if chart or root is null", () => {
     // Spy on the method to check if it executes fully
     const setupRegularBulletSpy = jest.spyOn((mapService as any), "setupRegularBullet");
 

@@ -7,6 +7,12 @@ jest.mock("../../app/layout", () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
 describe("Home Page", () => {
   beforeEach(() => {
     render(<Home />);

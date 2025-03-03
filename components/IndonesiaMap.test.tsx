@@ -25,8 +25,8 @@ describe('IndonesiaMap', () => {
     expect(container).toBeInTheDocument();
     expect(container).toHaveAttribute('id', 'chartdiv');
     expect(container).toHaveStyle({
-      width: '100%',
-      height: '550px'
+      width: '100vw',
+      height: '100vh'
     });
     
     // Verify hook was called with defaults

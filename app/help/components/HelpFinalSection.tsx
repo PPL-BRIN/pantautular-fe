@@ -15,7 +15,8 @@ export default function HelpFinalSection() {
           </p>
           
           <p className="text-gray-700 mt-6 z-10 max-w-3xl font-medium">
-            <span className="font-bold">Catatan:</span> 
+            <span className="font-bold">Catatan:</span>
+            {' '}
             Platform <i>PantauTular</i> bertujuan untuk memberikan informasi yang 
             akurat dan terkini tentang sebaran penyakit menular di Indonesia. 
             Namun, <i className="font-semibold">pengguna dihimbau untuk selalu 

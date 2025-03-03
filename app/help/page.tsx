@@ -1,7 +1,5 @@
-import HelpImage from "./components/HelpImage";
 import HelpTitle from "./components/HelpTitle";
 import HelpSection from "./components/HelpSection";
-import BackgroundCircle from "./components/BackgroundCircle";
 import HelpFinalSection from "./components/HelpFinalSection";
 
 export default function BantuanPantauTular() {

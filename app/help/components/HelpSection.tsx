@@ -1,10 +1,10 @@
 import HelpImage from "./HelpImage";
 
 interface HelpSectionProps {
-    title: string;
-    description: string;
-    imageSrc: string;
-    imageAlt: string;
+    readonly title: string;
+    readonly description: string;
+    readonly imageSrc: string;
+    readonly imageAlt: string;
 }
 
 export default function HelpSection({ 

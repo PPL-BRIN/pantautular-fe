@@ -1,8 +1,8 @@
 import React from "react";
 
 interface BackgroundCircleProps {
-    size: { width: string; height: string };
-    position: string;
+    readonly size: { width: string; height: string };
+    readonly position: string;
 }
   
 export default function BackgroundCircle({ size, position }: BackgroundCircleProps) {

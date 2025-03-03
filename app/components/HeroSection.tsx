@@ -19,7 +19,7 @@ export default function HeroSection() {
           </h2>
           <p className="paragraph-primary">
             Bekerja sama dengan Badan Riset dan Inovasi Nasional (BRIN),
-            <strong className="italic"> PantauTular</strong> berkomitmen untuk menyajikan data yang akurat dan 
+            <strong className="italic"> PantauTular </strong> berkomitmen untuk menyajikan data yang akurat dan 
             terkini tentang kondisi kesehatan masyarakat sehingga 
             memungkinkan pengguna untuk memantau dan mengantisipasi 
             penyebaran penyakit menular dengan lebih efektif.

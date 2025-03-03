@@ -3,44 +3,45 @@ import { render, screen } from "@testing-library/react";
 import IndonesiaMap from "../../app/components/IndonesiaMap";
 import "@testing-library/jest-dom";
 
+const mockSetThemes = jest.fn();
+const mockPush = jest.fn();
+const mockSet = jest.fn();
+const mockDispose = jest.fn();
+const mockOn = jest.fn();
+const mockChartContainerGet = jest.fn(() => ({
+  events: {
+    on: mockOn,
+  },
+}));
+
 jest.mock("@amcharts/amcharts5", () => {
-  const actualAm5 = jest.requireActual("@amcharts/amcharts5");
   return {
-    ...actualAm5,
     Root: {
       new: jest.fn(() => ({
-        setThemes: jest.fn(),
+        setThemes: mockSetThemes,
         container: {
           children: {
-            push: jest.fn(),
+            push: mockPush,
           },
         },
-        set: jest.fn(),
-        dispose: jest.fn(),
+        set: mockSet,
+        dispose: mockDispose,
         chartContainer: {
-          get: jest.fn(() => ({
-            events: {
-              on: jest.fn(),
-            },
-          })),
+          get: mockChartContainerGet,
         },
       })),
     },
     registry: {
       rootElements: [],
     },
-    color: jest.fn(() => "#dddddd"),
+    color: jest.fn((color) => color),
   };
 });
 
-const mockPush = jest.fn();
-const mockSet = jest.fn();
-const mockOn = jest.fn();
-
 jest.mock("@amcharts/amcharts5/map", () => ({
-  MapChart: { new: jest.fn(() => ({ set: mockSet, series: { push: mockPush }, chartContainer: { get: jest.fn(() => ({ events: { on: mockOn } })) } })) },
+  MapChart: { new: jest.fn(() => ({ set: mockSet, series: { push: mockPush }, chartContainer: { get: mockChartContainerGet } })) },
   MapPolygonSeries: { new: jest.fn(() => ({ mapPolygons: { template: { setAll: jest.fn(), states: { create: jest.fn() } } } })) },
-  ZoomControl: { new: jest.fn() },
+  ZoomControl: { new: jest.fn(() => ({})) }, // Ensure it returns an object
   geoMercator: jest.fn(),
 }));
 
@@ -48,6 +49,10 @@ jest.mock("@amcharts/amcharts5-geodata/indonesiaLow", () => jest.fn());
 jest.mock("@amcharts/amcharts5/themes/Animated", () => ({ new: jest.fn() }));
 
 describe("IndonesiaMap Component", () => {
+  beforeEach(() => {
+    jest.clearAllMocks(); // Clear all mock calls before each test
+  });
+
   test("renders the map container", () => {
     render(<IndonesiaMap />);
     expect(screen.getByTestId("chartdiv")).toBeInTheDocument();
@@ -60,7 +65,7 @@ describe("IndonesiaMap Component", () => {
 
   test("sets themes correctly", () => {
     render(<IndonesiaMap />);
-    expect(require("@amcharts/amcharts5").Root.new().setThemes).toHaveBeenCalled();
+    expect(mockSetThemes).toHaveBeenCalledWith([expect.any(Object)]); // Ensure it's called with a theme
   });
 
   test("adds MapChart to the container", () => {

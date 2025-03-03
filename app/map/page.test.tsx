@@ -121,7 +121,7 @@ test('Should render the MapPage component without crashing', () => {
   expect(mapContainer).toBeInTheDocument();
   expect(mapContainer).toHaveAttribute('id', 'chartdiv');
   expect(mapContainer).toHaveStyle({
-    width: '100%',
-    height: '550px',
+    width: '100vw',
+    height: '100vh',
   });
 });

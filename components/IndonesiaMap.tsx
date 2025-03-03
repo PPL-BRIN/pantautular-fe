@@ -13,8 +13,8 @@ interface IndonesiaMapProps {
 export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   locations,
   config = {},
-  height = "550px",
-  width = "100%",
+  height = "100vh",
+  width = "100vw",
 }) => {
   const mapContainerId = "chartdiv";
   const fullConfig: MapConfig = {

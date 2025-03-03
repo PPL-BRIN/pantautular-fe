@@ -23,7 +23,8 @@ export class MapChartService {
         panY: "translateY",
         homeZoomLevel: config.zoomLevel,
         projection: am5map.geoMercator(),
-        homeGeoPoint: config.centerPoint
+        homeGeoPoint: config.centerPoint,
+        minZoomLevel: 2.6
       })
     );
 

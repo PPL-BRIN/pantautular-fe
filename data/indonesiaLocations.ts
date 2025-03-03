@@ -28,6 +28,6 @@ export const indonesiaLocations: MapLocation[] = [
   ];
 
   export const defaultMapConfig: MapConfig = {
-    zoomLevel: 2,
-    centerPoint: { longitude: 113.9213, latitude: 0.7893 }
+    zoomLevel: 2.6,
+    centerPoint: { longitude: 113.9213, latitude: 0.0 }
   };

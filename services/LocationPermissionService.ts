@@ -6,7 +6,7 @@ export interface ILocationPermissionService {
   }
   
   export class LocalStoragePermissionService implements ILocationPermissionService {
-    private static LOCATION_PERMISSION_KEY = "locationPermission";
+    private static readonly LOCATION_PERMISSION_KEY = "locationPermission";
   
     getPermission(): string | null {
       return localStorage.getItem(LocalStoragePermissionService.LOCATION_PERMISSION_KEY);

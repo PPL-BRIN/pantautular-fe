@@ -9,11 +9,16 @@ const mockPush = jest.fn();
 const mockSet = jest.fn();
 const mockDispose = jest.fn();
 const mockOn = jest.fn();
-const mockChartContainerGet = jest.fn(() => ({
-  events: {
-    on: mockOn, // Ensure events.on is properly mocked
-  },
-}));
+const mockChartContainerGet = jest.fn((param) => {
+    if (param === "background") {
+      return {
+        events: {
+          on: mockOn, // Ensure events.on is properly mocked for background click events
+        },
+      };
+    }
+    return {};
+  });
 
 jest.mock("@amcharts/amcharts5", () => ({
   Root: {
@@ -39,9 +44,10 @@ jest.mock("@amcharts/amcharts5", () => ({
 
 // ✅ Define `mockZoomControlNew` inside `jest.mock()` so it's not used before initialization
 jest.mock("@amcharts/amcharts5/map", () => {
-  const mockZoomControlNew = jest.fn(() => ({
+  const mockZoomControlInstance = jest.fn(() => ({
     someMethod: jest.fn(), // Ensure it returns a valid object
   }));
+  const mockZoomControlNew = jest.fn(() => mockZoomControlInstance);
 
   return {
     MapChart: {

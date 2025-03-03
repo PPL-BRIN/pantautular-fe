@@ -3,6 +3,7 @@ import * as am5map from "@amcharts/amcharts5/map";
 import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import { MapLocation, MapConfig } from "../types";
+import { getTooltipHTML } from "../utils/tooltipUtils";
 
 export class MapChartService {
   private root: am5.Root | null = null;
@@ -130,6 +131,19 @@ export class MapChartService {
 
   private setupRegularBullet(): void {
     if (!this.pointSeries || !this.root) return;
+
+    const tooltipData = {
+        id: "NP00IP05K100B",
+        location: "Kota Bekasi, Jawa Barat",
+        summary: "Pemerintah Kota Bekasi melalui Dinas Kesehatan Kota Bekasi mengkonfirmasi kasus Cacar Moriyet sebanyak 8 kasus suspek diantaranya 1 orang positif sedang menjalani isolasi RS.",
+        gender: "Pria",
+        age: "Tidak diketahui",
+        alertLevel: "Wespoda",
+        relatedSearch: "Apa itu Cacar Moriyet?",
+        source: "(1/2) 09Nov2023 Sudah 4 Warga Jabar Positif Cacar Moriyet (detik.com)",
+      };
+    
+      const tooltipHTML = getTooltipHTML(tooltipData);
     
     this.pointSeries.bullets.push(() =>
       am5.Bullet.new(this.root, {
@@ -139,12 +153,7 @@ export class MapChartService {
           fill: am5.color(0xff8c00),
           cursorOverStyle: "pointer",
           showTooltipOn: "click",
-          tooltipHTML: `
-            <div style="background: white; padding: 10px; border-radius: 5px; color: black;">
-              <strong>{location}</strong><br>
-              <small>City: {city}</small><br>
-            </div>
-          `,
+          tooltipHTML: tooltipHTML,
         }),
       })
     );

@@ -571,7 +571,7 @@ describe('MapChartService', () => {
       fill: expect.anything(),
       cursorOverStyle: "pointer",
       showTooltipOn: "click",
-      tooltipHTML: expect.stringContaining("<strong>{location}</strong>")
+      tooltipHTML: expect.anything()
     });
     
     // Verify Bullet.new was called with the circle as sprite

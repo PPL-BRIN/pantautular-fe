@@ -14,12 +14,9 @@ export default function IndonesiaMap({ onError }: IndonesiaMapProps) {
   const chartRef = useRef<am5.Root | null>(null);
 
   useEffect(() => {
-    console.log("MOUNTED: IndonesiaMap");
-    console.log("Registry before mount:", am5.registry.rootElements);
 
     try {
       if (!chartRef.current) {
-        console.log("Creating new amCharts Root instance...");
         const root = am5.Root.new("chartdiv");
         chartRef.current = root;
         root.setThemes([am5themes_Animated.new(root)]);
@@ -61,28 +58,10 @@ export default function IndonesiaMap({ onError }: IndonesiaMapProps) {
         });
 
         chart.appear(1000, 100);
-        console.log("Registry after mount:", am5.registry.rootElements);
       }
     } catch (err) {
-      console.error("Error loading map:", err);
       onError("Gagal memuat peta. Silakan coba lagi.");
     }
-
-    return () => {
-      console.log("DISPOSE FUNCTION TRIGGERED", chartRef.current);
-
-      if (chartRef.current) {
-        console.log("Calling dispose() on Root...");
-        chartRef.current.dispose();
-        setTimeout(() => {
-          console.log("Dispose called successfully, checking chartRef:", chartRef.current);
-          chartRef.current = null;
-          console.log("chartRef.current set to null");
-        }, 1000);
-      } else {
-        console.log("chartRef.current is already null, skipping dispose()");
-      }
-    };
   }, []);
 
   return <div id="chartdiv" data-testid="chartdiv" style={{ width: "100%", height: "500px" }}></div>;

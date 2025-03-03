@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import Navbar from "@/components/Navbar";
 import { usePathname } from "next/navigation";
 
@@ -9,69 +9,54 @@ jest.mock("next/navigation", () => ({
 describe("Navbar", () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    cleanup(); // Bersihkan render sebelumnya sebelum setiap tes
   });
 
   it("menampilkan logo PantauTular", () => {
     render(<Navbar />);
-    const logo = screen.getByAltText("PantauTular Logo");
-    expect(logo).toBeInTheDocument();
+    expect(screen.getByAltText("PantauTular Logo")).toBeInTheDocument();
   });
 
   it("menampilkan menu navigasi utama", () => {
     render(<Navbar />);
-    
-    expect(screen.getByText("Beranda")).toBeInTheDocument();
-    expect(screen.getByText("Peta Sebaran")).toBeInTheDocument();
-    expect(screen.getByText("Tentang Kami")).toBeInTheDocument();
-    expect(screen.getByText("Bantuan")).toBeInTheDocument();
+    ["Beranda", "Peta Sebaran", "Tentang Kami", "Bantuan"].forEach((menu) =>
+      expect(screen.getByText(menu)).toBeInTheDocument()
+    );
   });
 
   it("menampilkan ikon profil", () => {
     render(<Navbar />);
-    const profileIcon = screen.getByText("👤");
-    expect(profileIcon).toBeInTheDocument();
+    expect(screen.getByText("👤")).toBeInTheDocument();
   });
 
   it("tidak menampilkan menu yang tidak ada", () => {
     render(<Navbar />);
-    expect(screen.queryByText("Kontak")).not.toBeInTheDocument();
-    expect(screen.queryByText("Layanan")).not.toBeInTheDocument();
+    ["Kontak", "Layanan"].forEach((menu) =>
+      expect(screen.queryByText(menu)).not.toBeInTheDocument()
+    );
   });
 
-  it("menandai menu aktif beranda dengan font-bold dan warna yang benar", () => {
+  it("menandai menu aktif Beranda dengan font-bold dan warna yang benar", () => {
     (usePathname as jest.Mock).mockReturnValue("/");
-
     render(<Navbar />);
-    
-    const berandaLink = screen.getByText("Beranda");
-    expect(berandaLink).toHaveClass("font-bold text-[#1e3a8a]");
+    expect(screen.getByText("Beranda")).toHaveClass("font-bold text-[#1e3a8a]");
   });
 
-  it("menandai menu aktif peta sebaran dengan font-bold dan warna yang benar", () => {
+  it("menandai menu aktif Peta Sebaran dengan font-bold dan warna yang benar", () => {
     (usePathname as jest.Mock).mockReturnValue("/map");
-
     render(<Navbar />);
-    
-    const berandaLink = screen.getByText("Peta Sebaran");
-    expect(berandaLink).toHaveClass("font-bold text-[#1e3a8a]");
+    expect(screen.getByText("Peta Sebaran")).toHaveClass("font-bold text-[#1e3a8a]");
   });
 
-  it("menandai menu aktif tentang kami dengan font-bold dan warna yang benar", () => {
+  it("menandai menu aktif Tentang Kami dengan font-bold dan warna yang benar", () => {
     (usePathname as jest.Mock).mockReturnValue("/about");
-
     render(<Navbar />);
-    
-    const berandaLink = screen.getByText("Tentang Kami");
-    expect(berandaLink).toHaveClass("font-bold text-[#1e3a8a]");
+    expect(screen.getByText("Tentang Kami")).toHaveClass("font-bold text-[#1e3a8a]");
   });
 
-  it("menandai menu aktif bantuan dengan font-bold dan warna yang benar", () => {
+  it("menandai menu aktif Bantuan dengan font-bold dan warna yang benar", () => {
     (usePathname as jest.Mock).mockReturnValue("/help");
-
     render(<Navbar />);
-    
-    const berandaLink = screen.getByText("Bantuan");
-    expect(berandaLink).toHaveClass("font-bold text-[#1e3a8a]");
+    expect(screen.getByText("Bantuan")).toHaveClass("font-bold text-[#1e3a8a]");
   });
-
 });

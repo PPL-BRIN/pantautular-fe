@@ -11,8 +11,7 @@ export default function HelpSection() {
       <div className="flex-1 text-center md:text-left">
         <h2 className="heading-primary">Bantuan</h2>
         <p className="paragraph-primary">
-        Masih terkendala seputar <strong className="italic"> PantauTular </strong>? Ketahui penggunaan
-        <strong className="italic"> PantauTular </strong> untuk memperoleh berbagai informasi terkait penyakit
+        Masih terkendala seputar <strong className="italic">PantauTular</strong>? Ketahui penggunaan <strong className="italic">PantauTular</strong> untuk memperoleh berbagai informasi terkait penyakit
         menular berdasarkan nama penyakit, lokasi, sumber berita, tanggal 
         kejadian, tingkat kewaspaan, dan masih banyak lagi!
         </p>

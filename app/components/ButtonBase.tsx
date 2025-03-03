@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-interface ButtonBaseProps {
+interface ButtonBaseProps extends Readonly<{
   children: React.ReactNode;
   href: string;
   className?: string;
-}
+}>{}
 
 export default function ButtonBase({ children, href, className = "" }: ButtonBaseProps) {
   return (

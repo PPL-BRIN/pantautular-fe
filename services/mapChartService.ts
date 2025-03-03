@@ -131,8 +131,8 @@ export class MapChartService {
     if (!this.pointSeries || !this.root) return;
     
     this.pointSeries.bullets.push(() =>
-      am5.Bullet.new(this.root!, {
-        sprite: am5.Circle.new(this.root!, {
+      am5.Bullet.new(this.root, {
+        sprite: am5.Circle.new(this.root, {
           radius: 6,
           tooltipY: 0,
           fill: am5.color(0xff8c00),

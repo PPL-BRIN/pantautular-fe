@@ -11,7 +11,9 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
   }),
+  usePathname: jest.fn(() => "/"), 
 }));
+
 
 describe("Home Page", () => {
   beforeEach(() => {
@@ -39,9 +41,11 @@ describe("Home Page", () => {
     ).toBeInTheDocument();
   });
   
+
   it("menampilkan bagian 'Tentang Kami'", () => {
-    expect(screen.getByText("Tentang Kami")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Tentang Kami" })).toBeInTheDocument();
   });
+
 
   it("tombol 'Lihat Sekarang' bisa ditemukan", () => {
     expect(
@@ -50,7 +54,7 @@ describe("Home Page", () => {
   });
 
   it("menampilkan bagian 'Bantuan'", () => {
-    expect(screen.getByText("Bantuan")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Bantuan" })).toBeInTheDocument();
   });
 
   it("tombol 'Baca Selengkapnya' bisa ditemukan", () => {

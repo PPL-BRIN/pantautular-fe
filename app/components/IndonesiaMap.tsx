@@ -30,7 +30,7 @@ class AmChartsMapProvider implements MapProvider {
       this.chart = this.createMapChart();
       this.configureSeries();
       this.addInteractivity();
-    } catch {
+    } catch (err) {
       this.onError("Gagal memuat peta. Silakan coba lagi.");
     }
   }

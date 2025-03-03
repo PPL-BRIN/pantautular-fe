@@ -7,7 +7,7 @@ import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 
 interface IndonesiaMapProps {
-  onError: (message: string) => void; // Callback untuk menangani error
+  readonly onError: (message: string) => void; // Callback untuk menangani error
 }
 
 export default function IndonesiaMap({ onError }: IndonesiaMapProps) {

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Home from "../../app/page";
 
@@ -7,13 +7,14 @@ jest.mock("../../app/layout", () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+const mockPush = jest.fn();
+
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    push: mockPush, 
   }),
-  usePathname: jest.fn(() => "/"), 
+  usePathname: jest.fn(() => "/"),
 }));
-
 
 describe("Home Page", () => {
   beforeEach(() => {
@@ -35,32 +36,37 @@ describe("Home Page", () => {
     ).toBeInTheDocument();
   });
 
-  it("tombol 'Gunakan Sekarang!' bisa ditemukan", () => {
-    expect(
-      screen.getByRole("button", { name: "Gunakan Sekarang!" })
-    ).toBeInTheDocument();
+  it("tombol 'Gunakan Sekarang!' bisa ditemukan dan berfungsi", () => {
+    const button = screen.getByRole("button", { name: "Gunakan Sekarang!" });
+    expect(button).toBeInTheDocument();
+
+    fireEvent.click(button);
+
+    expect(mockPush).toHaveBeenCalledWith("/"); // 
   });
-  
 
   it("menampilkan bagian 'Tentang Kami'", () => {
     expect(screen.getByRole("heading", { name: "Tentang Kami" })).toBeInTheDocument();
   });
 
+  it("tombol 'Lihat Sekarang' bisa ditemukan dan berfungsi", () => {
+    const button = screen.getByRole("button", { name: "Lihat Sekarang" });
+    expect(button).toBeInTheDocument();
 
-  it("tombol 'Lihat Sekarang' bisa ditemukan", () => {
-    expect(
-      screen.getByRole("button", { name: "Lihat Sekarang" })
-    ).toBeInTheDocument();
+    fireEvent.click(button);
+    expect(mockPush).toHaveBeenCalledWith("/about"); 
   });
 
   it("menampilkan bagian 'Bantuan'", () => {
     expect(screen.getByRole("heading", { name: "Bantuan" })).toBeInTheDocument();
   });
 
-  it("tombol 'Baca Selengkapnya' bisa ditemukan", () => {
-    expect(
-      screen.getByRole("button", { name: "Baca Selengkapnya" })
-    ).toBeInTheDocument();
+  it("tombol 'Baca Selengkapnya' bisa ditemukan dan berfungsi", () => {
+    const button = screen.getByRole("button", { name: "Baca Selengkapnya" });
+    expect(button).toBeInTheDocument();
+
+    fireEvent.click(button);
+    expect(mockPush).toHaveBeenCalledWith("/help"); 
   });
 
   it("tidak menampilkan elemen dengan teks yang salah", () => {
@@ -96,6 +102,4 @@ describe("Home Page", () => {
       expect(screen.queryByAltText(altText)).not.toBeInTheDocument();
     });
   });
-  
 });
-;

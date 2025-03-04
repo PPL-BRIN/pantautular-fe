@@ -23,7 +23,7 @@ export default function HeroSection() {
             memungkinkan pengguna untuk memantau dan mengantisipasi 
             penyebaran penyakit menular dengan lebih efektif.
           </p>
-          <ButtonBase href="/">Gunakan Sekarang!</ButtonBase>
+          <ButtonBase href="/map">Gunakan Sekarang!</ButtonBase>
         </div>
       </div>
     </section>

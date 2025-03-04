@@ -9,7 +9,6 @@ export default function BantuanPantauTular() {
       <Navbar />
       <div className="max-w-7xl mx-auto">
         <HelpTitle />
-
         <div className="mt-10 md:mt-12">
           <HelpSection
             title="1. Pencarian Berdasarkan Nama Penyakit"

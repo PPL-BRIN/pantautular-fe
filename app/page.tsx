@@ -1,5 +1,4 @@
-import Layout from "./layout";
-import '../styles/globals.css';
+import "../styles/globals.css";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import WhyPantauTularSection from "@/components/WhyPantauTularSection";
@@ -11,7 +10,7 @@ import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
-    <Layout>
+    <>
       <Navbar />
       <HeroSection />
       <MapGallery />
@@ -20,6 +19,6 @@ export default function Home() {
       <AboutSection />
       <HelpSection />
       <Footer />
-    </Layout>
+    </>
   );
 }

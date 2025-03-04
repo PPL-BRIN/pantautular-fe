@@ -1,15 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 const inter = { className: "" };
 
 export const metadata: Metadata = {
   title: "PantauTular",
   description: "Platform informasi sebaran penyakit menular di Indonesia",
-  viewport: "width=device-width, initial-scale=1",
   other: {
     "http-equiv": "Content-Security-Policy",
     content: "upgrade-insecure-requests",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

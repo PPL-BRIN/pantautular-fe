@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Home from "../../app/page";
 
@@ -7,10 +7,10 @@ jest.mock("../../app/layout", () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-  }),
+  useRouter: () => ({ push: mockPush }),
+  usePathname: jest.fn(() => "/"),
 }));
 
 describe("Home Page", () => {
@@ -18,79 +18,48 @@ describe("Home Page", () => {
     render(<Home />);
   });
 
-  it("menampilkan judul utama", () => {
+  const getButton = (name: string) => screen.getByRole("button", { name });
+
+  it("menampilkan elemen utama", () => {
     expect(screen.getByText("Selamat Datang di PantauTular!")).toBeInTheDocument();
+    expect(screen.getByAltText("PantauTular_home")).toBeInTheDocument();
+    expect(screen.getByText(/Bekerja sama dengan Badan Riset dan Inovasi Nasional/i)).toBeInTheDocument();
   });
 
-  it("menampilkan gambar utama", () => {
-    const image = screen.getByAltText("PantauTular_home");
-    expect(image).toBeInTheDocument();
+  it("tombol 'Gunakan Sekarang!' berfungsi", () => {
+    fireEvent.click(getButton("Gunakan Sekarang!"));
+    expect(mockPush).toHaveBeenCalledWith("/");
   });
 
-  it("menampilkan paragraf utama dengan BRIN", () => {
-    expect(
-      screen.getByText(/Bekerja sama dengan Badan Riset dan Inovasi Nasional/i)
-    ).toBeInTheDocument();
+  it("tombol 'Lihat Sekarang' berfungsi", () => {
+    fireEvent.click(getButton("Lihat Sekarang"));
+    expect(mockPush).toHaveBeenCalledWith("/about");
   });
 
-  it("tombol 'Gunakan Sekarang!' bisa ditemukan", () => {
-    expect(
-      screen.getByRole("button", { name: "Gunakan Sekarang!" })
-    ).toBeInTheDocument();
-  });
-  
-  it("menampilkan bagian 'Tentang Kami'", () => {
-    expect(screen.getByText("Tentang Kami")).toBeInTheDocument();
+  it("tombol 'Baca Selengkapnya' berfungsi", () => {
+    fireEvent.click(getButton("Baca Selengkapnya"));
+    expect(mockPush).toHaveBeenCalledWith("/help");
   });
 
-  it("tombol 'Lihat Sekarang' bisa ditemukan", () => {
-    expect(
-      screen.getByRole("button", { name: "Lihat Sekarang" })
-    ).toBeInTheDocument();
-  });
+  it("memastikan elemen yang tidak seharusnya ada tidak muncul", () => {
+    ["Selamat Datang di Fasilkom-C02!", "Pusat Informasi Penyakit"].forEach((text) =>
+      expect(screen.queryByText(text)).not.toBeInTheDocument()
+    );
 
-  it("menampilkan bagian 'Bantuan'", () => {
-    expect(screen.getByText("Bantuan")).toBeInTheDocument();
-  });
-
-  it("tombol 'Baca Selengkapnya' bisa ditemukan", () => {
-    expect(
-      screen.getByRole("button", { name: "Baca Selengkapnya" })
-    ).toBeInTheDocument();
-  });
-
-  it("tidak menampilkan elemen dengan teks yang salah", () => {
-    expect(screen.queryByText("Selamat Datang di Fasilkom-C02!")).not.toBeInTheDocument();
-    expect(screen.queryByText("Pusat Informasi Penyakit")).not.toBeInTheDocument();
-  });
-
-  it("tidak menampilkan tombol yang tidak ada di halaman", () => {
-    expect(screen.queryByRole("button", { name: "Mulai Sekarang" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Daftar" })).not.toBeInTheDocument();
+    ["Mulai Sekarang", "Daftar"].forEach((btn) =>
+      expect(screen.queryByRole("button", { name: btn })).not.toBeInTheDocument()
+    );
   });
 
   it("menampilkan tiga gambar dalam MapGallery", () => {
-    const images = [
-      "Peta Sebaran 1",
-      "Peta Sebaran 2",
-      "Peta Sebaran 3"
-    ];
-
-    images.forEach((altText) => {
-      expect(screen.getByAltText(altText)).toBeInTheDocument();
-    });
+    ["Peta Sebaran 1", "Peta Sebaran 2", "Peta Sebaran 3"].forEach((altText) =>
+      expect(screen.getByAltText(altText)).toBeInTheDocument()
+    );
   });
 
   it("tidak menampilkan gambar yang tidak seharusnya ada", () => {
-    const nonExistentImages = [
-      "Peta Sebaran 200",
-      "Peta Sebaran Tidak Ada",
-      "Peta Dummy"
-    ];
-  
-    nonExistentImages.forEach((altText) => {
-      expect(screen.queryByAltText(altText)).not.toBeInTheDocument();
-    });
+    ["Peta Sebaran 200", "Peta Sebaran Tidak Ada", "Peta Dummy"].forEach((altText) =>
+      expect(screen.queryByAltText(altText)).not.toBeInTheDocument()
+    );
   });
-  
 });

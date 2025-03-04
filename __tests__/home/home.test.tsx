@@ -28,7 +28,7 @@ describe("Home Page", () => {
 
   it("tombol 'Gunakan Sekarang!' berfungsi", () => {
     fireEvent.click(getButton("Gunakan Sekarang!"));
-    expect(mockPush).toHaveBeenCalledWith("/");
+    expect(mockPush).toHaveBeenCalledWith("/map");
   });
 
   it("tombol 'Lihat Sekarang' berfungsi", () => {

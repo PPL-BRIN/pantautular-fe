@@ -4,7 +4,7 @@ import ButtonBase from "../components/ButtonBase";
 export default function HeroSection() {
   return (
     <section className="flex flex-col items-center justify-center min-h-screen px-6 bg-white">
-      <h1 className="text-4xl font-bold text-blue-900 text-center mt-12 mb-32">
+      <h1 className="text-4xl font-bold text-blue-900 text-center mt-16 mb-32">
         Selamat Datang di PantauTular!
       </h1>
 

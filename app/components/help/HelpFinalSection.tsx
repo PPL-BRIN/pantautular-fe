@@ -1,5 +1,5 @@
 import React from 'react';
-import BackgroundCircle from './BackgroundCircle';
+import BackgroundCircle from '../BackgroundCircle';
 
 export default function HelpFinalSection() {
     return (

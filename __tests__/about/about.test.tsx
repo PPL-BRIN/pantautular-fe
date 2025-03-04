@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import About from "../app/about/page";
+import About from "../../app/about/page";
 
 jest.mock("../styles/globals.css", () => ({}));
 

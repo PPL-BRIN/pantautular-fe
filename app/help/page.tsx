@@ -1,6 +1,6 @@
-import HelpTitle from "./components/HelpTitle";
-import HelpSection from "./components/HelpSection";
-import HelpFinalSection from "./components/HelpFinalSection";
+import HelpTitle from "../components/help/HelpTitle";
+import HelpSection from "../components/help/HelpSection";
+import HelpFinalSection from "../components/help/HelpFinalSection";
 import Navbar from "../components/Navbar";
 
 export default function BantuanPantauTular() {

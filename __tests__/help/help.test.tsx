@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import BantuanPantauTular from '../app/help/page';
+import BantuanPantauTular from '../../app/help/page';
 
 describe('BantuanPantauTular', () => {
     it('renders the title', () => {

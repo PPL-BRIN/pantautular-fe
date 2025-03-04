@@ -1,5 +1,5 @@
 import BackgroundCircle from "../components/BackgroundCircle";
-import SectionContainer from "../components/SectionContainer";
+import SectionContainer from "../components/about/SectionContainer";
 import Navbar from "../components/Navbar";
 
 export default function About() {

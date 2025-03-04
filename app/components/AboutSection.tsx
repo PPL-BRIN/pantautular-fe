@@ -1,4 +1,4 @@
-import ButtonWithArrow from "@/components/ButtonWithArrow";
+import ButtonWithArrow from "../components/ButtonWithArrow";
 import Image from "next/image";
 
 export default function AboutSection() {

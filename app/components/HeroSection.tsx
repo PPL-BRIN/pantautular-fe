@@ -1,5 +1,5 @@
 import Image from "next/image";
-import ButtonBase from "@/components/ButtonBase";
+import ButtonBase from "../components/ButtonBase";
 
 export default function HeroSection() {
   return (

@@ -101,11 +101,11 @@ export class MapChartService {
       );
 
       container.children.push(
-        am5.Circle.new(root, { radius: 12, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
       );
 
       container.children.push(
-        am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 20, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
       );
 
       container.children.push(
@@ -135,15 +135,15 @@ export class MapChartService {
     const tooltipData = {
         id: "NP00IP05K100B",
         location: "Kota Bekasi, Jawa Barat",
-        summary: "Pemerintah Kota Bekasi melalui Dinas Kesehatan Kota Bekasi mengkonfirmasi kasus Cacar Moriyet sebanyak 8 kasus suspek diantaranya 1 orang positif sedang menjalani isolasi RS.",
+        summary: "Pemerintah Kota Bekasi melalui Dinas Kesehatan Kota Bekasi mengkonfirmasi kasus Cacar Monyet sebanyak 8 kasus suspek diantaranya 1 orang positif sedang menjalani isolasi RS.",
         gender: "Pria",
         age: "Tidak diketahui",
-        alertLevel: "Wespoda",
-        relatedSearch: "Apa itu Cacar Moriyet?",
-        source: "(1/2) 09Nov2023 Sudah 4 Warga Jabar Positif Cacar Moriyet (detik.com)",
+        alertLevel: "Waspada",
+        relatedSearch: "Apa itu Cacar Monyet?",
+        source: "https://www.detik.com",
       };
     
-      const tooltipHTML = getTooltipHTML(tooltipData);
+    const tooltipHTML = getTooltipHTML(tooltipData);
     
     this.pointSeries.bullets.push(() =>
       am5.Bullet.new(this.root, {

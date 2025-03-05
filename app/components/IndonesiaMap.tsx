@@ -1,7 +1,7 @@
 // components/IndonesiaMap.tsx - Presentation component
 import React from "react";
-import { useIndonesiaMap } from "../hooks/useIndonesiaMap";
-import { MapLocation, MapConfig } from "../types";
+import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
+import { MapLocation, MapConfig } from "../../types";
 
 interface IndonesiaMapProps {
   locations: MapLocation[];

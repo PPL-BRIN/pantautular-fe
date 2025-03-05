@@ -1,7 +1,7 @@
-import { MapChartService } from './mapChartService';
+import { MapChartService } from '../../services/mapChartService';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5map from "@amcharts/amcharts5/map";
-import { MapConfig, MapLocation } from "../types";
+import { MapConfig, MapLocation } from "../../types";
 
 // Mock for container.children.push
 const mockChildrenPush = jest.fn();

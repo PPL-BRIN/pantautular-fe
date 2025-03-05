@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import MapPage from './page';
+import MapPage from '../../../app/map/page';
 
 // Mock the dependencies
 jest.mock("@amcharts/amcharts5", () => {

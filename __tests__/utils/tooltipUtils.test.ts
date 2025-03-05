@@ -1,4 +1,4 @@
-import { getTooltipHTML, TooltipData } from "./tooltipUtils";
+import { getTooltipHTML, TooltipData } from "../../utils/tooltipUtils";
 
 describe("getTooltipHTML", () => {
   it("should include all tooltip data in the generated HTML", () => {

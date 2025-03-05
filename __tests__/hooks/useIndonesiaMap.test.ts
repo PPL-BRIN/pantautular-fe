@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
-import { useIndonesiaMap } from './useIndonesiaMap';
-import { MapChartService } from '../services/mapChartService';
-import { MapLocation, MapConfig } from '../types';
+import { useIndonesiaMap } from '../../hooks/useIndonesiaMap';
+import { MapChartService } from '../../services/mapChartService';
+import { MapLocation, MapConfig } from '../../types';
 import { useRef } from 'react';
 
 // Mock useRef
@@ -10,7 +10,7 @@ import { useRef } from 'react';
 const mockInitialize = jest.fn();
 const mockPopulateLocations = jest.fn();
 const mockDispose = jest.fn();
-jest.mock('../services/mapChartService', () => {
+jest.mock('../../services/mapChartService', () => {
   return {
     MapChartService: jest.fn().mockImplementation(() => {
       return {

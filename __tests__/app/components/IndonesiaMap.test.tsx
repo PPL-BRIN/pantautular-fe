@@ -1,11 +1,11 @@
 // components/IndonesiaMap.test.tsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { IndonesiaMap } from '../components/IndonesiaMap';
-import { useIndonesiaMap } from '../hooks/useIndonesiaMap';
+import { IndonesiaMap } from '../../../app/components/IndonesiaMap';
+import { useIndonesiaMap } from '../../../hooks/useIndonesiaMap';
 
 // Mock the custom hook
-jest.mock('../hooks/useIndonesiaMap', () => ({
+jest.mock('../../../hooks/useIndonesiaMap', () => ({
   useIndonesiaMap: jest.fn()
 }));
 

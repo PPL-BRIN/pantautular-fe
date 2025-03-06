@@ -1,77 +1,70 @@
 export interface TooltipData {
-    id: string;
-    location: string;
-    summary: string;
-    gender: string;
-    age: string;
-    alertLevel: string;
-    relatedSearch: string;
-    source: string;
-  }
-  
-  export const getTooltipHTML = (data: TooltipData): string => {
-    return `
-      <style>
-        .tooltip-container {
-          background: white;
-          padding: 10px;
-          border-radius: 5px;
-          color: black;
-          font-family: Arial, sans-serif;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .tooltip-container h1 {
-          text-align: center;
-          color: #333;
-          font-size: 16px;
-          margin-bottom: 10px;
-        }
-        .detail-item {
-          margin-bottom: 10px;
-        }
-        .label {
-          font-weight: bold;
-          color: #555;
-        }
-        .value {
-          color: #333;
-          margin-left: 10px;
-        }
-      </style>
-      <div class="tooltip-container">
-        <h1>Detail Kasus Penyakit Menular</h1>
-        <div class="detail-item">
-          <span class="label">ID Kasus:</span>
-          <span class="value">${data.id}</span>
-        </div>
-        <div class="detail-item">
-          <span class="label">Lokasi:</span>
-          <span class="value">${data.location}</span>
-        </div>
-        <div class="detail-item">
-          <span class="label">Ringkasan:</span>
-          <span class="value">${data.summary}</span>
-        </div>
-        <div class="detail-item">
-          <span class="label">Jenis Kelamin:</span>
-          <span class="value">${data.gender}</span>
-        </div>
-        <div class="detail-item">
-          <span class="label">Usia:</span>
-          <span class="value">${data.age}</span>
-        </div>
-        <div class="detail-item">
-          <span class="label">Tingkat Kewaspadaan:</span>
-          <span class="value">${data.alertLevel}</span>
-        </div>
-        <div class="detail-item">
-          <span class="label">Pencarian Terkait:</span>
-          <span class="value">${data.relatedSearch}</span>
-        </div>
-        <div class="detail-item">
-          <span class="label">Sumber:</span>
-          <span class="value">${data.source}</span>
-        </div>
+  id: string;
+  location: string;
+  summary: string;
+  gender: string;
+  age: string;
+  alertLevel: string;
+  relatedSearch: string;
+  source: string;
+}
+
+export const getTooltipHTML = (data: TooltipData): string => {
+  return `
+    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); font-family: Arial, sans-serif; color: #333; max-width: 300px;">
+      <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #2c3e50;">Detail Kasus Penyakit Menular</div>
+      
+      <!-- ID Kasus -->
+      <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <span style="font-weight: bold; color: #555;">ID Kasus:</span>
+        <span style="color: #333; text-align: right;">${data.id}</span>
       </div>
-    `;
-  };
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+      
+      <!-- Lokasi -->
+      <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <span style="font-weight: bold; color: #555;">Lokasi:</span>
+        <span style="color: #333; text-align: right;">${data.location}</span>
+      </div>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+      
+      <!-- Ringkasan -->
+      <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <span style="font-weight: bold; color: #555;">Ringkasan:</span>
+        <span style="color: #333; text-align: right;">${data.summary}</span>
+      </div>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+      
+      <!-- Jenis Kelamin -->
+      <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <span style="font-weight: bold; color: #555;">Jenis Kelamin:</span>
+        <span style="color: #333; text-align: right;">${data.gender}</span>
+      </div>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+      
+      <!-- Usia -->
+      <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <span style="font-weight: bold; color: #555;">Usia:</span>
+        <span style="color: #333; text-align: right;">${data.age}</span>
+      </div>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+      
+      <!-- Tingkat Kewaspadaan -->
+      <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <span style="font-weight: bold; color: #e74c3c;">Tingkat Kewaspadaan:</span>
+        <span style="color: #333; text-align: right;">${data.alertLevel}</span>
+      </div>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+      
+      <!-- Pencarian Terkait -->
+      <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+        <span style="font-weight: bold; color: #555;">Pencarian Terkait:</span>
+        <span style="color: #333; text-align: right;">${data.relatedSearch}</span>
+      </div>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+      
+      <!-- Sumber -->
+      <div style="font-size: 12px; color: #777; margin-top: 10px;">${data.source}</div>
+    </div>
+  `;
+};

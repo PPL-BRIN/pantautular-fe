@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { IndonesiaMap } from "../../components/IndonesiaMap";
+import { IndonesiaMap } from "../components/IndonesiaMap";
 import { indonesiaLocations, defaultMapConfig } from "../../data/indonesiaLocations";
 
 export default function MapPage() {

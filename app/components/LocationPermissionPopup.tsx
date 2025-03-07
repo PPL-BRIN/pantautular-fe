@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { LocationService } from "../../services/LocationService";
 import { 
   Overlay, 
   Modal, 
@@ -22,8 +23,8 @@ const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // Cek status izin lokasi
-    navigator.permissions.query({ name: "geolocation" }).then((permissionStatus) => {
+    // Gunakan LocationService untuk mengecek izin lokasi
+    LocationService.checkPermission().then((permissionStatus) => {
       if (permissionStatus.state !== "granted") {
         setOpen(true);
       } else {
@@ -33,13 +34,13 @@ const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({
   }, [onAllow]);
 
   const handleAllow = () => {
-    navigator.geolocation.getCurrentPosition(
+    // Gunakan LocationService untuk meminta akses lokasi
+    LocationService.requestLocation(
       () => {
         setOpen(false);
         onAllow(); // Jika pengguna memilih "Izinkan", panggil fitur lain
       },
-      (error) => {
-        console.error("Error:", error);
+      () => {
         setOpen(false);
         onDeny(); // Panggil onDeny untuk menangani error di tempat lain
       }

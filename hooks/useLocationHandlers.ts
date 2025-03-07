@@ -1,18 +1,20 @@
 "use client";
 
-export const useLocationHandlers = (setShowPopup: (value: boolean) => void) => {
+export const useLocationHandlers = (
+  setShowPopup: (value: boolean) => void,
+  onAllowCallback: () => void,
+  onDenyCallback: () => void
+) => {
   const handleAllow = () => {
     setShowPopup(false);
-    console.log("Izin lokasi diberikan, lanjutkan ke fitur lain...");
-
-    // #TODO di sini panggil fitur lokasi saya
+    console.log("Izin lokasi diberikan.");
+    onAllowCallback(); // Gunakan callback agar bisa dikustomisasi
   };
 
   const handleDeny = () => {
     setShowPopup(false);
-    console.log("Izin lokasi ditolak, tampilkan error atau lakukan tindakan lain...");
-
-    // #TODO di sini panggil popup error
+    console.log("Izin lokasi ditolak.");
+    onDenyCallback(); // Gunakan callback agar bisa dikustomisasi
   };
 
   return { handleAllow, handleDeny };

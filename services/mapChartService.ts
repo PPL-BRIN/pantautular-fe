@@ -47,9 +47,8 @@ export class MapChartService {
     if (!this.chart || !this.root) return;
     
     let zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(this.root, {}));
-    if (zoomControl?.homeButton) {
-        zoomControl.homeButton.set("visible", true);
-    }
+    zoomControl.homeButton.set("visible", true);
+    
   }
 
   private setupPolygonSeries(): void {
@@ -133,8 +132,8 @@ export class MapChartService {
     if (!this.pointSeries || !this.root) return;
 
     const tooltipData = {
-        id: "NP00IP05K100B",
-        location: "Kota Bekasi, Jawa Barat",
+        id: "{id}",
+        location: "{city}",
         summary: "Pemerintah Kota Bekasi melalui Dinas Kesehatan Kota Bekasi mengkonfirmasi kasus Cacar Monyet sebanyak 8 kasus suspek diantaranya 1 orang positif sedang menjalani isolasi RS.",
         gender: "Pria",
         age: "Tidak diketahui",
@@ -166,10 +165,13 @@ export class MapChartService {
       this.pointSeries!.data.push({
         geometry: { 
           type: "Point", 
-          coordinates: [location.longitude, location.latitude] 
+          coordinates: [
+            location.location__longitude, 
+            location.location__latitude
+          ] 
         },
         city: location.city,
-        location: location.location,
+        id: location.id,
       });
     });
   }

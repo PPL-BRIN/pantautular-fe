@@ -96,15 +96,15 @@ export class MapChartService {
       });
 
       container.children.push(
-        am5.Circle.new(root, { radius: 8, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 8, tooltipY: 0, fill: am5.color(0xfc0339) })
       );
 
       container.children.push(
-        am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 12, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
       );
 
       container.children.push(
-        am5.Circle.new(root, { radius: 20, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
       );
 
       container.children.push(
@@ -134,11 +134,11 @@ export class MapChartService {
     const tooltipData = {
         id: "{id}",
         location: "{city}",
-        summary: "Pemerintah Kota Bekasi melalui Dinas Kesehatan Kota Bekasi mengkonfirmasi kasus Cacar Monyet sebanyak 8 kasus suspek diantaranya 1 orang positif sedang menjalani isolasi RS.",
-        gender: "Pria",
-        age: "Tidak diketahui",
-        alertLevel: "Waspada",
-        relatedSearch: "Apa itu Cacar Monyet?",
+        summary: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo",
+        gender: "Lorem",
+        age: "0",
+        alertLevel: "Lorem",
+        relatedSearch: "Lorem ipsum dolor sit",
         source: "https://www.detik.com",
       };
     
@@ -149,7 +149,7 @@ export class MapChartService {
         sprite: am5.Circle.new(this.root, {
           radius: 6,
           tooltipY: 0,
-          fill: am5.color(0xff8c00),
+          fill: am5.color(0xfc0339),
           cursorOverStyle: "pointer",
           showTooltipOn: "click",
           tooltipHTML: tooltipHTML,
@@ -166,8 +166,8 @@ export class MapChartService {
         geometry: { 
           type: "Point", 
           coordinates: [
-            location.location__longitude, 
-            location.location__latitude
+            parseFloat(location.location__longitude), 
+            parseFloat(location.location__latitude),
           ] 
         },
         city: location.city,
@@ -184,7 +184,5 @@ export class MapChartService {
       this.pointSeries = null;
     }
   }
-
-  
 }
 

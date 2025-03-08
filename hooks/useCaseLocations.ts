@@ -8,7 +8,7 @@ interface Location {
   location__longitude: number;
 }
 
-export function useCaseLocations(apiUrl: string) {
+export function useCaseLocations() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,17 +16,24 @@ export function useCaseLocations(apiUrl: string) {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await axios.get<Location[]>(apiUrl);
+        const response = await axios.get<Location[]>(
+          `${process.env.NEXT_PUBLIC_API_URL}/cases/locations/`, // URL API
+          {
+            headers: {
+              "X-API-KEY": process.env.NEXT_PUBLIC_API_KEY as string, // API Key dari .env
+            },
+          }
+        );
         setLocations(response.data);
       } catch (err) {
-        setError("Failed to fetch location data.");
+        setError("Gagal mengambil data kasus. Silakan coba lagi.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchLocations();
-  }, [apiUrl]);
+  }, []);
 
   return { locations, loading, error, setError };
 }

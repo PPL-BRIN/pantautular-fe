@@ -3,12 +3,9 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5map from "@amcharts/amcharts5/map";
 import { MapConfig, MapLocation } from "../../types";
 
-// Mock for container.children.push
+
 const mockChildrenPush = jest.fn();
-
-// Mock for container.events.on
 const mockEventsOn = jest.fn();
-
 const mockBulletsPush = jest.fn();
 
 // Mock amcharts modules
@@ -307,8 +304,8 @@ describe('MapChartService', () => {
 
   test('populateLocations adds location data to point series', () => {
     const mockLocations: MapLocation[] = [
-      { latitude: -6.2, longitude: 106.8, city: 'Jakarta', location: 'Jakarta Office' },
-      { latitude: -7.8, longitude: 110.4, city: 'Yogyakarta', location: 'Yogyakarta Office' }
+      { location__latitude: -6.2, location__longitude: 106.8, city: 'Jakarta', id: expect.anything() },
+      { location__latitude: -7.8, location__longitude: 110.4, city: 'Yogyakarta', id: expect.anything() }
     ];
     
     mapService.initialize('chartdiv', mockConfig);
@@ -321,12 +318,12 @@ describe('MapChartService', () => {
     expect(pointSeries.data.push).toHaveBeenCalledWith({
       geometry: { type: 'Point', coordinates: [106.8, -6.2] },
       city: 'Jakarta',
-      location: 'Jakarta Office'
+      id: expect.anything()
     });
     expect(pointSeries.data.push).toHaveBeenCalledWith({
       geometry: { type: 'Point', coordinates: [110.4, -7.8] },
       city: 'Yogyakarta',
-      location: 'Yogyakarta Office'
+      id: expect.anything()
     });
   });
 
@@ -369,8 +366,8 @@ describe('MapChartService', () => {
   test('populateLocations with extreme coordinate values should work correctly', () => {
     // Setup
     const extremeLocations: MapLocation[] = [
-      { latitude: 90, longitude: 180, city: 'Edge', location: 'Edge of the map' },
-      { latitude: -90, longitude: -180, city: 'Other Edge', location: 'Other edge' }
+      { location__latitude: 90, location__longitude: 180, city: 'Edge', id: expect.anything() },
+      { location__latitude: -90, location__longitude: -180, city: 'Other Edge', id: expect.anything()}
     ];
     
     mapService.initialize('chartdiv', mockConfig);
@@ -382,7 +379,7 @@ describe('MapChartService', () => {
     expect((mapService as any).pointSeries.data.push).toHaveBeenCalledWith({
       geometry: { type: 'Point', coordinates: [180, 90] },
       city: 'Edge',
-      location: 'Edge of the map'
+      id: expect.anything()
     });
   });
   

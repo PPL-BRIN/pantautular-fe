@@ -81,7 +81,7 @@ describe("CaseLocationPoints Component", () => {
   beforeEach(() => {
     mockSeries = {
       constructor: { name: "MapPointSeries" },
-      bullets: { push: jest.fn((callback) => callback && callback()) },
+      bullets: { push: jest.fn((callback) => callback?.()) },
       data: { setAll: jest.fn() },
     };
 

@@ -33,7 +33,7 @@ const CaseLocationPoints: React.FC<CaseLocationPointsProps> = ({ chart, root, lo
    
     // Konfigurasi bullet untuk point series
     pointSeries.bullets.push(() => {
-      if (!root || !am5 || !am5.Bullet || !am5.Bullet.new) {
+      if (!root || !am5?.Bullet?.new) {
         console.log("Missing required objects or methods");
         return undefined;
       }

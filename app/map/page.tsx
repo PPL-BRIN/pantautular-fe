@@ -8,14 +8,11 @@ import { useCaseLocations } from "../../hooks/useCaseLocations";
 
 export default function MapPage() {
   const { error, setError, clearError } = useMapError();
+  const { locations, error: fetchError } = useCaseLocations();
 
-  // sesuaikan API URL untuk fetch data lokasi
-  const { locations, error: fetchError } = useCaseLocations("/api/locations");
-
-  // Jika terjadi fetch error, set error ke useMapError agar bisa dikontrol dari satu sumber
   useEffect(() => {
     if (fetchError) {
-      setError("Gagal mengambil data kasus. Silakan coba lagi.");
+      setError(fetchError);
     }
   }, [fetchError, setError]);
 

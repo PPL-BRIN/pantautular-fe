@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import IndonesiaMap from "../components/IndonesiaMap";
 import MapLoadErrorPopup from "../components/MapLoadErrorPopup";
 import { useMapError } from "../../hooks/useMapError";
@@ -10,10 +10,16 @@ export default function MapPage() {
   const { error, setError, clearError } = useMapError();
   const { locations, error: fetchError } = useCaseLocations("/api/locations");
 
+  // Jika terjadi fetch error, set error ke useMapError agar bisa dikontrol dari satu sumber
+  useEffect(() => {
+    if (fetchError) {
+      setError("Gagal mengambil data kasus. Silakan coba lagi.");
+    }
+  }, [fetchError, setError]);
+
   return (
     <div>
       {error && <MapLoadErrorPopup message={error} onClose={clearError} />}
-      {fetchError && <MapLoadErrorPopup message={fetchError} onClose={() => {}} />}
       <IndonesiaMap onError={setError} locations={locations} />
     </div>
   );

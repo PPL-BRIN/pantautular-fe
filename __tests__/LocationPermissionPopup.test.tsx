@@ -1,152 +1,155 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import LocationPermissionPopup from "../app/components/LocationPermissionPopup";
 
-const mockOnClose = jest.fn();
-const mockOnAllow = jest.fn();
-const mockOnDeny = jest.fn();
-
 describe("LocationPermissionPopup", () => {
+  let mockOnAllow: jest.Mock;
+  let mockOnDeny: jest.Mock;
+
+  beforeAll(() => {
+    // Pastikan `navigator.permissions` tersedia sebelum `spyOn`
+    if (!navigator.permissions) {
+      Object.defineProperty(global.navigator, "permissions", {
+        value: {
+          query: jest.fn(),
+        },
+        configurable: true,
+      });
+    }
+  });
+
   beforeEach(() => {
-    jest.clearAllMocks();
-    localStorage.clear();
-  });
+    mockOnAllow = jest.fn();
+    mockOnDeny = jest.fn();
 
-  test("tidak menampilkan popup saat 'open' adalah 'false'", () => {
-    render(
-      <LocationPermissionPopup
-        open={false}
-        onClose={mockOnClose}
-        onAllow={mockOnAllow}
-        onDeny={mockOnDeny}
-      />
+    // Mock `navigator.permissions.query`
+    jest.spyOn(navigator.permissions, "query").mockResolvedValue({
+      state: "prompt",
+      onchange: null,
+    } as PermissionStatus);
+
+    // Mock `navigator.geolocation`
+    if (!navigator.geolocation) {
+      Object.defineProperty(global.navigator, "geolocation", {
+        value: {
+          getCurrentPosition: jest.fn(),
+          watchPosition: jest.fn(),
+          clearWatch: jest.fn(),
+        },
+        configurable: true,
+      });
+    }
+
+    jest.spyOn(navigator.geolocation, "getCurrentPosition").mockImplementation(
+      (success) => success({} as GeolocationPosition)
     );
 
-    const popupText = screen.queryByText(/Fitur ini memerlukan akses lokasi Anda/i);
-    expect(popupText).not.toBeInTheDocument();
+    jest.restoreAllMocks();
   });
 
-  test("menampilkan popup saat 'open' adalah 'true'", () => {
-    render(
-      <LocationPermissionPopup
-        open={true}
-        onClose={mockOnClose}
-        onAllow={mockOnAllow}
-        onDeny={mockOnDeny}
-      />
-    );
-
-    expect(screen.getByText(/Lokasi Diperlukan/i)).toBeInTheDocument();
-    expect(screen.getByText(/Fitur ini memerlukan akses lokasi Anda/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Lanjutkan/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Tolak/i })).toBeInTheDocument();
+  test("Menampilkan popup izin lokasi saat pertama kali dirender", async () => {
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
+    
+    expect(await screen.findByText("Izin Lokasi Diperlukan")).toBeInTheDocument();
   });
 
-  test("Memanggil 'onDeny' ketika tombol 'Tolak' ditekan", () => {
-    render(
-      <LocationPermissionPopup open={true} onClose={mockOnClose} onAllow={mockOnAllow} onDeny={mockOnDeny} />
-    );
-
-    const denyButton = screen.getByText("Tolak");
-    fireEvent.click(denyButton);
-
-    expect(mockOnDeny).toHaveBeenCalled();
-    expect(mockOnClose).toHaveBeenCalled();
-    expect(localStorage.getItem("locationPermission")).toBe(null);
-  });
-
-  test("Memanggil 'onAllow' ketika tombol 'Lanjutkan' ditekan", () => {
-    render(
-      <LocationPermissionPopup open={true} onClose={mockOnClose} onAllow={mockOnAllow} onDeny={mockOnDeny} />
-    );
-
-    const allowButton = screen.getByText("Lanjutkan");
+  test("Klik tombol 'Lanjutkan' memanggil onAllow jika izin diberikan", async () => {
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
+  
+    // Pastikan tombol "Lanjutkan" tersedia sebelum klik
+    const allowButton = await screen.findByText("Lanjutkan");
     fireEvent.click(allowButton);
-
-    expect(mockOnClose).toHaveBeenCalled();
-    expect(mockOnAllow).toHaveBeenCalled();
-    expect(localStorage.getItem("locationPermission")).toBe("granted");
+  
+    await waitFor(() => {
+      expect(mockOnAllow).toHaveBeenCalled();
+    });
   });
 
-  test("Memanggil 'onAllow' ketika izin sudah diberikan", () => {
-    localStorage.setItem("locationPermission", "granted");
-
-    render(
-      <LocationPermissionPopup open={true} onClose={mockOnClose} onAllow={mockOnAllow} onDeny={mockOnDeny} />
-    );
-
-    expect(mockOnClose).toHaveBeenCalled();
-    expect(mockOnAllow).toHaveBeenCalled();
-  });
-
-  test("mengembalikan null ketika popup tidak terbuka", () => {
-    render(
-      <LocationPermissionPopup
-        open={false}
-        onClose={mockOnClose}
-        onAllow={mockOnAllow}
-        onDeny={mockOnDeny}
-      />
-    );
-
-    const overlayElement = screen.queryByText(/Lokasi Diperlukan/i);
-    expect(overlayElement).toBeNull();
-  });
-
-  test("mengembalikan null ketika izin sudah diberikan", () => {
-    localStorage.setItem("locationPermission", "granted");
-
-    render(
-      <LocationPermissionPopup
-        open={true}
-        onClose={mockOnClose}
-        onAllow={mockOnAllow}
-        onDeny={mockOnDeny}
-      />
-    );
-
-    const overlayElement = screen.queryByText(/Lokasi Diperlukan/i);
-    expect(overlayElement).toBeNull();
-  });
-
-  test("tidak memanggil 'onDeny' ketika tombol 'Lanjutkan' ditekan", () => {
-    render(
-      <LocationPermissionPopup open={true} onClose={mockOnClose} onAllow={mockOnAllow} onDeny={mockOnDeny} />
-    );
-
-    const allowButton = screen.getByText("Lanjutkan");
+  test("Klik tombol 'Lanjutkan' tidak memanggil onDeny", async () => {
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
+  
+    // Pastikan tombol "Lanjutkan" tersedia sebelum klik
+    const allowButton = await screen.findByText("Lanjutkan");
     fireEvent.click(allowButton);
-
-    expect(localStorage.getItem("locationPermission")).not.toBe(null);
-    expect(mockOnClose).toHaveBeenCalled();
+  
     expect(mockOnDeny).not.toHaveBeenCalled();
   });
-
-  test("tidak memanggil 'onAllow' ketika tombol 'Tolak' ditekan", () => {
-    render(
-      <LocationPermissionPopup open={true} onClose={mockOnClose} onAllow={mockOnAllow} onDeny={mockOnDeny} />
-    );
-
-    const denyButton = screen.getByText("Tolak");
+  
+  test("Klik tombol 'Batal' memanggil onDeny", async () => {
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
+  
+    // Pastikan tombol "Batal" tersedia sebelum klik
+    const denyButton = await screen.findByText("Batal");
     fireEvent.click(denyButton);
-
-    expect(localStorage.getItem("locationPermission")).not.toBe("granted");
-    expect(mockOnClose).toHaveBeenCalled();
-    expect(mockOnAllow).not.toHaveBeenCalled();
+  
+    expect(mockOnDeny).toHaveBeenCalled();
   });
 
-  test("tidak mengembalikan null ketika izin belum diberikan", () => {
-    render(
-      <LocationPermissionPopup
-        open={true}
-        onClose={mockOnClose}
-        onAllow={mockOnAllow}
-        onDeny={mockOnDeny}
-      />
-    );
+  test("Klik tombol 'Batal' tidak memanggil onAllow", async () => {
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
 
-    const overlayElement = screen.queryByText(/Lokasi Diperlukan/i);
-    expect(overlayElement).not.toBeNull();
+    // Pastikan tombol "Batal" tersedia sebelum klik
+    const denyButton = await screen.findByText("Batal");
+    fireEvent.click(denyButton);
+
+    expect(mockOnAllow).not.toHaveBeenCalled();
+  });
+  
+  test("Jika pengguna memblokir lokasi, panggil onDeny", async () => {
+    // Simulasikan error seolah-olah dari Geolocation API
+    const mockError = {
+      code: 1, // 1 = PERMISSION_DENIED
+      message: "User denied Geolocation",
+    };
+  
+    jest.spyOn(navigator.geolocation, "getCurrentPosition").mockImplementation(
+      (_, error) => {
+        if (error) {
+          error({
+            code: mockError.code,
+            message: mockError.message,
+            PERMISSION_DENIED: 1,
+            POSITION_UNAVAILABLE: 2,
+            TIMEOUT: 3
+          });
+        }
+      }
+    );
+  
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
+  
+    // Pastikan tombol "Lanjutkan" muncul sebelum mengklik
+    const allowButton = await screen.findByText("Lanjutkan");
+    fireEvent.click(allowButton);
+  
+    // Gunakan `waitFor` untuk memastikan `mockOnDeny` terpanggil
+    await waitFor(() => expect(mockOnDeny).toHaveBeenCalled());
+  });  
+  
+
+  test("Popup tidak ditampilkan jika izin sudah granted", async () => {
+    jest.spyOn(navigator.permissions, "query").mockResolvedValue({
+      state: "granted",
+      onchange: null,
+    } as PermissionStatus);
+
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
+
+    await waitFor(() => {
+      expect(mockOnAllow).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByText("Izin Lokasi Diperlukan")).not.toBeInTheDocument();
+  });
+
+  test("Popup muncul jika izin belum diberikan (prompt)", async () => {
+    jest.spyOn(navigator.permissions, "query").mockResolvedValue({
+      state: "prompt",
+      onchange: null,
+    } as PermissionStatus);
+
+    render(<LocationPermissionPopup onAllow={mockOnAllow} onDeny={mockOnDeny} onClose={() => {}} />);
+
+    expect(await screen.findByText("Izin Lokasi Diperlukan")).toBeInTheDocument();
   });
 });

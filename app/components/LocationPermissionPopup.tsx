@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { LocationService } from "../../services/LocationService";
 import { 
   Overlay, 
   Modal, 
@@ -7,33 +8,63 @@ import {
   ButtonContainer, 
   Button 
 } from "../../styles/LocationPermissionPopup.styles";
-import { useLocationPermission } from "../../hooks/useLocationPermission";
-import { LocalStoragePermissionService } from "../../services/LocationPermissionService";
 
 interface LocationPermissionPopupProps {
-  open: boolean;
   onClose: () => void;
   onAllow: () => void;
   onDeny: () => void;
 }
 
-// Inisialisasi service untuk penyimpanan izin lokasi
-const permissionService = new LocalStoragePermissionService();
+const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({
+  onClose,
+  onAllow,
+  onDeny,
+}) => {
+  const [open, setOpen] = useState(false);
 
-const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({ open, onClose, onAllow, onDeny }) => {
-  // Gunakan custom hook untuk mengelola izin lokasi
-  const { permissionGranted, allowPermission, denyPermission } = useLocationPermission(open, onAllow, onClose, permissionService);
+  useEffect(() => {
+    // Gunakan LocationService untuk mengecek izin lokasi
+    LocationService.checkPermission().then((permissionStatus) => {
+      if (permissionStatus.state !== "granted") {
+        setOpen(true);
+      } else {
+        onAllow(); // Jika sudah diizinkan, langsung panggil fitur lain
+      }
+    });
+  }, [onAllow]);
 
-  if (!open || permissionGranted) return null;
+  const handleAllow = () => {
+    // Gunakan LocationService untuk meminta akses lokasi
+    LocationService.requestLocation(
+      () => {
+        setOpen(false);
+        onAllow(); // Jika pengguna memilih "Izinkan", panggil fitur lain
+      },
+      () => {
+        setOpen(false);
+        onDeny(); // Panggil onDeny untuk menangani error di tempat lain
+      }
+    );
+  };
+
+  const handleDeny = () => {
+    setOpen(false);
+    onDeny();
+  };
+
+  if (!open) return null;
 
   return (
     <Overlay>
       <Modal>
-        <WarningHeader>Lokasi Diperlukan</WarningHeader>
-        <Message>Fitur ini memerlukan akses lokasi Anda. Izinkan akses?</Message>
+        <WarningHeader>Izin Lokasi Diperlukan</WarningHeader>
+        <Message>
+          Fitur ini membutuhkan akses lokasi Anda. 
+          Izinkan akses?
+        </Message>
         <ButtonContainer>
-          <Button onClick={() => { denyPermission(); onDeny(); }}>Tolak</Button>
-          <Button $primary onClick={allowPermission}>Lanjutkan</Button>
+          <Button onClick={handleDeny}>Batal</Button>
+          <Button $primary onClick={handleAllow}>Lanjutkan</Button>
         </ButtonContainer>
       </Modal>
     </Overlay>

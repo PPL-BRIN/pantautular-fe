@@ -11,7 +11,7 @@ jest.mock('../../../hooks/useIndonesiaMap', () => ({
 
 describe('IndonesiaMap', () => {
   const mockLocations = [
-    { city: 'TestCity', location: 'TestLocation', latitude: 1, longitude: 2 }
+    { city: 'TestCity', id: 'TestID', location__latitude: 1, location__longitude: 2 }
   ];
 
   beforeEach(() => {

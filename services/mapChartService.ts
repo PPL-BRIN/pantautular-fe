@@ -47,9 +47,8 @@ export class MapChartService {
     if (!this.chart || !this.root) return;
     
     let zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(this.root, {}));
-    if (zoomControl?.homeButton) {
-        zoomControl.homeButton.set("visible", true);
-    }
+    zoomControl.homeButton.set("visible", true);
+    
   }
 
   private setupPolygonSeries(): void {
@@ -97,15 +96,15 @@ export class MapChartService {
       });
 
       container.children.push(
-        am5.Circle.new(root, { radius: 8, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 8, tooltipY: 0, fill: am5.color(0xfc0339) })
       );
 
       container.children.push(
-        am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 12, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
       );
 
       container.children.push(
-        am5.Circle.new(root, { radius: 20, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xff8c00) })
+        am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
       );
 
       container.children.push(
@@ -133,13 +132,13 @@ export class MapChartService {
     if (!this.pointSeries || !this.root) return;
 
     const tooltipData = {
-        id: "NP00IP05K100B",
-        location: "Kota Bekasi, Jawa Barat",
-        summary: "Pemerintah Kota Bekasi melalui Dinas Kesehatan Kota Bekasi mengkonfirmasi kasus Cacar Monyet sebanyak 8 kasus suspek diantaranya 1 orang positif sedang menjalani isolasi RS.",
-        gender: "Pria",
-        age: "Tidak diketahui",
-        alertLevel: "Waspada",
-        relatedSearch: "Apa itu Cacar Monyet?",
+        id: "{id}",
+        location: "{city}",
+        summary: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo",
+        gender: "Lorem",
+        age: "0",
+        alertLevel: "Lorem",
+        relatedSearch: "Lorem ipsum dolor sit",
         source: "https://www.detik.com",
       };
     
@@ -150,7 +149,7 @@ export class MapChartService {
         sprite: am5.Circle.new(this.root, {
           radius: 6,
           tooltipY: 0,
-          fill: am5.color(0xff8c00),
+          fill: am5.color(0xfc0339),
           cursorOverStyle: "pointer",
           showTooltipOn: "click",
           tooltipHTML: tooltipHTML,
@@ -166,10 +165,13 @@ export class MapChartService {
       this.pointSeries!.data.push({
         geometry: { 
           type: "Point", 
-          coordinates: [location.longitude, location.latitude] 
+          coordinates: [
+            parseFloat(location.location__longitude), 
+            parseFloat(location.location__latitude),
+          ] 
         },
         city: location.city,
-        location: location.location,
+        id: location.id,
       });
     });
   }
@@ -182,7 +184,5 @@ export class MapChartService {
       this.pointSeries = null;
     }
   }
-
-  
 }
 

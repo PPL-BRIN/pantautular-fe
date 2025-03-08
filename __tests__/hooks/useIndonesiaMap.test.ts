@@ -32,8 +32,8 @@ describe('useIndonesiaMap', () => {
   let mapServiceRef: { current: MapChartService | null };
   const containerId = 'chartdiv';
   const mockLocations: MapLocation[] = [
-    { city: 'Jakarta', location: 'Jakarta Office', latitude: -6.2, longitude: 106.8 },
-    { city: 'Surabaya', location: 'Surabaya Office', latitude: -7.3, longitude: 112.7 }
+    { city: 'Jakarta', id: expect.anything(), location__latitude: -6.2, location__longitude: 106.8 },
+    { city: 'Surabaya', id: expect.anything(), location__latitude: -7.3, location__longitude: 112.7 }
   ];
   const mockConfig: MapConfig = {
     zoomLevel: 5,

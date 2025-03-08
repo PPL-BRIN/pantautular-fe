@@ -8,6 +8,8 @@ import { useCaseLocations } from "../../hooks/useCaseLocations";
 
 export default function MapPage() {
   const { error, setError, clearError } = useMapError();
+
+  // sesuaikan API URL untuk fetch data lokasi
   const { locations, error: fetchError } = useCaseLocations("/api/locations");
 
   // Jika terjadi fetch error, set error ke useMapError agar bisa dikontrol dari satu sumber

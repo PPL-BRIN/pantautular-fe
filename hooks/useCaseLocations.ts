@@ -18,7 +18,6 @@ export function useCaseLocations(apiUrl: string) {
       try {
         const response = await axios.get<Location[]>(apiUrl);
         setLocations(response.data);
-        // setLocations(locationData);
       } catch (err) {
         setError("Failed to fetch location data.");
       } finally {

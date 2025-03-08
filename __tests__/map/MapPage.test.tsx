@@ -3,10 +3,10 @@ import "@testing-library/jest-dom";
 import MapPage from "../../app/map/page";
 
 describe("MapPage Component", () => {
-  
+
   test("renders the map container successfully", () => {
     render(<MapPage />);
-    
+   
     expect(screen.getByTestId("chartdiv")).toBeInTheDocument();
   });
 

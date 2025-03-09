@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { DataFetcher } from "../interfaces/DataFetcher";
+import { AxiosFetcher } from "../services/AxiosFetcher";
 
 interface Location {
   id: string;
@@ -8,7 +9,17 @@ interface Location {
   location__longitude: number;
 }
 
-export function useCaseLocations() {
+interface UseCaseLocationsConfig {
+  apiUrl?: string;
+  apiKey?: string;
+  fetcher?: DataFetcher;
+}
+
+export function useCaseLocations({
+  apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/cases/locations/`,
+  apiKey = process.env.NEXT_PUBLIC_API_KEY as string,
+  fetcher = new AxiosFetcher(),
+}: UseCaseLocationsConfig = {}) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,15 +27,8 @@ export function useCaseLocations() {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await axios.get<Location[]>(
-          `${process.env.NEXT_PUBLIC_API_URL}/cases/locations/`, // URL API
-          {
-            headers: {
-              "X-API-KEY": process.env.NEXT_PUBLIC_API_KEY as string, // API Key dari .env
-            },
-          }
-        );
-        setLocations(response.data);
+        const data = await fetcher.fetchData<Location[]>(apiUrl, { "X-API-KEY": apiKey });
+        setLocations(data);
       } catch (err) {
         setError("Gagal mengambil data kasus. Silakan coba lagi.");
       } finally {
@@ -33,7 +37,7 @@ export function useCaseLocations() {
     };
 
     fetchLocations();
-  }, []);
+  }, [apiUrl, apiKey, fetcher]);
 
   return { locations, loading, error, setError };
 }

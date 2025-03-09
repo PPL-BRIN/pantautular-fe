@@ -1,5 +1,5 @@
 // components/IndonesiaMap.tsx - Presentation component
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { useMapError } from "../../hooks/useMapError";
 import MapLoadErrorPopup from "./MapLoadErrorPopup";
@@ -31,22 +31,42 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   };
 
   const { mapService } = useIndonesiaMap(mapContainerId, locations, fullConfig);
+  const isReady = !!mapService;
 
-  // Use the exported constant
+  const isReadyRef = useRef(isReady);
+
+  // Update ref setiap kali isReady berubah
   useEffect(() => {
-    // Create a handler function for better readability and testability
-    const handleMapLoadTimeout = () => {
-      if (!mapService) {
+    isReadyRef.current = isReady;
+    console.log("isReadyRef updated:", isReadyRef.current);
+  }, [isReady]);
+
+  // Error handling dengan timeout
+  useEffect(() => {
+    if (isReady) {
+      console.log("Map already ready, skipping error timer");
+      return;
+    }
+    
+    console.log("Setting up error timer");
+    let isMounted = true;
+    
+    const timer = setTimeout(() => {
+      // Periksa nilai terbaru dari ref, bukan closure value
+      console.log("Error timer fired, checking isReady ref:", isReadyRef.current);
+      if (isMounted && !isReadyRef.current) {
+        console.log("Setting error - map not ready after timeout");
         setError("Gagal memuat peta. Silakan coba lagi.");
         if (onError) onError("Gagal memuat peta. Silakan coba lagi.");
       }
-      // Jika tidak, mapService tersedia - tidak lakukan apa-apa
+    }, MAP_LOAD_TIMEOUT);
+    
+    return () => {
+      isMounted = false;
+      console.log("Cleaning up error timer");
+      clearTimeout(timer);
     };
-  
-    // Selalu buat timer terlepas dari status mapService
-    const timer = setTimeout(handleMapLoadTimeout, MAP_LOAD_TIMEOUT);
-    return () => clearTimeout(timer);
-  }, [mapService, setError, onError]);
+  }, [isReady, onError, setError]);
 
   return (
     <>

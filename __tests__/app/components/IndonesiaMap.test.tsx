@@ -109,21 +109,6 @@ describe("IndonesiaMap Component", () => {
     jest.useRealTimers();
   });
 
-  test("does not call onError when mapService is available", () => {
-    (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: {} });
-
-    jest.useFakeTimers();
-    render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
-    
-    // Run all timers to ensure any potential effects complete
-    act(() => {
-      jest.runAllTimers();
-    });
-
-    expect(mockOnError).not.toHaveBeenCalled();
-    expect(mockSetError).not.toHaveBeenCalled();
-  });
-
   test("does not throw error when onError is not provided", () => {
     (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: null });
 
@@ -163,33 +148,6 @@ describe("IndonesiaMap Component", () => {
     expect(mockClearError).toHaveBeenCalled();
   });
 
-  test("does not set error if mapService initializes successfully after delay", () => {
-    // First render: mapService is null (loading)
-    // Second render: mapService is available (loaded successfully)
-    (useIndonesiaMap as jest.Mock)
-      .mockReturnValueOnce({ mapService: null })
-      .mockReturnValueOnce({ mapService: {} });
-
-    jest.useFakeTimers();
-    const { rerender } = render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
-    
-    // Advance timers but not enough to trigger timeout
-    act(() => {
-      jest.advanceTimersByTime(25); // Half of the mocked timeout
-    });
-    
-    // Rerender to simulate React state update with mapService now available
-    rerender(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
-    
-    // Run remaining timers
-    act(() => {
-      jest.runAllTimers();
-    });
-
-    expect(mockOnError).not.toHaveBeenCalled();
-    expect(mockSetError).not.toHaveBeenCalled();
-  });
-
   test("calls onError when mapService fails even after delay", () => {
     // Always return null for mapService to simulate failure
     (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: null });
@@ -207,40 +165,167 @@ describe("IndonesiaMap Component", () => {
     expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
   });
 
-  test("handleMapLoadTimeout correctly checks mapService condition", () => {
-    // Setup: mapService tersedia
-    (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: {} });
-    
+  test("does not set timer when isReady is true", () => {
+    // Mock isReady to be true
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ 
+      mapService: {}, 
+      isReady: true 
+    });
+  
     jest.useFakeTimers();
+    
     render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
     
-    // Jalankan timer untuk memicu handleMapLoadTimeout
+    // Verify that no timers were created
+    expect(jest.getTimerCount()).toBe(0);
+    
+    // Run all timers to ensure nothing happens
     act(() => {
       jest.runAllTimers();
     });
     
-    // Verifikasi: karena mapService tersedia, tidak ada error yang dipanggil
+    // Verify error handling was NOT triggered
     expect(mockSetError).not.toHaveBeenCalled();
     expect(mockOnError).not.toHaveBeenCalled();
     
-    // Ubah menjadi null untuk menguji cabang if lainnya
-    (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: null });
-    const { rerender } = render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
+    jest.useRealTimers();
+  });
+  
+  test("cleans up timer on unmount", () => {
+    // Mock isReady to be false to ensure timer is created
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ 
+      mapService: {}, 
+      isReady: false 
+    });
+  
+    jest.useFakeTimers();
     
-    // Re-render dengan mapService null
+    // Render and get unmount function
+    const { unmount } = render(
+      <IndonesiaMap locations={mockLocations} onError={mockOnError} />
+    );
+    
+    // Verify timer was created
+    expect(jest.getTimerCount()).toBe(1);
+    
+    // Unmount component
+    unmount();
+    
+    // Verify timer was cleaned up
+    expect(jest.getTimerCount()).toBe(0);
+    
+    jest.useRealTimers();
+  });
+  
+  test("handles change from not ready to ready before timeout", () => {
+    // First mock isReady as false
+    (useIndonesiaMap as jest.Mock).mockReturnValueOnce({ 
+      mapService: {}, 
+      isReady: false 
+    });
+  
+    jest.useFakeTimers();
+    
+    const { rerender } = render(
+      <IndonesiaMap locations={mockLocations} onError={mockOnError} />
+    );
+    
+    // Verify timer was created
+    expect(jest.getTimerCount()).toBe(1);
+    
+    // Now mock isReady as true for rerender
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ 
+      mapService: {}, 
+      isReady: true 
+    });
+    
+    // Rerender with isReady = true
     rerender(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
     
-    // Reset mock untuk pengujian bersih
-    mockSetError.mockClear();
-    mockOnError.mockClear();
-    
-    // Jalankan timer untuk memicu handleMapLoadTimeout
+    // Advance timer but nothing should happen because new useEffect
+    // should have cleaned up previous timer
     act(() => {
       jest.runAllTimers();
     });
     
-    // Verifikasi: sekarang error harus dipanggil
-    expect(mockSetError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
-    expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
+    // Verify error was not triggered
+    expect(mockSetError).not.toHaveBeenCalled();
+    expect(mockOnError).not.toHaveBeenCalled();
+    
+    jest.useRealTimers();
+  });
+
+  test("does not call error handlers if isReady changes during timeout", () => {
+    // Mock initially isReady as false
+    (useIndonesiaMap as jest.Mock).mockReturnValueOnce({ 
+      mapService: {}, 
+      isReady: false 
+    });
+  
+    jest.useFakeTimers();
+    
+    const { rerender } = render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
+    
+    // Verify timer was created
+    expect(jest.getTimerCount()).toBe(1);
+    
+    // Advance timer slightly but not enough to trigger timeout
+    act(() => {
+      jest.advanceTimersByTime(25); // Half of the mocked timeout
+    });
+    
+    // Now mock isReady as true to simulate map becoming ready during timeout
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ 
+      mapService: {}, 
+      isReady: true 
+    });
+    
+    // Rerender to update component with new isReady value
+    rerender(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
+    
+    // Complete the timer - even though the timer fires, the condition should
+    // check current isReady value which is now true
+    act(() => {
+      jest.advanceTimersByTime(25); // Complete the timeout
+    });
+    
+    // Verify error handlers were not called because isReady became true
+    expect(mockSetError).not.toHaveBeenCalled();
+    expect(mockOnError).not.toHaveBeenCalled();
+    
+    jest.useRealTimers();
+  });
+
+  test("skips error setting when isReady becomes true during timeout", () => {
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ 
+      mapService: {}, 
+      isReady: false 
+    });
+  
+    jest.useFakeTimers();
+    
+    const { rerender } = render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
+    
+    // Verify timer was created
+    expect(jest.getTimerCount()).toBe(1);
+    
+    // Change isReady to true before timeout completes
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ 
+      mapService: {}, 
+      isReady: true 
+    });
+    
+    // Rerender to update component with new isReady value
+    rerender(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
+    
+    // Run all timers which should not trigger the error due to isReady being true
+    act(() => {
+      jest.runAllTimers();
+    });
+    
+    expect(mockSetError).not.toHaveBeenCalled();
+    expect(mockOnError).not.toHaveBeenCalled();
+    
+    jest.useRealTimers();
   });
 });

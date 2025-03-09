@@ -194,7 +194,7 @@ describe("IndonesiaMap Component", () => {
   test("cleans up timer on unmount", () => {
     // Mock isReady to be false to ensure timer is created
     (useIndonesiaMap as jest.Mock).mockReturnValue({ 
-      mapService: {}, 
+      mapService: null, // Set to null to ensure timer is created
       isReady: false 
     });
   
@@ -218,9 +218,10 @@ describe("IndonesiaMap Component", () => {
   });
   
   test("handles change from not ready to ready before timeout", () => {
-    // First mock isReady as false
+    // First mock isReady as false and mapService as null
+    // Setting mapService to null is critical to ensure the timer is created
     (useIndonesiaMap as jest.Mock).mockReturnValueOnce({ 
-      mapService: {}, 
+      mapService: null, 
       isReady: false 
     });
   
@@ -258,7 +259,7 @@ describe("IndonesiaMap Component", () => {
   test("does not call error handlers if isReady changes during timeout", () => {
     // Mock initially isReady as false
     (useIndonesiaMap as jest.Mock).mockReturnValueOnce({ 
-      mapService: {}, 
+      mapService: null, // Set to null to ensure timer is created
       isReady: false 
     });
   
@@ -298,7 +299,7 @@ describe("IndonesiaMap Component", () => {
 
   test("skips error setting when isReady becomes true during timeout", () => {
     (useIndonesiaMap as jest.Mock).mockReturnValue({ 
-      mapService: {}, 
+      mapService: null, // Changed to null to ensure timer is created
       isReady: false 
     });
   

@@ -11,28 +11,36 @@ export default function MapPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Loading map data...
-      </div>
+      <>
+        <Navbar />
+        <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
+          Loading map data...
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-red-500">Error: {error.message}</p>
-        <p>Please try refreshing the page</p>
-      </div>
+      <>
+        <Navbar />
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-5rem)]">
+          <p className="text-red-500">Error: {error.message}</p>
+          <p>Please try refreshing the page</p>
+        </div>
+      </>
     );
   }
 
   return (
     <>
-    <Navbar />
-    <IndonesiaMap 
-      locations={locations} 
-      config={defaultMapConfig} 
-    />
+      <Navbar />
+      <div className="w-full h-[calc(100vh-5rem)]">
+        <IndonesiaMap 
+          locations={locations} 
+          config={defaultMapConfig} 
+        />
+      </div>
     </>
   );
 }

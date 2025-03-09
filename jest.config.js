@@ -1,14 +1,23 @@
-module.exports = {
-    preset: "ts-jest", // Untuk TypeScript
-    testEnvironment: "jsdom",
-    transform: {
-      "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }], // Tambahin regex biar JSX/TSX bisa diproses
-    },
-    moduleNameMapper: {
-      "^@/(.*)$": "<rootDir>/app/$1",
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "^@amcharts/amcharts5$": "<rootDir>/__mocks__/amcharts5.js",
-    },
-    setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
-  };
-  
+const nextJest = require("next/jest");
+
+const createJestConfig = nextJest({
+  dir: "./",
+});
+
+const customJestConfig = {
+  testEnvironment: "jest-environment-jsdom",
+  transform: {
+    "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { configFile: "./jest/babel.config.js" }],
+  },
+  transformIgnorePatterns: ["node_modules/(?!@amcharts)"],
+  moduleNameMapper: {
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+    "^@amcharts/amcharts5$": "<rootDir>/__mocks__/amcharts5.js",
+    "^@amcharts/amcharts5/map$": "<rootDir>/__mocks__/amcharts5.js",
+    "^@amcharts/amcharts5-geodata/indonesiaLow$": "<rootDir>/__mocks__/amcharts5.js",
+    "^@amcharts/amcharts5/themes/Animated$": "<rootDir>/__mocks__/amcharts5.js",
+  },
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+};
+
+module.exports = createJestConfig(customJestConfig);

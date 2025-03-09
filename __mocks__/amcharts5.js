@@ -1,22 +1,40 @@
+const originalModule = jest.requireActual("@amcharts/amcharts5");
+
 module.exports = {
+  __esModule: true,
+  ...originalModule,
   Root: {
-    new: jest.fn(() => {
-      throw new Error("Mocked amCharts initialization error");
-    }),
+    new: jest.fn().mockImplementation(() => ({
+      setThemes: jest.fn(),
+      container: {
+        children: {
+          push: jest.fn().mockImplementation((chart) => chart)
+        }
+      },
+      dispose: jest.fn()
+    }))
   },
-  registry: { rootElements: [] },
-  MapChart: { new: jest.fn(() => ({ set: jest.fn(), series: { push: jest.fn() } })) },
-  MapPolygonSeries: { new: jest.fn(() => ({ setAll: jest.fn(), states: { create: jest.fn() } })) },
-  ZoomControl: { new: jest.fn() },
-  geoMercator: jest.fn(),
-
-  // Mock for themes/Animated
-  themes: {
-    Animated: {},
+  Container: {
+    new: jest.fn().mockImplementation(() => ({
+      children: {
+        push: jest.fn()
+      },
+      events: {
+        on: jest.fn()
+      }
+    }))
   },
-
-  // Mock for geodata
-  geodata: {
-    indonesiaLow: {},
+  Circle: {
+    new: jest.fn().mockImplementation(() => ({}))
   },
+  Label: {
+    new: jest.fn().mockImplementation(() => ({}))
+  },
+  Bullet: {
+    new: jest.fn().mockImplementation(() => ({
+      sprite: {}
+    }))
+  },
+  color: jest.fn().mockImplementation((color) => ({ color })),
+  p50: 0.5
 };

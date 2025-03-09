@@ -50,7 +50,7 @@ export class AxiosFetcher implements DataFetcher {
 
 
       // Tangani kasus error yang tidak memiliki message (null atau undefined)
-      throw new Error(axiosError?.message || "Failed to fetch data");
+      throw new Error(axiosError?.message ?? "Failed to fetch data");
     }
   }
 }

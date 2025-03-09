@@ -1,3 +1,4 @@
+// app/components/LocationPermissionPopup.tsx
 import React, { useEffect, useState } from "react";
 import { LocationService } from "../../services/LocationService";
 import { 
@@ -13,46 +14,55 @@ interface LocationPermissionPopupProps {
   onClose: () => void;
   onAllow: () => void;
   onDeny: () => void;
+  open?: boolean;
 }
 
 const LocationPermissionPopup: React.FC<LocationPermissionPopupProps> = ({
   onClose,
   onAllow,
   onDeny,
+  open
 }) => {
-  const [open, setOpen] = useState(false);
-
+  const [showPopup, setShowPopup] = useState(false);
+  
   useEffect(() => {
-    // Gunakan LocationService untuk mengecek izin lokasi
-    LocationService.checkPermission().then((permissionStatus) => {
-      if (permissionStatus.state !== "granted") {
-        setOpen(true);
-      } else {
-        onAllow(); // Jika sudah diizinkan, langsung panggil fitur lain
-      }
-    });
-  }, [onAllow]);
+    if (open) {
+      // Only check permission when explicitly opened via the prop
+      LocationService.checkPermission().then((permissionStatus) => {
+        if (permissionStatus.state !== "granted") {
+          setShowPopup(true);
+        } else {
+          onAllow();
+          onClose();
+        }
+      });
+    } else {
+      setShowPopup(false);
+    }
+  }, [open, onAllow, onClose]);
 
   const handleAllow = () => {
-    // Gunakan LocationService untuk meminta akses lokasi
+    // Use LocationService to request location
     LocationService.requestLocation(
       () => {
-        setOpen(false);
-        onAllow(); // Jika pengguna memilih "Izinkan", panggil fitur lain
+        setShowPopup(false);
+        onAllow();
+        onClose();
       },
       () => {
-        setOpen(false);
-        onDeny(); // Panggil onDeny untuk menangani error di tempat lain
+        setShowPopup(false);
+        onDeny();
+        onClose();
       }
     );
   };
 
   const handleDeny = () => {
-    setOpen(false);
-    onDeny();
+    setShowPopup(false);
+    onClose();
   };
 
-  if (!open) return null;
+  if (!showPopup) return null;
 
   return (
     <Overlay>

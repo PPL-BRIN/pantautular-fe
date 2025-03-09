@@ -35,10 +35,12 @@ export default function MapPage() {
   return (
     <>
       <Navbar />
-      <div className="w-full h-[calc(100vh-5rem)]">
+      <div className="w-full h-[calc(100vh-5rem)] relative">
         <IndonesiaMap 
           locations={locations} 
           config={defaultMapConfig} 
+          width="100%"
+          height="100%"
         />
       </div>
     </>

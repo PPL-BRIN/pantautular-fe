@@ -9,36 +9,21 @@ export const useIndonesiaMap = (
 ) => {
   const mapServiceRef = useRef<MapChartService | null>(null);
 
-  // Memoize locations and config to prevent unnecessary re-renders
-  const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
-  const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
-
   useEffect(() => {
-    // Dispose of the existing service if it exists
     if (mapServiceRef.current) {
       mapServiceRef.current.dispose();
       mapServiceRef.current = null;
     }
 
-    
-    // Create a new map service
-    mapServiceRef.current = new MapChartService();
+    try {
+      mapServiceRef.current = new MapChartService();
+      mapServiceRef.current.initialize(containerId, config);
+      mapServiceRef.current.populateLocations(locations);
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      mapServiceRef.current = null; // Hanya jika ada error nyata
+    }
+  }, [containerId, locations, config]);
 
-    // Initialize the chart
-    mapServiceRef.current.initialize(containerId, memoizedConfig);
-
-    // Add location data
-    mapServiceRef.current.populateLocations(memoizedLocations);
-    
-
-    // Cleanup function
-    return () => {
-      if (mapServiceRef.current) {
-        mapServiceRef.current.dispose();
-        mapServiceRef.current = null;
-      }
-    };
-  }, [containerId, memoizedLocations, memoizedConfig]);
-
-  return { mapService: mapServiceRef.current };
+  return { mapService: mapServiceRef.current ?? null };
 };

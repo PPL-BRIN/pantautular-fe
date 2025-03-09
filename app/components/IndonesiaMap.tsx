@@ -31,12 +31,17 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   const { mapService } = useIndonesiaMap(mapContainerId, locations, fullConfig);
 
   useEffect(() => {
-    if (!mapService) {
-      const errorMsg = "Gagal memuat peta. Silakan coba lagi.";
-      setError(errorMsg);
-      if (onError) onError(errorMsg); // Kirim error ke komponen induk
-    }
-  }, [mapService, setError, onError]);
+    // Tunggu 500ms untuk memastikan mapService tidak sekadar delay dalam inisialisasi
+    const timeout = setTimeout(() => {
+      if (!mapService) {
+        console.log("IndonesiaMap Error: Gagal memuat peta.");
+        setError("Gagal memuat peta. Silakan coba lagi.");
+        if (onError) onError("Gagal memuat peta. Silakan coba lagi.");
+      }
+    }, 500);
+  
+    return () => clearTimeout(timeout);
+  }, [mapService, setError, onError]);   
 
   return (
     <>

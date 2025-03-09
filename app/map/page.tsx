@@ -13,10 +13,11 @@ export default function MapPage() {
   const { error: mapError, setError: setMapError, clearError } = useMapError();
 
   useEffect(() => {
+    console.log("useLocations Error:", error);
     if (error) {
       setMapError(error.message);
     }
-  }, [error, setMapError]);
+  }, [error, setMapError]);  
 
   if (isLoading) {
     return (
@@ -39,7 +40,10 @@ export default function MapPage() {
           config={defaultMapConfig} 
           width="100%"
           height="100%"
-          onError={setMapError}
+          onError={(message) => {
+            console.log("Map Error Triggered:", message);
+            setMapError(message);
+          }}
         />
       </div>
     </>

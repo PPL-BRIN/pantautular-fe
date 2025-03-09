@@ -1,17 +1,28 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5map from "@amcharts/amcharts5/map";
 import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import CaseLocationPoints from "./CaseLocationPoints";
+
+interface LocationData {
+  id: string;
+  city: string;
+  location__latitude: number;
+  location__longitude: number;
+}
 
 interface IndonesiaMapProps {
   readonly onError: (message: string) => void;
+  readonly locations?: LocationData[];
 }
 
 interface MapProvider {
   initialize(containerId: string): void;
+  getChart(): am5map.MapChart;
+  getRoot(): am5.Root;
 }
 
 class AmChartsMapProvider implements MapProvider {
@@ -33,6 +44,14 @@ class AmChartsMapProvider implements MapProvider {
     } catch (err) {
       this.onError("Gagal memuat peta. Silakan coba lagi.");
     }
+  }
+
+  getChart(): am5map.MapChart {
+    return this.chart;
+  }
+
+  getRoot(): am5.Root {
+    return this.root;
   }
 
   private createMapChart(): am5map.MapChart {
@@ -77,15 +96,28 @@ class AmChartsMapProvider implements MapProvider {
   }
 }
 
-export default function IndonesiaMap({ onError }: IndonesiaMapProps) {
+export default function IndonesiaMap({ onError, locations = [] }: IndonesiaMapProps) {
   const chartRef = useRef<MapProvider | null>(null);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     if (!chartRef.current) {
       chartRef.current = new AmChartsMapProvider(onError);
       chartRef.current.initialize("chartdiv");
+      setMapReady(true);
     }
   }, [onError]);
 
-  return <div id="chartdiv" data-testid="chartdiv" style={{ width: "100%", height: "500px" }}></div>;
+  return (
+    <>
+      <div id="chartdiv" data-testid="chartdiv" style={{ width: "100%", height: "500px" }}></div>
+      {mapReady && chartRef.current && locations.length > 0 && (
+        <CaseLocationPoints
+          chart={chartRef.current.getChart()}
+          root={chartRef.current.getRoot()}
+          locations={locations}
+        />
+      )}
+    </>
+  );
 }

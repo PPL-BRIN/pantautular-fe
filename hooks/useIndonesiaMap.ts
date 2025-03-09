@@ -20,7 +20,6 @@ export const useIndonesiaMap = (
       mapServiceRef.current.initialize(containerId, config);
       mapServiceRef.current.populateLocations(locations);
     } catch (error) {
-      console.error("Error initializing map:", error);
       mapServiceRef.current = null; // Hanya jika ada error nyata
     }
   }, [containerId, locations, config]);

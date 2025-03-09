@@ -82,5 +82,34 @@ describe('useIndonesiaMap', () => {
     expect(result.current.mapService).toBeDefined();
   });
 
+  test('should handle errors during map initialization', () => {
+    // Mock MapChartService constructor to throw an error
+    (MapChartService as jest.Mock).mockImplementationOnce(() => {
+      throw new Error('Failed to initialize map');
+    });
   
+    const { result } = renderHook(() => 
+      useIndonesiaMap(containerId, mockLocations, mockConfig)
+    );
+  
+    // Verify mapService is null after error
+    expect(result.current.mapService).toBeNull();
+  });
+  
+  test('should handle errors during map methods', () => {
+    // Mock initialize to throw error
+    mockInitialize.mockImplementation(() => {
+      throw new Error('Failed to initialize map');
+    });
+  
+    const { result } = renderHook(() => 
+      useIndonesiaMap(containerId, mockLocations, mockConfig)
+    );
+  
+    // Verify mapService is null after error
+    expect(result.current.mapService).toBeNull();
+    
+    // Verify initialize was attempted
+    expect(mockInitialize).toHaveBeenCalled();
+  });
 });

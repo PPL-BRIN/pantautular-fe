@@ -1,125 +1,146 @@
+// components/IndonesiaMap.test.tsx
 import React from "react";
-import { render, screen, act } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import IndonesiaMap from "../../app/components/IndonesiaMap";
+import { render, screen } from "@testing-library/react";
+import { IndonesiaMap } from "../../app/components/IndonesiaMap";
+import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
+import { useMapError } from "../../hooks/useMapError";
+import MapLoadErrorPopup from "../../app/components/MapLoadErrorPopup";
 
-const mockSetThemes = jest.fn();
-const mockPush = jest.fn();
-const mockSet = jest.fn();
-const mockDispose = jest.fn();
-const mockOn = jest.fn();
-const mockChartContainerGet = jest.fn((param) => {
-  if (param === "background") {
-    return {
-      events: {
-        on: mockOn,
-      },
-    };
-  }
-  return {};
-});
-
-// Mock amCharts dependencies
-jest.mock("@amcharts/amcharts5", () => ({
-  Root: {
-    new: jest.fn(() => ({
-      setThemes: mockSetThemes,
-      container: {
-        children: {
-          push: mockPush,
-        },
-      },
-      set: mockSet,
-      dispose: mockDispose,
-      chartContainer: {
-        get: mockChartContainerGet,
-      },
-    })),
-  },
-  registry: {
-    rootElements: [],
-  },
-  color: jest.fn((color) => color),
+// Mock the custom hooks
+jest.mock("../../hooks/useIndonesiaMap", () => ({
+  useIndonesiaMap: jest.fn(),
 }));
 
-jest.mock("@amcharts/amcharts5/map", () => ({
-  MapChart: {
-    new: jest.fn(() => ({
-      set: mockSet,
-      series: { push: mockPush },
-      chartContainer: { get: mockChartContainerGet },
-    })),
-  },
-  MapPolygonSeries: {
-    new: jest.fn(() => ({
-      mapPolygons: {
-        template: { setAll: jest.fn(), states: { create: jest.fn() } },
-      },
-    })),
-  },
-  ZoomControl: { new: jest.fn() },
-  geoMercator: jest.fn(),
+jest.mock("../../hooks/useMapError", () => ({
+  useMapError: jest.fn(),
 }));
 
-jest.mock("@amcharts/amcharts5-geodata/indonesiaLow", () => jest.fn());
-jest.mock("@amcharts/amcharts5/themes/Animated", () => ({
-  new: jest.fn(() => ({ themeName: "AnimatedTheme" })),
-}));
+describe("IndonesiaMap", () => {
+  const mockLocations = [
+    { city: "TestCity", id: "TestID", location__latitude: 1, location__longitude: 2 },
+  ];
 
+  const mockSetError = jest.fn();
+  const mockClearError = jest.fn();
+  const mockOnError = jest.fn();
 
-jest.mock("../../app/components/CaseLocationPoints", () => jest.fn(() => <div data-testid="case-location-points"></div>));
-
-describe("IndonesiaMap Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
 
-  test("renders the map container", async () => {
-    await act(async () => {
-      render(<IndonesiaMap onError={jest.fn()} />);
+    // Default mock behavior: mapService exists (successful load)
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: {} });
+
+    // Default mock behavior for error handling
+    (useMapError as jest.Mock).mockReturnValue({
+      error: null,
+      setError: mockSetError,
+      clearError: mockClearError,
     });
-    expect(screen.getByTestId("chartdiv")).toBeInTheDocument();
   });
 
-  test("calls onError when map initialization fails", async () => {
-    const mockOnError = jest.fn();
-    jest.spyOn(console, "error").mockImplementation(() => {}); // Supress error logs
+  test("renders with default props", () => {
+    render(<IndonesiaMap locations={mockLocations} />);
 
-    // Simulate error during map initialization
-    jest.mock("@amcharts/amcharts5", () => ({
-      Root: {
-        new: jest.fn(() => {
-          throw new Error("Mocked amCharts initialization error");
+    const container = screen.getByTestId("map-container");
+    expect(container).toBeInTheDocument();
+    expect(container).toHaveAttribute("id", "chartdiv");
+    expect(container).toHaveStyle({
+      width: "100vw",
+      height: "100vh",
+    });
+
+    // Verify hook was called with defaults
+    expect(useIndonesiaMap).toHaveBeenCalledWith(
+      "chartdiv",
+      mockLocations,
+      expect.objectContaining({
+        zoomLevel: 2,
+        centerPoint: expect.anything(),
+      })
+    );
+  });
+
+  test("renders with custom props", () => {
+    const customConfig = {
+      zoomLevel: 5,
+      centerPoint: { longitude: 110, latitude: -5 },
+    };
+
+    render(
+      <IndonesiaMap locations={mockLocations} config={customConfig} width="800px" height="400px" />
+    );
+
+    const container = screen.getByTestId("map-container");
+    expect(container).toHaveStyle({
+      width: "800px",
+      height: "400px",
+    });
+
+    // Verify hook was called with custom config
+    expect(useIndonesiaMap).toHaveBeenCalledWith(
+      "chartdiv",
+      mockLocations,
+      expect.objectContaining({
+        zoomLevel: 5,
+        centerPoint: expect.objectContaining({
+          longitude: 110,
+          latitude: -5,
         }),
-      },
-    }));
+      })
+    );
+  });
 
-    await act(async () => {
-      render(<IndonesiaMap onError={mockOnError} />);
-    });
+  test("renders with partial config", () => {
+    const partialConfig = {
+      zoomLevel: 3,
+      // No centerPoint provided
+    };
 
+    render(<IndonesiaMap locations={mockLocations} config={partialConfig} />);
+
+    // Verify hook was called with merged config
+    expect(useIndonesiaMap).toHaveBeenCalledWith(
+      "chartdiv",
+      mockLocations,
+      expect.objectContaining({
+        zoomLevel: 3,
+        centerPoint: expect.anything(), // Default centerPoint should be used
+      })
+    );
+  });
+
+  test("calls onError when mapService is null", () => {
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: null });
+
+    render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
+
+    expect(mockSetError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
     expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
-    jest.restoreAllMocks();
   });
 
-  test("renders CaseLocationPoints when locations are provided", async () => {
-    const mockLocations = [
-      { id: "1", city: "Jakarta", location__latitude: -6.2088, location__longitude: 106.8456 },
-      { id: "2", city: "Surabaya", location__latitude: -7.2504, location__longitude: 112.7688 },
-    ];
-
-    await act(async () => {
-      render(<IndonesiaMap onError={jest.fn()} locations={mockLocations} />);
+  test("renders MapLoadErrorPopup when there is an error", () => {
+    (useMapError as jest.Mock).mockReturnValue({
+      error: "Gagal memuat peta. Silakan coba lagi.",
+      setError: mockSetError,
+      clearError: mockClearError,
     });
 
-    expect(screen.getByTestId("case-location-points")).toBeInTheDocument();
+    render(<IndonesiaMap locations={mockLocations} />);
+
+    expect(screen.getByText("Terjadi Kesalahan")).toBeInTheDocument();
+    expect(screen.getByText("Gagal memuat peta. Silakan coba lagi.")).toBeInTheDocument();
   });
 
-  test("does not render CaseLocationPoints if locations are empty", async () => {
-    await act(async () => {
-      render(<IndonesiaMap onError={jest.fn()} locations={[]} />);
+  test("calls clearError when the error popup is closed", () => {
+    (useMapError as jest.Mock).mockReturnValue({
+      error: "Gagal memuat peta. Silakan coba lagi.",
+      setError: mockSetError,
+      clearError: mockClearError,
     });
 
-    expect(screen.queryByTestId("case-location-points")).not.toBeInTheDocument();
+    render(<IndonesiaMap locations={mockLocations} />);
+
+    screen.getByText("Tutup").click();
+    expect(mockClearError).toHaveBeenCalled();
   });
 });

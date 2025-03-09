@@ -1,4 +1,3 @@
-// components/IndonesiaMap.test.tsx
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { IndonesiaMap } from "../../../app/components/IndonesiaMap";
@@ -115,6 +114,24 @@ describe("IndonesiaMap", () => {
 
     expect(mockSetError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
     expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
+  });
+
+  test("does not call onError when mapService is available", () => {
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: {} });
+
+    render(<IndonesiaMap locations={mockLocations} onError={mockOnError} />);
+
+    expect(mockOnError).not.toHaveBeenCalled();
+    expect(mockSetError).not.toHaveBeenCalled();
+  });
+
+  test("does not throw error when onError is not a function", () => {
+    (useIndonesiaMap as jest.Mock).mockReturnValue({ mapService: null });
+
+    // onError diberikan nilai yang bukan fungsi
+    expect(() => {
+      render(<IndonesiaMap locations={mockLocations} onError={null as unknown as any} />);
+    }).not.toThrow();
   });
 
   test("renders MapLoadErrorPopup when there is an error", () => {

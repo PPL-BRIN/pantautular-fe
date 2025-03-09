@@ -5,12 +5,14 @@ import { useMapError } from "../../hooks/useMapError";
 import MapLoadErrorPopup from "./MapLoadErrorPopup";
 import { MapLocation, MapConfig } from "../../types";
 
+export const MAP_LOAD_TIMEOUT = 500;
+
 interface IndonesiaMapProps {
   locations: MapLocation[];
   config?: Partial<MapConfig>;
   height?: string;
   width?: string;
-  onError?: (message: string) => void; // Tambahkan prop onError
+  onError?: (message: string) => void;
 }
 
 export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
@@ -18,7 +20,7 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   config = {},
   height = "100vh",
   width = "100vw",
-  onError, // Tangani error dari map
+  onError,
 }) => {
   const mapContainerId = "chartdiv";
   const { error, setError, clearError } = useMapError();
@@ -30,18 +32,21 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
 
   const { mapService } = useIndonesiaMap(mapContainerId, locations, fullConfig);
 
+  // Use the exported constant
   useEffect(() => {
-    // Tunggu 500ms untuk memastikan mapService tidak sekadar delay dalam inisialisasi
-    const timeout = setTimeout(() => {
+    // Create a handler function for better readability and testability
+    const handleMapLoadTimeout = () => {
       if (!mapService) {
-        console.log("IndonesiaMap Error: Gagal memuat peta.");
         setError("Gagal memuat peta. Silakan coba lagi.");
         if (onError) onError("Gagal memuat peta. Silakan coba lagi.");
       }
-    }, 500);
+      // Jika tidak, mapService tersedia - tidak lakukan apa-apa
+    };
   
-    return () => clearTimeout(timeout);
-  }, [mapService, setError, onError]);   
+    // Selalu buat timer terlepas dari status mapService
+    const timer = setTimeout(handleMapLoadTimeout, MAP_LOAD_TIMEOUT);
+    return () => clearTimeout(timer);
+  }, [mapService, setError, onError]);
 
   return (
     <>

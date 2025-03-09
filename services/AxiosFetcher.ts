@@ -6,9 +6,9 @@ export class AxiosFetcher implements DataFetcher {
     try {
       const response = await axios.get<T>(url, { headers });
 
-      if (!response || !response.data) {
+      if (!response?.data) {
         throw new Error("Invalid response format");
-      }
+      }      
 
       return response.data;
     } catch (error) {

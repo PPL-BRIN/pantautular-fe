@@ -41,7 +41,6 @@ export default function MapPage() {
           width="100%"
           height="100%"
           onError={(message) => {
-            console.log("Map Error Triggered:", message);
             setMapError(message);
           }}
         />

@@ -138,4 +138,33 @@ describe("MapPage Component", () => {
     screen.getByText("Tutup").click();
     expect(mockClearError).toHaveBeenCalled();
   });
+
+  test("should call setMapError when IndonesiaMap triggers onError", () => {
+    (useLocations as jest.Mock).mockReturnValue({
+      isLoading: false,
+      error: null,
+      data: [
+        { id: "1", city: "Jakarta", location__latitude: -6.2088, location__longitude: 106.8456 },
+      ],
+    });
+  
+    const IndonesiaMapModule = require("../../../app/components/IndonesiaMap");
+    const originalIndonesiaMap = IndonesiaMapModule.IndonesiaMap;
+    
+    IndonesiaMapModule.IndonesiaMap = jest.fn(({ onError }) => {
+      React.useEffect(() => {
+        if (onError) {
+          onError("Map loading failed test");
+        }
+      }, [onError]);
+      
+      return <div data-testid="map-container">Map Component</div>;
+    });
+  
+    render(<MapPage />);
+  
+    expect(mockSetMapError).toHaveBeenCalledWith("Map loading failed test");
+  
+    IndonesiaMapModule.IndonesiaMap = originalIndonesiaMap;
+  });
 });

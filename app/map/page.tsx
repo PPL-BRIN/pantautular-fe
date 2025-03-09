@@ -4,6 +4,7 @@ import React from "react";
 import { IndonesiaMap } from "../components/IndonesiaMap";
 import { useLocations } from "../../hooks/useLocations";
 import { defaultMapConfig } from "../../data/indonesiaLocations";
+import Navbar from "../components/Navbar";
 
 export default function MapPage() {
   const { data: locations, isLoading, error } = useLocations();
@@ -26,9 +27,12 @@ export default function MapPage() {
   }
 
   return (
+    <>
+    <Navbar />
     <IndonesiaMap 
       locations={locations} 
       config={defaultMapConfig} 
     />
+    </>
   );
 }

@@ -51,7 +51,7 @@ export function MultiSelect({
         {selected.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {selected.map((option) => (
-              <Badge key={option} variant="secondary" className="flex items-center gap-1">
+              <Badge key={option} className="flex items-center gap-1">
                 {option}
                 <button
                   className="ml-1 rounded-full focus:ring-2 focus:ring-blue-500"

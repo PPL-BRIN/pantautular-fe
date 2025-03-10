@@ -6,11 +6,12 @@ import "react-date-range/dist/theme/default.css";
 
 interface DateRangePickerProps {
   dateRange: { start: string; end: string };
-  setDateRange: (range: { start: string; end: string }) => void;
+  setDateRange: (dateRange: { start: string; end: string }) => void;
 }
 
 export function DateRangePickerComponent({ dateRange, setDateRange }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div>
       <button
@@ -24,7 +25,7 @@ export function DateRangePickerComponent({ dateRange, setDateRange }: DateRangeP
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 bg-white p-4 shadow-lg rounded-md mt-2">
+        <div className="absolute bottom-full top-1/3 z-10 bg-white p-4 shadow-lg rounded-md mt-2 scale-90">
           <DateRange
             ranges={[
               {
@@ -35,9 +36,14 @@ export function DateRangePickerComponent({ dateRange, setDateRange }: DateRangeP
             ]}
             onChange={(item) => {
               const { startDate, endDate } = item.selection;
+              const start = startDate ? new Date(startDate.setHours(0, 0, 0, 0)) : new Date();
+              const end = endDate ? new Date(endDate.setHours(0, 0, 0, 0)) : new Date();
+
+              const newStartDate = addDays(start, 1);
+              const newEndDate = addDays(end, 1);
               setDateRange({
-                start: startDate ? startDate.toISOString().split("T")[0] : "",
-                end: endDate ? endDate.toISOString().split("T")[0] : "",
+                start: newStartDate ? newStartDate.toISOString().split("T")[0] : "",
+                end: newEndDate ? newEndDate.toISOString().split("T")[0] : "",
               });
             }}
             moveRangeOnFirstSelection={false}

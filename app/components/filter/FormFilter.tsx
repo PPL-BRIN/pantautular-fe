@@ -10,22 +10,18 @@ interface FilterOptions {
   news: string[];
 }
 
-interface DateRange {
-  start: string;
-  end: string;
-}
-
 interface FormFilterProps {
   onFilterApply: (filters: FilterState) => void;
   apiEndpoint?: string;
 }
 
 interface FilterState {
-  selectedDiseases: string[];
-  selectedLocations: string[];
-  selectedNews: string[];
-  alertLevel: number;
-  dateRange: DateRange;
+  diseases: string[];
+  locations: string[];
+  level_of_alertness: number;
+  portals: string[];
+  start_date: string;
+  end_date: string;
 }
 
 export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.0.1:8000/api/filters/" }: FormFilterProps) {
@@ -39,7 +35,7 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedNews, setSelectedNews] = useState<string[]>([]);
   const [alertLevel, setAlertLevel] = useState(0);
-  const [dateRange, setDateRange] = useState<DateRange>({ start: "", end: "" });
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,11 +82,12 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
     e.preventDefault();
     
     const filterState: FilterState = {
-      selectedDiseases,
-      selectedLocations,
-      selectedNews,
-      alertLevel,
-      dateRange
+      diseases: selectedDiseases,
+      locations: selectedLocations,
+      level_of_alertness: alertLevel,
+      portals: selectedNews,
+      start_date: dateRange.start,
+      end_date: dateRange.end,
     };
     
     onFilterApply(filterState);
@@ -110,8 +107,6 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col">
-          <h2 className="text-xl font-semibold mb-4">Filter Data</h2>
-          
           <label className="block mb-2">
             <span className="text-gray-700">Jenis Penyakit</span>
           </label>

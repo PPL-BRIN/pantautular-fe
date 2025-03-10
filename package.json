@@ -38,7 +38,6 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
     "babel-jest": "^29.7.0",
-    "canvas": "^2.11.2",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "eslint-plugin-jest-dom": "^5.5.0",

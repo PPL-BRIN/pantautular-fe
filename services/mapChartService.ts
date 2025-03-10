@@ -25,7 +25,7 @@ export class MapChartService {
         homeZoomLevel: config.zoomLevel,
         projection: am5map.geoMercator(),
         homeGeoPoint: config.centerPoint,
-        minZoomLevel: 2.6
+        minZoomLevel: config.zoomLevel
       })
     );
 

@@ -38,7 +38,7 @@ export const useIndonesiaMap = (
         mapServiceRef.current = null;
       }
     };
-  }, [containerId, memoizedLocations, memoizedConfig]);
+  }, [containerId, memoizedLocations]);
 
   return { mapService: mapServiceRef.current };
 };

@@ -4,31 +4,45 @@ import React from "react";
 import { IndonesiaMap } from "../components/IndonesiaMap";
 import { useLocations } from "../../hooks/useLocations";
 import { defaultMapConfig } from "../../data/indonesiaLocations";
+import Navbar from "../components/Navbar";
 
 export default function MapPage() {
   const { data: locations, isLoading, error } = useLocations();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Loading map data...
-      </div>
+      <>
+        <Navbar />
+        <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
+          Loading map data...
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-red-500">Error: {error.message}</p>
-        <p>Please try refreshing the page</p>
-      </div>
+      <>
+        <Navbar />
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-5rem)]">
+          <p className="text-red-500">Error: {error.message}</p>
+          <p>Please try refreshing the page</p>
+        </div>
+      </>
     );
   }
 
   return (
-    <IndonesiaMap 
-      locations={locations} 
-      config={defaultMapConfig} 
-    />
+    <>
+      <Navbar />
+      <div className="w-full h-[calc(100vh-5rem)] relative">
+        <IndonesiaMap 
+          locations={locations} 
+          config={defaultMapConfig} 
+          width="100%"
+          height="100%"
+        />
+      </div>
+    </>
   );
 }

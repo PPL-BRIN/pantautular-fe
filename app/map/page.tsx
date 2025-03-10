@@ -1,80 +1,64 @@
-"use client"
+"use client";
 
-import React, { useEffect, useRef } from "react"
-import * as am5 from "@amcharts/amcharts5"
-import * as am5map from "@amcharts/amcharts5/map"
-import am5geodata_indonesiaHigh from "@amcharts/amcharts5-geodata/indonesiaHigh"
-import am5themes_Animated from "@amcharts/amcharts5/themes/Animated"
+import { useEffect, useState } from "react";
+import { IndonesiaMap } from "../components/IndonesiaMap";
+import { useLocations } from "../../hooks/useLocations";
+import { useMapError } from "../../hooks/useMapError"; // Hook untuk menangani error peta
+import { defaultMapConfig } from "../../data/indonesiaLocations";
+import Navbar from "../components/Navbar";
+import MapLoadErrorPopup from "../components/MapLoadErrorPopup"; // Komponen popup error
+import NoDataPopup from "../components/NoDataPopup"; // Komponen popup data tidak ditemukan
 
-export default function IndonesiaMap() {
-  const chartRef = useRef<am5.Root | null>(null)
+export default function MapPage() {
+  const { data: locations, isLoading, error } = useLocations();
+  const { error: mapError, setError: setMapError, clearError } = useMapError();
+  const [isEmptyData, setIsEmptyData] = useState(false);
 
   useEffect(() => {
-    console.log("MOUNTED: IndonesiaMap");
-    console.log("Registry before mount:", am5.registry.rootElements);
-  
-    if (!chartRef.current) {
-      console.log("Creating new amCharts Root instance...")
-      const root = am5.Root.new("chartdiv")
-      chartRef.current = root;
-      root.setThemes([am5themes_Animated.new(root)]);
-  
-      const chart = root.container.children.push(
-        am5map.MapChart.new(root, {
-          panX: "translateX",
-          panY: "translateY",
-          projection: am5map.geoMercator(),
-          homeGeoPoint: { longitude: 118, latitude: -2 },
-        })
-      );
-  
-      if (!chart) return;
-  
-      const polygonSeries = chart.series.push(
-        am5map.MapPolygonSeries.new(root, {
-          geoJSON: am5geodata_indonesiaHigh,
-          exclude: ["MY-12", "MY-13", "BN", "TL"],
-        })
-      );
-  
-      polygonSeries.mapPolygons.template.setAll({
-        tooltipText: "{name}",
-        toggleKey: "active",
-        interactive: true,
-        fill: am5.color(0xdddddd),
-        strokeWidth: 0.5,
-        stroke: am5.color(0x999999),
-      });
-      
-      polygonSeries.mapPolygons.template.states.create("hover", {
-        fill: am5.color(0xbbbbbb), // Warna lebih gelap saat hover
-      });
-
-      chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
-      chart.chartContainer.get("background").events.on("click", () => {
-        chart.goHome();
-      });
-  
-      chart.appear(1000, 100);
-      console.log("Registry after mount:", am5.registry.rootElements);
-    }
-  
-    return () => {
-      console.log("DISPOSE FUNCTION TRIGGERED", chartRef.current);
-      
-      if (chartRef.current) {
-        console.log("Calling dispose() on Root...");
-        chartRef.current.dispose();
-        setTimeout(() => {
-          console.log("Dispose called successfully, checking chartRef:", chartRef.current);
-          chartRef.current = null;
-          console.log("chartRef.current set to null");
-        }, 1000);
+    if (error) {
+      if (
+        error.message.includes("No case locations found matching the filters") ||
+        error.message.includes("No case locations found")
+      ) {
+        setIsEmptyData(true); 
       } else {
-        console.log("chartRef.current is already null, skipping dispose()");
+        setMapError(error.message); // Tampilkan MapLoadErrorPopup jika error lain
       }
-    };
-}, []);
+    }
+  }, [error, setMapError]);
 
-  return <div id="chartdiv" data-testid="chartdiv" style={{ width: "100%", height: "500px" }}></div>
+  useEffect(() => {
+    if (locations && locations.length === 0 && !isLoading) {
+      console.log(locations.length)
+      setIsEmptyData(true);
+    }
+  }, [locations]);
+
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
+          Loading map data...
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Navbar />
+      <div className="w-full h-[calc(100vh-5rem)] relative">
+        {mapError && <MapLoadErrorPopup message={mapError} onClose={clearError} />}
+        {isEmptyData && <NoDataPopup onClose={() => setIsEmptyData(false)} />}
+        <IndonesiaMap
+          locations={locations}
+          config={defaultMapConfig}
+          width="100%"
+          height="100%"
+          onError={(message) => setMapError(message)}
+        />
+      </div>
+    </>
+  );
 }

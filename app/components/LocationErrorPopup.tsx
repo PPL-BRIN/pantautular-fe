@@ -1,4 +1,3 @@
-// app/components/MyLocationPopUpError.tsx
 "use client"
 
 import { LocationErrorType } from '@/services/LocationService';
@@ -10,19 +9,30 @@ interface LocationErrorPopupProps {
   errorType?: LocationErrorType;
 }
 
+interface Reason {
+  id: string;
+  text: string;
+}
+
+interface ErrorDetails {
+  title: string;
+  description: string;
+  reasons: Reason[];
+}
+
 export default function LocationErrorPopup({ 
   open = false, 
   onOpenChange,
   errorType = "UNKNOWN"
-}: LocationErrorPopupProps) {
-  const [errorDetails, setErrorDetails] = useState({
+}: Readonly<LocationErrorPopupProps>) {
+  const [errorDetails, setErrorDetails] = useState<ErrorDetails>({
     title: "Lokasi Tidak Ditemukan",
     description: "Kami tidak dapat menentukan lokasi Anda saat ini.",
     reasons: [
-      "Sinyal GPS perangkat Anda lemah atau terhalang",
-      "Anda berada di area dengan cakupan GPS yang buruk",
-      "Layanan lokasi perangkat Anda mungkin sementara tidak tersedia",
-      "Ada masalah dengan perangkat keras lokasi perangkat Anda"
+      { id: "weak-gps", text: "Sinyal GPS perangkat Anda lemah atau terhalang" },
+      { id: "bad-coverage", text: "Anda berada di area dengan cakupan GPS yang buruk" },
+      { id: "unavailable", text: "Layanan lokasi perangkat Anda mungkin sementara tidak tersedia" },
+      { id: "hardware-issue", text: "Ada masalah dengan perangkat keras lokasi perangkat Anda" }
     ]
   });
 
@@ -35,9 +45,9 @@ export default function LocationErrorPopup({
           title: "Browser Tidak Mendukung",
           description: "Browser Anda tidak mendukung fitur geolokasi.",
           reasons: [
-            "Browser Anda mungkin sudah usang",
-            "Fitur geolokasi mungkin dinonaktifkan di browser Anda",
-            "Coba gunakan browser lain seperti Chrome atau Firefox terbaru"
+            { id: "outdated", text: "Browser Anda mungkin sudah usang" },
+            { id: "disabled", text: "Fitur geolokasi mungkin dinonaktifkan di browser Anda" },
+            { id: "try-other", text: "Coba gunakan browser lain seperti Chrome atau Firefox terbaru" }
           ]
         });
         break;
@@ -47,10 +57,10 @@ export default function LocationErrorPopup({
           title: "Akses Lokasi Ditolak",
           description: "Anda telah menolak akses ke lokasi Anda.",
           reasons: [
-            "Izin lokasi dinonaktifkan di pengaturan browser Anda",
-            "Anda mungkin telah menolak izin lokasi sebelumnya",
-            "Periksa pengaturan izin di browser Anda",
-            "Coba refresh halaman dan izinkan akses lokasi"
+            { id: "disabled-settings", text: "Izin lokasi dinonaktifkan di pengaturan browser Anda" },
+            { id: "previous-denied", text: "Anda mungkin telah menolak izin lokasi sebelumnya" },
+            { id: "check-settings", text: "Periksa pengaturan izin di browser Anda" },
+            { id: "refresh", text: "Coba refresh halaman dan izinkan akses lokasi" }
           ]
         });
         break;
@@ -60,10 +70,10 @@ export default function LocationErrorPopup({
           title: "Lokasi Tidak Tersedia",
           description: "Sistem tidak dapat menentukan lokasi Anda saat ini.",
           reasons: [
-            "Sinyal GPS perangkat Anda lemah atau terhalang",
-            "Anda berada di area dengan cakupan GPS yang buruk",
-            "Koneksi internet Anda mungkin tidak stabil",
-            "Layanan lokasi perangkat Anda mungkin sementara tidak tersedia"
+            { id: "weak-gps", text: "Sinyal GPS perangkat Anda lemah atau terhalang" },
+            { id: "bad-coverage", text: "Anda berada di area dengan cakupan GPS yang buruk" },
+            { id: "unstable-internet", text: "Koneksi internet Anda mungkin tidak stabil" },
+            { id: "unavailable", text: "Layanan lokasi perangkat Anda mungkin sementara tidak tersedia" }
           ]
         });
         break;
@@ -73,10 +83,10 @@ export default function LocationErrorPopup({
           title: "Waktu Permintaan Habis",
           description: "Waktu untuk mendapatkan lokasi Anda telah habis.",
           reasons: [
-            "Koneksi internet Anda lambat atau tidak stabil",
-            "Sinyal GPS lemah di lokasi Anda berada",
-            "Perangkat Anda mungkin membutuhkan waktu lebih lama untuk menentukan lokasi",
-            "Coba lagi di lokasi dengan sinyal yang lebih baik"
+            { id: "slow-internet", text: "Koneksi internet Anda lambat atau tidak stabil" },
+            { id: "weak-signal", text: "Sinyal GPS lemah di lokasi Anda berada" },
+            { id: "more-time", text: "Perangkat Anda mungkin membutuhkan waktu lebih lama untuk menentukan lokasi" },
+            { id: "better-signal", text: "Coba lagi di lokasi dengan sinyal yang lebih baik" }
           ]
         });
         break;
@@ -86,10 +96,10 @@ export default function LocationErrorPopup({
           title: "Lokasi Tidak Ditemukan",
           description: "Kami tidak dapat menentukan lokasi Anda saat ini.",
           reasons: [
-            "Sinyal GPS perangkat Anda lemah atau terhalang",
-            "Anda berada di area dengan cakupan GPS yang buruk",
-            "Layanan lokasi perangkat Anda mungkin sementara tidak tersedia",
-            "Ada masalah dengan perangkat keras lokasi perangkat Anda"
+            { id: "weak-gps", text: "Sinyal GPS perangkat Anda lemah atau terhalang" },
+            { id: "bad-coverage", text: "Anda berada di area dengan cakupan GPS yang buruk" },
+            { id: "unavailable", text: "Layanan lokasi perangkat Anda mungkin sementara tidak tersedia" },
+            { id: "hardware-issue", text: "Ada masalah dengan perangkat keras lokasi perangkat Anda" }
           ]
         });
     }
@@ -152,8 +162,8 @@ export default function LocationErrorPopup({
         <div className="mt-4 rounded-lg bg-gray-100 p-4 dark:bg-gray-700/50">
           <h3 className="mb-2 font-medium">Ini mungkin terjadi karena:</h3>
           <ul className="ml-5 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-300">
-            {errorDetails.reasons.map((reason, index) => (
-              <li key={index}>{reason}</li>
+            {errorDetails.reasons.map((reason) => (
+              <li key={reason.id}>{reason.text}</li>
             ))}
           </ul>
         </div>

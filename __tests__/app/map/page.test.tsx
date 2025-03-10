@@ -58,7 +58,7 @@ describe("MapPage Component", () => {
     mockNoDataPopupOnClose = null;
     
     (useMapError as jest.Mock).mockReturnValue({
-      error: useLocationsMock.error?.message || null,
+      error: useLocationsMock.error?.message ?? null,
       setError: mockSetMapError,
       clearError: mockClearError,
     });

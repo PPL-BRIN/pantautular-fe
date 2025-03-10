@@ -1,6 +1,6 @@
 import { MapConfig } from "../types";
 
   export const defaultMapConfig: MapConfig = {
-    zoomLevel: 10.6,
-    centerPoint: { longitude: 113.9213, latitude: 0.0 }
+    zoomLevel: 3,
+    centerPoint: { longitude: 117.5, latitude: -1.0 }
   };

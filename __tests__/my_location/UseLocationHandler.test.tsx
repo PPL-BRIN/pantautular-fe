@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
-import { useLocationHandlers } from '@/hooks/useLocationHandlers';
-import { LocationService } from '@/services/LocationService';
+import { useLocationHandlers } from '../../hooks/useLocationHandlers';
+import { LocationService } from '../../services/LocationService';
 
 // Mock the LocationService
 jest.mock('../../services/LocationService', () => ({

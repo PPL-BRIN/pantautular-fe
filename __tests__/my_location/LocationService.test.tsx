@@ -1,4 +1,4 @@
-import { LocationService } from "@/services/LocationService";
+import { LocationService } from "../../services/LocationService";
 
 // Mock navigator.geolocation
 const mockGeolocation = {

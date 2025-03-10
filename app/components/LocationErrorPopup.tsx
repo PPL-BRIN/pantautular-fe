@@ -1,6 +1,6 @@
 "use client"
 
-import { LocationErrorType } from '@/services/LocationService';
+import { LocationErrorType } from '../../services/LocationService';
 import { useEffect, useState } from "react";
 
 interface LocationErrorPopupProps {

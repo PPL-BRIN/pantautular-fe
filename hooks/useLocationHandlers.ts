@@ -1,6 +1,6 @@
 "use client";
 
-import { LocationService, LocationError } from "@/services/LocationService";
+import { LocationService, LocationError } from "../services/LocationService";
 
 export const useLocationHandlers = (
   setShowPopup: (value: boolean) => void,

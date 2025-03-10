@@ -5,7 +5,7 @@ import { MapLocation, MapConfig } from "../types";
 export const useIndonesiaMap = (
   containerId: string,
   locations: MapLocation[],
-  config: MapConfig
+  config: MapConfig,
 ) => {
   const mapServiceRef = useRef<MapChartService | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -41,8 +41,7 @@ export const useIndonesiaMap = (
         mapServiceRef.current.dispose();
       }
     };
-  }, [containerId, locations, config]);
-
+  }, [containerId, locations, config]);// Config harus dihapus kalo mau ngeadain informasi kuantitas kasus
   return {
     mapService: mapServiceRef.current,
     isInitialized

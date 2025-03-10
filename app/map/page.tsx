@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { IndonesiaMap } from "../components/IndonesiaMap";
+import { SelectedCountProvider } from "../context/SelectCountContex"
+import { IndonesiaMap } from "../components/IndonesiaMap"; // Import the map component
 import { useLocations } from "../../hooks/useLocations";
 import { useMapError } from "../../hooks/useMapError";
 import { defaultMapConfig } from "../../data/indonesiaLocations";
@@ -17,7 +18,7 @@ export default function MapPage() {
     if (error) {
       setMapError(error.message);
     }
-  }, [error, setMapError]);  
+  }, [error, setMapError]);
 
   if (isLoading) {
     return (
@@ -31,7 +32,7 @@ export default function MapPage() {
   }
 
   return (
-    <>
+    <SelectedCountProvider> {/* Wrap MapPage with SelectedCountProvider */}
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
         {mapError && <MapLoadErrorPopup message={mapError} onClose={clearError} />}
@@ -45,6 +46,6 @@ export default function MapPage() {
           }}
         />
       </div>
-    </>
+    </SelectedCountProvider>
   );
 }

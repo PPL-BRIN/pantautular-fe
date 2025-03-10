@@ -4,52 +4,106 @@ import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import { MapLocation, MapConfig } from "../types";
 import { getTooltipHTML } from "../utils/tooltipUtils";
+import { useMapStore } from "@/store/store";
 
 export class MapChartService {
   private root: am5.Root | null = null;
   private chart: am5map.MapChart | null = null;
   private pointSeries: am5map.ClusteredPointSeries | null = null;
- 
+  private locations: MapLocation[] | null = null;
+  private _countSelectedPoints: number = 0;
+
   initialize(containerId: string, config: MapConfig): void {
     // Create root element
-    // if (!am5.Root) return;
-
     this.root = am5.Root.new(containerId);
     this.root.setThemes([am5themes_Animated.new(this.root)]);
 
     // Create chart
     this.chart = this.root.container.children.push(
       am5map.MapChart.new(this.root, {
-        panX: "rotateX",
-        panY: "translateY",
+        panX: 'rotateX',
+        panY: 'translateY',
         homeZoomLevel: config.zoomLevel,
         projection: am5map.geoMercator(),
         homeGeoPoint: config.centerPoint,
-        minZoomLevel: config.zoomLevel
+        minZoomLevel: config.zoomLevel,
       })
     );
 
     // Add zoom control
     this.setupZoomControl();
-    
+
     // Add map polygons
     this.setupPolygonSeries();
-    
+
     // Create point series
     this.setupPointSeries();
-    
+
     // Animate chart appearance
     this.chart.appear(1000, 100);
-
   }
 
   private setupZoomControl(): void {
     if (!this.chart || !this.root) return;
-    
-    let zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(this.root, {}));
-    zoomControl.homeButton.set("visible", true);
-    
+
+    let zoomControl = this.chart.set('zoomControl', am5map.ZoomControl.new(this.root, {}));
+    zoomControl.homeButton.set('visible', true);
+    this.chart.on('zoomLevel', this.getPointsInSelection.bind(this));
+    this.chart.on('translateX', this.getPointsInSelection.bind(this));
+    this.chart.on('translateY', this.getPointsInSelection.bind(this));
   }
+
+  get countSelectedPoints(): number {
+    return this._countSelectedPoints;
+  }
+
+  // Private setter for countSelectedPoints
+  private set countSelectedPoints(value: number) {
+    this._countSelectedPoints = value;
+    // Update Zustand store
+    useMapStore.getState().setCountSelectedPoints(value); // Update global state
+  }
+
+  // Your method that updates the count of selected points
+  private getPointsInSelection(): void {
+    console.log('Runnnnn');
+    const tl = this.chart?.invert({ x: 0, y: 0 });
+    const br = this.chart?.invert({ x: this.chart.innerWidth(), y: this.chart.innerHeight() });
+
+    // Check if tl or br is undefined and handle the case
+    if (!tl || !br) {
+      console.error('Failed to get points in selection: tl or br is undefined');
+      return;
+    }
+
+    // Now safely use tl and br since they are guaranteed to be defined
+    if (tl.longitude > br.longitude) {
+      tl.longitude = -180;
+      br.longitude = 180;
+    }
+
+    const selectedPoints: string[] = [];
+
+    this.locations?.forEach((dataItem) => {
+      const longitude = dataItem.location__longitude;
+      const latitude = dataItem.location__latitude;
+
+      if (
+        longitude >= tl.longitude &&
+        longitude <= br.longitude &&
+        latitude <= tl.latitude &&
+        latitude >= br.latitude
+      ) {
+        selectedPoints.push(dataItem.id);
+      }
+    });
+
+    // Set the countSelectedPoints using the private setter
+    this.countSelectedPoints = selectedPoints.length;
+    console.log(this._countSelectedPoints);
+  }
+
+
 
   private setupPolygonSeries(): void {
     if (!this.chart || !this.root) return;
@@ -160,7 +214,7 @@ export class MapChartService {
 
   populateLocations(locations: MapLocation[]): void {
     if (!this.pointSeries) return;
-    
+    this.locations = locations
     locations.forEach(location => {
       this.pointSeries!.data.push({
         geometry: { 

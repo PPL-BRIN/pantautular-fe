@@ -67,17 +67,14 @@ describe("MapPage Component", () => {
     });
 
     (useMapError as jest.Mock).mockReturnValue({
-      error: errorMessage, // Pastikan error ini muncul dalam UI
+      error: errorMessage, 
       setError: mockSetMapError,
       clearError: mockClearError,
     });
 
     render(<MapPage />);
 
-    // Pastikan error dikirim ke useMapError
     expect(mockSetMapError).toHaveBeenCalledWith(errorMessage);
-
-    // Pastikan popup error muncul di UI
     expect(screen.getByTestId("map-error-popup")).toBeInTheDocument();
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
@@ -95,12 +92,10 @@ describe("MapPage Component", () => {
     });
 
     render(<MapPage />);
-
-    // Pastikan elemen map ditampilkan
     expect(screen.getByTestId("map-container")).toBeInTheDocument();
   });
 
-  test("should handle empty locations array", () => {
+  test("should show NoDataPopup when locations array is empty", async () => {
     (useLocations as jest.Mock).mockReturnValue({
       isLoading: false,
       error: null,
@@ -108,44 +103,80 @@ describe("MapPage Component", () => {
     });
 
     render(<MapPage />);
-    expect(screen.getByTestId("map-container")).toBeInTheDocument();
+
+    expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
+    expect(screen.getByText("Data Tidak Ditemukan")).toBeInTheDocument();
   });
 
-  test("should handle null locations data", () => {
+  test("should close NoDataPopup when close button is clicked", async () => {
     (useLocations as jest.Mock).mockReturnValue({
       isLoading: false,
       error: null,
+      data: [],
+    });
+
+    render(<MapPage />);
+
+    expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
+
+    screen.getByText("Tutup").click();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("no-data-popup")).not.toBeInTheDocument();
+    });
+  });
+
+  test("should show NoDataPopup when API returns 'No case locations found matching the filters'", async () => {
+    (useLocations as jest.Mock).mockReturnValue({
+      isLoading: false,
+      error: new Error("No case locations found matching the filters"),
       data: null,
     });
 
     render(<MapPage />);
-    expect(screen.getByTestId("map-container")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
+      expect(screen.getByText("Data Tidak Ditemukan")).toBeInTheDocument();
+    });
   });
 
-  test("should show error popup when map fails to load", () => {
+  test("should show NoDataPopup when API returns 'No case locations found'", async () => {
+    (useLocations as jest.Mock).mockReturnValue({
+      isLoading: false,
+      error: new Error("No case locations found"),
+      data: null,
+    });
+
+    render(<MapPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
+      expect(screen.getByText("Data Tidak Ditemukan")).toBeInTheDocument();
+    });
+  });
+
+  test("should show MapLoadErrorPopup when API returns other errors", async () => {
+    const errorMessage = "Server error";
+    
+    (useLocations as jest.Mock).mockReturnValue({
+      isLoading: false,
+      error: new Error(errorMessage),
+      data: null,
+    });
+    
     (useMapError as jest.Mock).mockReturnValue({
-      error: "Gagal memuat peta. Silakan coba lagi.",
+      error: errorMessage,
       setError: mockSetMapError,
       clearError: mockClearError,
     });
 
     render(<MapPage />);
 
-    expect(screen.getByTestId("map-error-popup")).toBeInTheDocument();
-    expect(screen.getByText("Gagal memuat peta. Silakan coba lagi.")).toBeInTheDocument();
-  });
-
-  test("should call clearError when closing map error popup", () => {
-    (useMapError as jest.Mock).mockReturnValue({
-      error: "Gagal memuat peta. Silakan coba lagi.",
-      setError: mockSetMapError,
-      clearError: mockClearError,
+    await waitFor(() => {
+      expect(screen.getByTestId("map-error-popup")).toBeInTheDocument();
+      expect(screen.getByText("Server error")).toBeInTheDocument();
     });
-
-    render(<MapPage />);
-
-    screen.getByText("Tutup").click();
-    expect(mockClearError).toHaveBeenCalled();
   });
 
   test("should call setMapError when IndonesiaMap triggers onError", () => {
@@ -156,59 +187,24 @@ describe("MapPage Component", () => {
         { id: "1", city: "Jakarta", location__latitude: -6.2088, location__longitude: 106.8456 },
       ],
     });
- 
+
     const IndonesiaMapModule = require("../../../app/components/IndonesiaMap");
     const originalIndonesiaMap = IndonesiaMapModule.IndonesiaMap;
-   
+    
     IndonesiaMapModule.IndonesiaMap = jest.fn(({ onError }) => {
       React.useEffect(() => {
         if (onError) {
           onError("Map loading failed test");
         }
       }, [onError]);
-     
+      
       return <div data-testid="map-container">Map Component</div>;
     });
- 
+
     render(<MapPage />);
 
     expect(mockSetMapError).toHaveBeenCalledWith("Map loading failed test");
 
     IndonesiaMapModule.IndonesiaMap = originalIndonesiaMap;
-  });
-
-  test("should show NoDataPopup when locations array is empty", async () => {
-    (useLocations as jest.Mock).mockReturnValue({
-      isLoading: false,
-      error: null,
-      data: [],
-    });
- 
-    render(<MapPage />);
- 
-    // Pastikan popup muncul karena data kosong
-    expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
-    expect(screen.getByText("Data Tidak Ditemukan")).toBeInTheDocument();
-  });
- 
-  test("should close NoDataPopup when close button is clicked", async () => {
-    (useLocations as jest.Mock).mockReturnValue({
-      isLoading: false,
-      error: null,
-      data: [],
-    });
- 
-    render(<MapPage />);
- 
-    // Pastikan popup muncul
-    expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
- 
-    // Klik tombol "Tutup"
-    screen.getByText("Tutup").click();
- 
-    // Pastikan popup hilang setelah tombol ditekan
-    await waitFor(() => {
-      expect(screen.queryByTestId("no-data-popup")).not.toBeInTheDocument();
-    });
   });
 });

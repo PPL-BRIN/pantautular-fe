@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { IndonesiaMap } from "../components/IndonesiaMap";
 import { useLocations } from "../../hooks/useLocations";
-import { useMapError } from "../../hooks/useMapError";
+import { useMapError } from "../../hooks/useMapError"; // Hook untuk menangani error peta
 import { defaultMapConfig } from "../../data/indonesiaLocations";
 import Navbar from "../components/Navbar";
-import MapLoadErrorPopup from "../components/MapLoadErrorPopup";
+import MapLoadErrorPopup from "../components/MapLoadErrorPopup"; // Komponen popup error
 
 export default function MapPage() {
   const { data: locations, isLoading, error } = useLocations();
   const { error: mapError, setError: setMapError, clearError } = useMapError();
 
   useEffect(() => {
-    console.log("useLocations Error:", error);
     if (error) {
       setMapError(error.message);
     }
-  }, [error, setMapError]);  
+  }, [error, setMapError]);
 
   if (isLoading) {
     return (
@@ -35,14 +34,12 @@ export default function MapPage() {
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
         {mapError && <MapLoadErrorPopup message={mapError} onClose={clearError} />}
-        <IndonesiaMap 
-          locations={locations} 
-          config={defaultMapConfig} 
+        <IndonesiaMap
+          locations={locations}
+          config={defaultMapConfig}
           width="100%"
           height="100%"
-          onError={(message) => {
-            setMapError(message);
-          }}
+          onError={(message) => setMapError(message)} // Tangkap error dari peta
         />
       </div>
     </>

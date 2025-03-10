@@ -1,50 +1,35 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { MapChartService } from "../services/mapChartService";
 import { MapLocation, MapConfig } from "../types";
 
 export const useIndonesiaMap = (
   containerId: string,
   locations: MapLocation[],
-  config: MapConfig
+  config: MapConfig,
+  onError: (message: string) => void
 ) => {
   const mapServiceRef = useRef<MapChartService | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+
+  const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
+  const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
 
   useEffect(() => {
-    let mounted = true;
-    
-    const initializeMap = async () => {
-      try {
-        if (mapServiceRef.current) {
-          mapServiceRef.current.dispose();
-          mapServiceRef.current = null;
-        }
+    if (mapServiceRef.current) {
+      mapServiceRef.current.dispose();
+      mapServiceRef.current = null;
+    }
 
-        mapServiceRef.current = new MapChartService();
-        mapServiceRef.current.initialize(containerId, config);
-        mapServiceRef.current.populateLocations(locations);
-
-        if (mounted) {
-          setIsInitialized(true);
-        }
-      } catch (error) {
-        mapServiceRef.current = null;
-        if (mounted) setIsInitialized(false);
-      }
-    };
-
-    initializeMap();
+    mapServiceRef.current = new MapChartService(onError);
+    mapServiceRef.current.initialize(containerId, memoizedConfig);
+    mapServiceRef.current.populateLocations(memoizedLocations);
 
     return () => {
-      mounted = false;
       if (mapServiceRef.current) {
         mapServiceRef.current.dispose();
+        mapServiceRef.current = null;
       }
     };
-  }, [containerId, locations, config]);
+  }, [containerId, memoizedLocations, memoizedConfig, onError]);
 
-  return {
-    mapService: mapServiceRef.current,
-    isInitialized
-  };
+  return { mapService: mapServiceRef.current };
 };

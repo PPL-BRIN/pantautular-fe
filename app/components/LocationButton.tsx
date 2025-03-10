@@ -15,7 +15,7 @@ export default function LocationButton({
   size = "md",
   disabled,
   ...props
-}: LocationButtonProps) {
+}: Readonly<LocationButtonProps>) {
   const sizeClasses = {
     sm: "p-1",
     md: "p-2",

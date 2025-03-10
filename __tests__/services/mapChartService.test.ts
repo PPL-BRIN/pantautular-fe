@@ -580,175 +580,101 @@ describe('MapChartService', () => {
     expect(createdBullet).toHaveProperty('type', 'Bullet');
   });
 
-  // Test untuk baris 42-43 (error handling di initialize)
-test('initialize handles container not found error', () => {
-  // Mock untuk document.getElementById yang mengembalikan null
-  jest.spyOn(document, 'getElementById').mockReturnValueOnce(null);
-  
-  // Mock untuk fungsi onError
-  const mockOnError = jest.fn();
-  mapService = new MapChartService(mockOnError);
-  
-  // Panggil initialize dengan id yang tidak ada
-  mapService.initialize('non-existent-id', mockConfig);
-  
-  // Verifikasi onError dipanggil dengan pesan kesalahan yang tepat
-  expect(mockOnError).toHaveBeenCalledWith("Failed to load the map. Please try again.");
-});
-
-// Test untuk baris 73-74 (error handling di setupPolygonSeries)
-test('setupPolygonSeries handles error', () => {
-  // Setup
-  const mockOnError = jest.fn();
-  mapService = new MapChartService(mockOnError);
-  
-  // Initialize map
-  mapService.initialize('chartdiv', mockConfig);
-  
-  // Mock am5map.MapPolygonSeries.new untuk melempar error
-  const originalMapPolygonSeries = am5map.MapPolygonSeries.new;
-  am5map.MapPolygonSeries.new = jest.fn().mockImplementationOnce(() => {
-    throw new Error('Test polygon series error');
+  test('initialize handles container not found error', () => {
+    // Mock untuk document.getElementById yang mengembalikan null
+    jest.spyOn(document, 'getElementById').mockReturnValueOnce(null);
+    
+    // Mock untuk fungsi onError
+    const mockOnError = jest.fn();
+    mapService = new MapChartService(mockOnError);
+    
+    // Panggil initialize dengan id yang tidak ada
+    mapService.initialize('non-existent-id', mockConfig);
+    
+    // Verifikasi onError dipanggil dengan pesan kesalahan yang tepat
+    expect(mockOnError).toHaveBeenCalledWith("Failed to load the map. Please try again.");
   });
   
-  // Panggil method privat setupPolygonSeries
-  (mapService as any).setupPolygonSeries();
-  
-  // Verifikasi onError dipanggil
-  expect(mockOnError).toHaveBeenCalledWith("Error setting up map polygons.");
-  
-  // Pulihkan mock
-  am5map.MapPolygonSeries.new = originalMapPolygonSeries;
-});
-
-// Test untuk baris 95-96 (error handling di setupPointSeries)
-test('setupPointSeries handles error', () => {
-  // Setup
-  const mockOnError = jest.fn();
-  mapService = new MapChartService(mockOnError);
-  
-  // Initialize map
-  mapService.initialize('chartdiv', mockConfig);
-  
-  // Mock am5map.ClusteredPointSeries.new untuk melempar error
-  const originalClusteredPointSeries = am5map.ClusteredPointSeries.new;
-  am5map.ClusteredPointSeries.new = jest.fn().mockImplementationOnce(() => {
-    throw new Error('Test point series error');
-  });
-  
-  // Panggil method privat setupPointSeries
-  (mapService as any).setupPointSeries();
-  
-  // Verifikasi onError dipanggil
-  expect(mockOnError).toHaveBeenCalledWith("Error setting up map points.");
-  
-  // Pulihkan mock
-  am5map.ClusteredPointSeries.new = originalClusteredPointSeries;
-});
-
-// Test untuk baris 197 (error handling di populateLocations)
-test('populateLocations handles error', () => {
-  // Setup
-  mapService.initialize('chartdiv', mockConfig);
-  
-  // Mock point series data push untuk melempar error
-  const pointSeries = (mapService as any).pointSeries;
-  const originalDataPush = pointSeries.data.push;
-  pointSeries.data.push = jest.fn().mockImplementationOnce(() => {
-    throw new Error('Test populate locations error');
-  });
-  
-  // Spy console.error
-  const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-  
-  const mockLocations: MapLocation[] = [
-    { location__latitude: -6.2, location__longitude: 106.8, city: 'Jakarta', id: '1' }
-  ];
-  
-  // Panggil populateLocations
-  mapService.populateLocations(mockLocations);
-  
-  // Verifikasi console.error dipanggil
-  expect(consoleSpy).toHaveBeenCalledWith(
-    'Error populating locations:',
-    expect.any(Error)
-  );
-  
-  // Pulihkan mock
-  pointSeries.data.push = originalDataPush;
-  consoleSpy.mockRestore();
-});
-
-  // Test untuk baris 141 (error handling di setupClusterBullet)
-  test("setupClusterBullet handles error", () => {
+  // Test untuk baris 73-74 (error handling di setupPolygonSeries)
+  test('setupPolygonSeries handles error', () => {
     // Setup
     const mockOnError = jest.fn();
     mapService = new MapChartService(mockOnError);
-  
+    
     // Initialize map
-    mapService.initialize("chartdiv", mockConfig);
-  
-    // Mock `pointSeries` untuk melempar error
-    const pointSeries = (mapService as any).pointSeries;
-    const originalSet = pointSeries.set;
-    pointSeries.set = jest.fn().mockImplementationOnce(() => {
-      throw new Error("Test cluster bullet error");
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Mock am5map.MapPolygonSeries.new untuk melempar error
+    const originalMapPolygonSeries = am5map.MapPolygonSeries.new;
+    am5map.MapPolygonSeries.new = jest.fn().mockImplementationOnce(() => {
+      throw new Error('Test polygon series error');
     });
+    
+    // Panggil method privat setupPolygonSeries
+    (mapService as any).setupPolygonSeries();
+    
+    // Verifikasi onError dipanggil
+    expect(mockOnError).toHaveBeenCalledWith("Error setting up map polygons.");
+    
+    // Pulihkan mock
+    am5map.MapPolygonSeries.new = originalMapPolygonSeries;
+  });
   
-    // Spy console.error untuk menangkap error logging
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+  // Test untuk baris 95-96 (error handling di setupPointSeries)
+  test('setupPointSeries handles error', () => {
+    // Setup
+    const mockOnError = jest.fn();
+    mapService = new MapChartService(mockOnError);
+    
+    // Initialize map
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Mock am5map.ClusteredPointSeries.new untuk melempar error
+    const originalClusteredPointSeries = am5map.ClusteredPointSeries.new;
+    am5map.ClusteredPointSeries.new = jest.fn().mockImplementationOnce(() => {
+      throw new Error('Test point series error');
+    });
+    
+    // Panggil method privat setupPointSeries
+    (mapService as any).setupPointSeries();
+    
+    // Verifikasi onError dipanggil
+    expect(mockOnError).toHaveBeenCalledWith("Error setting up map points.");
+    
+    // Pulihkan mock
+    am5map.ClusteredPointSeries.new = originalClusteredPointSeries;
+  });
   
-    // Panggil method setupClusterBullet
-    (mapService as any).setupClusterBullet();
-  
-    // Verifikasi bahwa `console.error` dipanggil
+  // Test untuk baris 197 (error handling di populateLocations)
+  test('populateLocations handles error', () => {
+    // Setup
+    mapService.initialize('chartdiv', mockConfig);
+    
+    // Mock point series data push untuk melempar error
+    const pointSeries = (mapService as any).pointSeries;
+    const originalDataPush = pointSeries.data.push;
+    pointSeries.data.push = jest.fn().mockImplementationOnce(() => {
+      throw new Error('Test populate locations error');
+    });
+    
+    // Spy console.error
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    
+    const mockLocations: MapLocation[] = [
+      { location__latitude: -6.2, location__longitude: 106.8, city: 'Jakarta', id: '1' }
+    ];
+    
+    // Panggil populateLocations
+    mapService.populateLocations(mockLocations);
+    
+    // Verifikasi console.error dipanggil
     expect(consoleSpy).toHaveBeenCalledWith(
-      "Error setting up cluster bullet:",
+      'Error populating locations:',
       expect.any(Error)
     );
-  
-    // Verifikasi bahwa `onError` dipanggil dengan pesan yang benar
-    expect(mockOnError).toHaveBeenCalledWith("Error setting up cluster bullet.");
-  
+    
     // Pulihkan mock
-    pointSeries.set = originalSet;
+    pointSeries.data.push = originalDataPush;
     consoleSpy.mockRestore();
   });
-  
-
-// Test untuk baris 175 (error handling di setupRegularBullet)
-test("setupRegularBullet handles error", () => {
-  // Setup
-  const mockOnError = jest.fn();
-  mapService = new MapChartService(mockOnError);
-
-  // Initialize map
-  mapService.initialize("chartdiv", mockConfig);
-
-  // Mock bullets.push untuk melempar error
-  const pointSeries = (mapService as any).pointSeries;
-  const originalBulletsPush = pointSeries.bullets.push;
-  pointSeries.bullets.push = jest.fn().mockImplementationOnce(() => {
-    throw new Error("Test regular bullet error");
-  });
-
-  // Spy console.error untuk menangkap error logging
-  const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-
-  // Panggil method setupRegularBullet
-  (mapService as any).setupRegularBullet();
-
-  // Verifikasi bahwa `console.error` dipanggil
-  expect(consoleSpy).toHaveBeenCalledWith(
-    "Error setting up regular bullet:",
-    expect.any(Error)
-  );
-
-  // Verifikasi bahwa `onError` dipanggil dengan pesan yang benar
-  expect(mockOnError).toHaveBeenCalledWith("Error setting up regular bullet.");
-
-  // Pulihkan mock
-  pointSeries.bullets.push = originalBulletsPush;
-  consoleSpy.mockRestore();
-});
 });

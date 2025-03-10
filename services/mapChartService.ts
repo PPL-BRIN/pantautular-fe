@@ -138,7 +138,6 @@ export class MapChartService {
         });
       });
     } catch (error) {
-      console.error("Error setting up cluster bullet:", error);
       if (this.onError) this.onError("Error setting up cluster bullet.");
     }
   }
@@ -173,7 +172,6 @@ export class MapChartService {
       })
     );
   } catch (error) {
-    console.error("Error setting up regular bullet:", error);
     if (this.onError) this.onError("Error setting up regular bullet.");
   }
   }

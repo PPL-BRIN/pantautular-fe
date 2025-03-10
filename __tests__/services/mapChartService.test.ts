@@ -688,9 +688,10 @@ test('populateLocations handles error', () => {
     // Initialize map
     mapService.initialize("chartdiv", mockConfig);
   
-    // Mock `am5.Container.new` untuk melempar error
-    const originalContainerNew = am5.Container.new;
-    am5.Container.new = jest.fn().mockImplementationOnce(() => {
+    // Mock `pointSeries` untuk melempar error
+    const pointSeries = (mapService as any).pointSeries;
+    const originalSet = pointSeries.set;
+    pointSeries.set = jest.fn().mockImplementationOnce(() => {
       throw new Error("Test cluster bullet error");
     });
   
@@ -710,7 +711,7 @@ test('populateLocations handles error', () => {
     expect(mockOnError).toHaveBeenCalledWith("Error setting up cluster bullet.");
   
     // Pulihkan mock
-    am5.Container.new = originalContainerNew;
+    pointSeries.set = originalSet;
     consoleSpy.mockRestore();
   });
   
@@ -724,9 +725,10 @@ test("setupRegularBullet handles error", () => {
   // Initialize map
   mapService.initialize("chartdiv", mockConfig);
 
-  // Mock `am5.Circle.new` untuk melempar error
-  const originalCircleNew = am5.Circle.new;
-  am5.Circle.new = jest.fn().mockImplementationOnce(() => {
+  // Mock bullets.push untuk melempar error
+  const pointSeries = (mapService as any).pointSeries;
+  const originalBulletsPush = pointSeries.bullets.push;
+  pointSeries.bullets.push = jest.fn().mockImplementationOnce(() => {
     throw new Error("Test regular bullet error");
   });
 
@@ -746,7 +748,7 @@ test("setupRegularBullet handles error", () => {
   expect(mockOnError).toHaveBeenCalledWith("Error setting up regular bullet.");
 
   // Pulihkan mock
-  am5.Circle.new = originalCircleNew;
+  pointSeries.bullets.push = originalBulletsPush;
   consoleSpy.mockRestore();
 });
 });

@@ -1,4 +1,11 @@
 module.exports = {
+    collectCoverage: true,
+    collectCoverageFrom: [
+      "app/**/*.{ts,tsx}",
+      "!app/layout.tsx",
+      "lib/**/*.{ts,tsx}",
+      "!components/ui/**",
+    ],
     preset: "ts-jest", // Untuk TypeScript
     testEnvironment: "jsdom",
     transform: {

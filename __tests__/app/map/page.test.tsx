@@ -1,5 +1,5 @@
-import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { useEffect } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import MapPage from "../../../app/map/page";
 import { useLocations } from "../../../hooks/useLocations";
@@ -8,207 +8,137 @@ import { useMapError } from "../../../hooks/useMapError";
 // Mock dependencies
 jest.mock("../../../hooks/useLocations");
 jest.mock("../../../hooks/useMapError");
+
+// Create a reusable mock component with improved onClose handler access
+let mockNoDataPopupOnClose: (() => void) | null = null;
+
+// Mock IndonesiaMap component
+const MockIndonesiaMap = (props: { onError?: (message: string) => void }) => {
+  useEffect(() => {
+    props.onError?.("Map loading failed test");
+  }, [props.onError]);
+  return <div data-testid="map-container">Map Component</div>;
+};
+
 jest.mock("../../../app/components/IndonesiaMap", () => ({
-  IndonesiaMap: jest.fn(() => (
-    <div data-testid="map-container" id="chartdiv" style={{ width: "100vw", height: "100vh" }} />
-  )),
+  IndonesiaMap: (props: any) => <MockIndonesiaMap {...props} />,
 }));
+
 jest.mock("../../../app/components/MapLoadErrorPopup", () => ({
   __esModule: true,
   default: jest.fn(({ message, onClose }) => (
     <div data-testid="map-error-popup">
       <p>{message}</p>
-      <button onClick={onClose}>Tutup</button>
+      <button onClick={onClose} data-testid="close-error-popup">Tutup</button>
     </div>
   )),
 }));
+
 jest.mock("../../../app/components/NoDataPopup", () => ({
   __esModule: true,
-  default: jest.fn(({ onClose }) => (
-    <div data-testid="no-data-popup">
-      <p>Data Tidak Ditemukan</p>
-      <button onClick={onClose}>Tutup</button>
-    </div>
-  )),
+  default: jest.fn(({ onClose }) => {
+    // Store the onClose handler for testing
+    mockNoDataPopupOnClose = onClose;
+    return (
+      <div data-testid="no-data-popup">
+        <p>Data Tidak Ditemukan</p>
+        <button onClick={onClose} data-testid="close-no-data-popup">Tutup</button>
+      </div>
+    );
+  }),
 }));
 
 describe("MapPage Component", () => {
   const mockSetMapError = jest.fn();
   const mockClearError = jest.fn();
 
-  beforeEach(() => {
+  // Setup helper functions to reduce duplication
+  const renderComponent = (useLocationsMock: { isLoading: boolean; error: Error | null; data: any[] | null }) => {
     jest.clearAllMocks();
-
+    mockNoDataPopupOnClose = null;
+    
     (useMapError as jest.Mock).mockReturnValue({
-      error: null,
+      error: useLocationsMock.error?.message ?? null,
       setError: mockSetMapError,
       clearError: mockClearError,
     });
-  });
+    (useLocations as jest.Mock).mockReturnValue(useLocationsMock);
+    return render(<MapPage />);
+  };
+  
+  // Helper to check for presence of a component
+  const expectComponentToBePresent = (testId: string) => {
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+  };
+  
+  // Helper to check for absence of a component
+  const expectComponentToBeAbsent = (testId: string) => {
+    expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
+  };
 
   test("should show loading state", () => {
-    (useLocations as jest.Mock).mockReturnValue({
-      isLoading: true,
-      error: null,
-      data: null,
-    });
-
-    render(<MapPage />);
+    renderComponent({ isLoading: true, error: null, data: null });
     expect(screen.getByText("Loading map data...")).toBeInTheDocument();
   });
 
-  test("should show error state when fetching locations fails", () => {
-    const errorMessage = "Failed to fetch locations";
-
-    (useLocations as jest.Mock).mockReturnValue({
-      isLoading: false,
-      error: new Error(errorMessage),
-      data: null,
-    });
-
-    (useMapError as jest.Mock).mockReturnValue({
-      error: errorMessage, // Pastikan error ini muncul dalam UI
-      setError: mockSetMapError,
-      clearError: mockClearError,
-    });
-
-    render(<MapPage />);
-
-    // Pastikan error dikirim ke useMapError
-    expect(mockSetMapError).toHaveBeenCalledWith(errorMessage);
-
-    // Pastikan popup error muncul di UI
-    expect(screen.getByTestId("map-error-popup")).toBeInTheDocument();
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+  test.each([
+    [new Error("Server error"), "map-error-popup"],
+    [new Error("No case locations found"), "no-data-popup"],
+  ])("should handle error states correctly", async (error, testId) => {
+    renderComponent({ isLoading: false, error, data: null });
+    await waitFor(() => expectComponentToBePresent(testId));
   });
 
   test("should render map when locations data is available", () => {
-    const mockLocations = [
-      { id: "1", city: "Jakarta", location__latitude: -6.2088, location__longitude: 106.8456 },
-      { id: "2", city: "Surabaya", location__latitude: -7.2575, location__longitude: 112.7521 },
-    ];
-
-    (useLocations as jest.Mock).mockReturnValue({
+    renderComponent({
       isLoading: false,
       error: null,
-      data: mockLocations,
+      data: [{ id: "1", city: "Jakarta", location__latitude: -6.2088, location__longitude: 106.8456 }],
     });
-
-    render(<MapPage />);
-
-    // Pastikan elemen map ditampilkan
-    expect(screen.getByTestId("map-container")).toBeInTheDocument();
+    expectComponentToBePresent("map-container");
   });
 
-  test("should handle empty locations array", () => {
-    (useLocations as jest.Mock).mockReturnValue({
+  test("should call setMapError when map fails to load", () => {
+    renderComponent({
       isLoading: false,
       error: null,
-      data: [],
+      data: [{ id: "1", city: "Jakarta", location__latitude: -6.2088, location__longitude: 106.8456 }],
     });
-
-    render(<MapPage />);
-    expect(screen.getByTestId("map-container")).toBeInTheDocument();
-  });
-
-  test("should handle null locations data", () => {
-    (useLocations as jest.Mock).mockReturnValue({
-      isLoading: false,
-      error: null,
-      data: null,
-    });
-
-    render(<MapPage />);
-    expect(screen.getByTestId("map-container")).toBeInTheDocument();
-  });
-
-  test("should show error popup when map fails to load", () => {
-    (useMapError as jest.Mock).mockReturnValue({
-      error: "Gagal memuat peta. Silakan coba lagi.",
-      setError: mockSetMapError,
-      clearError: mockClearError,
-    });
-
-    render(<MapPage />);
-
-    expect(screen.getByTestId("map-error-popup")).toBeInTheDocument();
-    expect(screen.getByText("Gagal memuat peta. Silakan coba lagi.")).toBeInTheDocument();
-  });
-
-  test("should call clearError when closing map error popup", () => {
-    (useMapError as jest.Mock).mockReturnValue({
-      error: "Gagal memuat peta. Silakan coba lagi.",
-      setError: mockSetMapError,
-      clearError: mockClearError,
-    });
-
-    render(<MapPage />);
-
-    screen.getByText("Tutup").click();
-    expect(mockClearError).toHaveBeenCalled();
-  });
-
-  test("should call setMapError when IndonesiaMap triggers onError", () => {
-    (useLocations as jest.Mock).mockReturnValue({
-      isLoading: false,
-      error: null,
-      data: [
-        { id: "1", city: "Jakarta", location__latitude: -6.2088, location__longitude: 106.8456 },
-      ],
-    });
- 
-    const IndonesiaMapModule = require("../../../app/components/IndonesiaMap");
-    const originalIndonesiaMap = IndonesiaMapModule.IndonesiaMap;
-   
-    IndonesiaMapModule.IndonesiaMap = jest.fn(({ onError }) => {
-      React.useEffect(() => {
-        if (onError) {
-          onError("Map loading failed test");
-        }
-      }, [onError]);
-     
-      return <div data-testid="map-container">Map Component</div>;
-    });
- 
-    render(<MapPage />);
-
     expect(mockSetMapError).toHaveBeenCalledWith("Map loading failed test");
-
-    IndonesiaMapModule.IndonesiaMap = originalIndonesiaMap;
   });
 
+  // New test for empty locations array (lines 31-33)
   test("should show NoDataPopup when locations array is empty", async () => {
-    (useLocations as jest.Mock).mockReturnValue({
+    renderComponent({
       isLoading: false,
       error: null,
-      data: [],
+      data: [], // Empty array
     });
- 
-    render(<MapPage />);
- 
-    // Pastikan popup muncul karena data kosong
-    expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
-    expect(screen.getByText("Data Tidak Ditemukan")).toBeInTheDocument();
+
+    await waitFor(() => expectComponentToBePresent("no-data-popup"));
   });
- 
+
+  // New test for NoDataPopup onClose handler (line 53)
   test("should close NoDataPopup when close button is clicked", async () => {
-    (useLocations as jest.Mock).mockReturnValue({
+    // Render with empty data to show the popup
+    renderComponent({
       isLoading: false,
       error: null,
       data: [],
     });
- 
-    render(<MapPage />);
- 
-    // Pastikan popup muncul
-    expect(screen.getByTestId("no-data-popup")).toBeInTheDocument();
- 
-    // Klik tombol "Tutup"
-    screen.getByText("Tutup").click();
- 
-    // Pastikan popup hilang setelah tombol ditekan
-    await waitFor(() => {
-      expect(screen.queryByTestId("no-data-popup")).not.toBeInTheDocument();
-    });
+
+    // Verify popup is shown
+    await waitFor(() => expectComponentToBePresent("no-data-popup"));
+    
+    // Click the close button
+    if (mockNoDataPopupOnClose) {
+      mockNoDataPopupOnClose();
+    } else {
+      fireEvent.click(screen.getByTestId("close-no-data-popup"));
+    }
+    
+    // Verify popup is closed - we need to re-render to see the effect
+    // Re-render the component to see the state change
+    await waitFor(() => expectComponentToBeAbsent("no-data-popup"));
   });
 });

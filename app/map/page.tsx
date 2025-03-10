@@ -16,7 +16,14 @@ export default function MapPage() {
 
   useEffect(() => {
     if (error) {
-      setMapError(error.message);
+      if (
+        error.message.includes("No case locations found matching the filters") ||
+        error.message.includes("No case locations found")
+      ) {
+        setIsEmptyData(true); 
+      } else {
+        setMapError(error.message); // Tampilkan MapLoadErrorPopup jika error lain
+      }
     }
   }, [error, setMapError]);
 

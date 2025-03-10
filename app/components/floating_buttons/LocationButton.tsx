@@ -28,8 +28,18 @@ export default function LocationButton({
     outline: "border border-gray-300 hover:bg-gray-50 text-black"
   }
 
-  // Icon size based on button size, matching WarningButton approach
-  const iconSize = size === "sm" ? "w-4 h-4" : size === "md" ? "w-6 h-6" : "w-8 h-8"
+  let iconSize: string;
+  switch (size) {
+    case "sm":
+      iconSize = "w-4 h-4";
+      break;
+    case "md":
+      iconSize = "w-6 h-6";
+      break;
+    case "lg":
+      iconSize = "w-8 h-8";
+      break;
+  }
 
   return (
     <button

@@ -31,7 +31,18 @@ export default function WarningButton({
   }
 
   // Icon size based on button size
-  const iconSize = size === "sm" ? "w-4 h-4" : size === "md" ? "w-6 h-6" : "w-8 h-8"
+  let iconSize: string
+  switch (size) {
+    case "sm":
+      iconSize = "w-4 h-4"
+      break
+    case "md":
+      iconSize = "w-6 h-6"
+      break
+    case "lg":
+      iconSize = "w-8 h-8"
+      break
+  }
 
   return (
     <div className="relative">
@@ -46,7 +57,7 @@ export default function WarningButton({
         className={`relative rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-default ${sizeClasses[size]} ${variantClasses[variant]} ${className} z-20`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        aria-label={label || "Warning"}
+        aria-label={label ?? "Warning"}
         {...props}
       >
         <div className="relative flex items-center justify-center">

@@ -6,6 +6,11 @@ import * as am5map from "@amcharts/amcharts5/map";
 import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import CaseLocationPoints from "./CaseLocationPoints";
+import DashboardButton from "./floating_buttons/DashboardButton";
+import WarningButton from "./floating_buttons/WarningButton";
+import FilterButton from "./floating_buttons/FilterButton";
+import LocationButton from "./floating_buttons/LocationButton";
+import {MapButton} from "./floating_buttons/MapButton";
 
 interface LocationData {
   id: string;
@@ -89,9 +94,12 @@ class AmChartsMapProvider implements MapProvider {
 
   private addInteractivity(): void {
     this.chart.set("zoomControl", am5map.ZoomControl.new(this.root, {}));
-    this.chart.chartContainer.get("background").events.on("click", () => {
-      this.chart.goHome();
-    });
+    const background = this.chart.chartContainer.get("background");
+    if (background) {
+      background.events.on("click", () => {
+        this.chart.goHome();
+      });
+    }
     this.chart.appear(1000, 100);
   }
 }
@@ -111,6 +119,7 @@ export default function IndonesiaMap({ onError, locations = [] }: IndonesiaMapPr
   return (
     <>
       <div id="chartdiv" data-testid="chartdiv" style={{ width: "100%", height: "500px" }}></div>
+
       {mapReady && chartRef.current && locations.length > 0 && (
         <CaseLocationPoints
           chart={chartRef.current.getChart()}
@@ -118,6 +127,17 @@ export default function IndonesiaMap({ onError, locations = [] }: IndonesiaMapPr
           locations={locations}
         />
       )}
+
+      {/* Buttons Placement */}
+      <div className="absolute top-4 left-4 flex gap-4">
+        <FilterButton />
+        <LocationButton />
+        <WarningButton />
+      </div>
+      <div className="absolute top-4 right-5 flex gap-2">
+        <DashboardButton />
+        <MapButton />
+      </div>
     </>
   );
 }

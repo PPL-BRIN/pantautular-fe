@@ -19,9 +19,20 @@ export const useIndonesiaMap = (
       mapServiceRef.current = null;
     }
 
-    mapServiceRef.current = new MapChartService(onError);
-    mapServiceRef.current.initialize(containerId, memoizedConfig);
-    mapServiceRef.current.populateLocations(memoizedLocations);
+    const mapService = new MapChartService(onError);
+    mapServiceRef.current = mapService;
+
+    const initializeMap = async () => {
+      try {
+        await mapService.initialize(containerId, memoizedConfig); // Pastikan menangani error async
+        await mapService.populateLocations(memoizedLocations);
+      } catch (error) {
+        console.error("Error in useIndonesiaMap:", error);
+        onError("Failed to load the map. Please try again.");
+      }
+    };
+
+    initializeMap(); // Jalankan fungsi async
 
     return () => {
       if (mapServiceRef.current) {

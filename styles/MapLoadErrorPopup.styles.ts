@@ -21,7 +21,7 @@ export const Modal = styled.div`
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 `;
 
-export const WarningHeader = styled.div`
+export const PopupHeader = styled.div`
   background: #407BFF;
   padding: 20px;
   border-top-left-radius: 12px;
@@ -42,22 +42,27 @@ export const Message = styled.p`
 
 export const ButtonContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   padding: 10px;
 `;
 
-export const Button = styled.button<{ $primary?: boolean }>`
-  padding: 9px 10px;
+export const Button = styled.button`
+  padding: 5px 10px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
-  flex: 1;
-  margin: 0 5px;
   font-family: 'Inter', sans-serif;
+  width: 100px;
 
-  color: ${({ $primary }) => ($primary ? "white" : "#407BFF")};
-  background: ${({ $primary }) => ($primary ? "#407BFF" : "white")};
+  color: white;
+  background: #407BFF;
   border: 2px solid #407BFF;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: #3366CC;
+    border-color: #3366CC;
+  }
 `;

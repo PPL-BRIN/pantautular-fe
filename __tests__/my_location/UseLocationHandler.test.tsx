@@ -3,7 +3,7 @@ import { useLocationHandlers } from '@/hooks/useLocationHandlers';
 import { LocationService } from '@/services/LocationService';
 
 // Mock the LocationService
-jest.mock('../../services/LocationService2', () => ({
+jest.mock('../../services/LocationService', () => ({
   LocationService: {
     requestLocation: jest.fn()
   }

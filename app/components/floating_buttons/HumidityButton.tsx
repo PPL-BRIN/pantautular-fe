@@ -20,7 +20,9 @@ const sizeClasses = {
     lg: 24,
   }
 
-export default function HumidityButton({ onClick, className = "", size = "md" }: HumidityButtonProps) {
+export default function HumidityButton({ 
+  onClick, className = "", size = "md" }
+  : Readonly<HumidityButtonProps>) {
   const [isActive, setIsActive] = useState(false)
 
   const handleClick = () => {

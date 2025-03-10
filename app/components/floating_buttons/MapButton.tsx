@@ -11,7 +11,10 @@ interface MapButtonProps {
   size?: "small" | "medium" | "large"
 }
 
-export const MapButton = ({ className = "", size = "medium" }: MapButtonProps) => {
+export const MapButton = ({ 
+  className = "", 
+  size = "medium"
+ }: Readonly<MapButtonProps>) => {
   const [showAdditionalButtons, setShowAdditionalButtons] = useState(false)
 
   // Size mapping for the button and SVG

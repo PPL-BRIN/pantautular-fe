@@ -22,7 +22,7 @@ export default function TemperatureButton({
   onClick, 
   className = "", 
   size = "md" 
-}: TemperatureButtonProps) {
+}: Readonly<TemperatureButtonProps>) {
   const [isActive, setIsActive] = useState(false)
 
   const handleClick = () => {

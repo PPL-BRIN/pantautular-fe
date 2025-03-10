@@ -24,7 +24,7 @@ export default function RainButton({
   onClick, 
   className = "", 
   size = "md" 
-}: RainButtonProps) {
+}: Readonly<RainButtonProps>) {
   const [isActive, setIsActive] = useState(false)
 
   const handleClick = () => {

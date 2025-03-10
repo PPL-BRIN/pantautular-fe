@@ -16,7 +16,7 @@ export default function DashboardButton({
   label = "Chart Button",
   disabled = false,
   className,
-}: DashboardButtonProps) {
+}: Readonly<DashboardButtonProps>) {
   const [isActive, setIsActive] = useState(false)
 
   // Size mapping for the button and SVG

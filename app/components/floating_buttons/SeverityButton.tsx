@@ -15,7 +15,7 @@ export default function GearToggleButton({
   className,
   size = "md",
   ariaLabel = "Settings",
-}: GearToggleButtonProps) {
+}: Readonly<GearToggleButtonProps>) {
   const [isActive, setIsActive] = useState(false)
 
   const sizeClasses = {

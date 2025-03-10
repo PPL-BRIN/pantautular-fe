@@ -15,7 +15,7 @@ export default function LocationButton({
   size = "md",
   disabled,
   ...props
-}: LocationButtonProps) {
+}: Readonly<LocationButtonProps>) {
   // Size mappings with fixed width and height like WarningButton
   const sizeClasses = {
     sm: "w-8 h-8",

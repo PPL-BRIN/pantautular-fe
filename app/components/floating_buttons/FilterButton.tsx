@@ -18,7 +18,7 @@ export default function FilterButton({
   size = "md",
   disabled,
   ...props
-}: FilterButtonProps) {
+}: Readonly<FilterButtonProps>) {
   const [isActive, setIsActive] = useState(false)
 
   // Size mappings with fixed width and height

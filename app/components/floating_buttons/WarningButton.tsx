@@ -14,7 +14,7 @@ export default function WarningButton({
   label,
   className = "",
   ...props
-}: WarningButtonProps) {
+}: Readonly<WarningButtonProps>) {
   const [isHovered, setIsHovered] = useState(false)
 
   // Size mappings

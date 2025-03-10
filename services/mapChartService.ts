@@ -99,25 +99,25 @@ export class MapChartService {
 
   private setupClusterBullet(): void {
     if (!this.pointSeries || !this.root) return;
-
+  
     try {
       this.pointSeries.set("clusteredBullet", (root) => {
         let container = am5.Container.new(root, {
           cursorOverStyle: "pointer",
         });
-
+  
         container.children.push(
           am5.Circle.new(root, { radius: 8, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-
+  
         container.children.push(
           am5.Circle.new(root, { radius: 12, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-
+  
         container.children.push(
           am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-
+  
         container.children.push(
           am5.Label.new(root, {
             centerX: am5.p50,
@@ -128,52 +128,54 @@ export class MapChartService {
             text: "{value}",
           })
         );
-
+  
         container.events.on("click", (e) => {
           this.pointSeries?.zoomToCluster(e.target.dataItem);
         });
-
+  
         return am5.Bullet.new(root, {
           sprite: container,
         });
       });
     } catch (error) {
       console.error("Error setting up cluster bullet:", error);
+      if (this.onError) this.onError("Error setting up cluster bullet.");
     }
   }
 
   private setupRegularBullet(): void {
-    if (!this.pointSeries || !this.root) return;
+  if (!this.pointSeries || !this.root) return;
 
-    try {
-      const tooltipData = {
-        id: "{id}",
-        location: "{city}",
-        summary: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo",
-        gender: "Lorem",
-        age: "0",
-        alertLevel: "Lorem",
-        relatedSearch: "Lorem ipsum dolor sit",
-        source: "https://www.detik.com",
-      };
+  try {
+    const tooltipData = {
+      id: "{id}",
+      location: "{city}",
+      summary: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo",
+      gender: "Lorem",
+      age: "0",
+      alertLevel: "Lorem",
+      relatedSearch: "Lorem ipsum dolor sit",
+      source: "https://www.detik.com",
+    };
 
-      const tooltipHTML = getTooltipHTML(tooltipData);
+    const tooltipHTML = getTooltipHTML(tooltipData);
 
-      this.pointSeries.bullets.push(() =>
-        am5.Bullet.new(this.root, {
-          sprite: am5.Circle.new(this.root, {
-            radius: 6,
-            tooltipY: 0,
-            fill: am5.color(0xfc0339),
-            cursorOverStyle: "pointer",
-            showTooltipOn: "click",
-            tooltipHTML: tooltipHTML,
-          }),
-        })
-      );
-    } catch (error) {
-      console.error("Error setting up regular bullet:", error);
-    }
+    this.pointSeries.bullets.push(() =>
+      am5.Bullet.new(this.root, {
+        sprite: am5.Circle.new(this.root, {
+          radius: 6,
+          tooltipY: 0,
+          fill: am5.color(0xfc0339),
+          cursorOverStyle: "pointer",
+          showTooltipOn: "click",
+          tooltipHTML: tooltipHTML,
+        }),
+      })
+    );
+  } catch (error) {
+    console.error("Error setting up regular bullet:", error);
+    if (this.onError) this.onError("Error setting up regular bullet.");
+  }
   }
 
   populateLocations(locations: MapLocation[]): void {

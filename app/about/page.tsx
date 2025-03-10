@@ -1,6 +1,7 @@
 import BackgroundCircle from "../components/BackgroundCircle";
 import SectionContainer from "../components/about/SectionContainer";
 import Navbar from "../components/Navbar";
+import Image from "next/image";
 
 export default function About() {
   return (
@@ -19,7 +20,7 @@ export default function About() {
 
       <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mt-10 mb-16">
         <div className="flex-1 flex justify-center">
-          <img src="/tentang_kami.jpeg" alt="PantauTular_tentang_kami" className="w-full max-w-md h-auto" />
+          <Image src="/tentang_kami.jpeg" alt="PantauTular_tentang_kami" className="w-full max-w-md h-auto"/>
         </div>
 
         <div className="flex-1 text-center md:text-left">
@@ -51,7 +52,7 @@ export default function About() {
         </div>
 
         <div className="flex-1 flex justify-center">
-          <img src="/latar_belakang.jpeg" alt="PantauTular_latarbelakang" className="w-full max-w-md h-auto" />
+          <Image src="/latar_belakang.jpeg" alt="PantauTular_latar_belakang" className="w-full max-w-md h-auto" />
         </div>
       </div>
 

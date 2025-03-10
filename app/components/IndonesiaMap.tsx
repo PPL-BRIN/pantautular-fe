@@ -134,14 +134,14 @@ export default function IndonesiaMap({ onError }: IndonesiaMapProps) {
   const chartRef = useRef<MapProvider | null>(null);
   const [showPermissionPopup, setShowPermissionPopup] = useState(false);
   const [locationError, setLocationError] = useState<LocationError | null>(null);
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const { handleAllow, handleDeny } = useLocationHandlers(
     setShowPermissionPopup,
     setLocationError,
     (latitude, longitude) => {
       setLocation({ latitude, longitude }); // Simpan lokasi pengguna
-      if (chartRef.current && chartRef.current.zoomToLocation) {
+      if (chartRef.current?.zoomToLocation) {
         chartRef.current.zoomToLocation(latitude, longitude);
       }
     },

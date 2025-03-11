@@ -24,7 +24,9 @@ interface FilterState {
   end_date: string;
 }
 
-export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.0.1:8000/api/filters/" }: FormFilterProps) {
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_URL}/api/filters/` }: FormFilterProps) {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     diseases: [],
     locations: [],
@@ -38,6 +40,7 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [openMultiSelect, setOpenMultiSelect] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchFilters() {
@@ -93,6 +96,10 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
     onFilterApply(filterState);
   }
 
+  function toggleMultiSelect(name: string) {
+    setOpenMultiSelect(openMultiSelect === name ? null : name);
+  }
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
       {error && (
@@ -115,6 +122,8 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
             selected={selectedDiseases}
             onChange={setSelectedDiseases}
             placeholder="Pilih jenis penyakit"
+            isOpen={openMultiSelect === "diseases"}
+            setOpen={() => toggleMultiSelect("diseases")}
           />
           
           <label className="block mt-4 mb-2">
@@ -125,6 +134,8 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
             selected={selectedLocations}
             onChange={setSelectedLocations}
             placeholder="Provinsi atau kabupaten/kota"
+            isOpen={openMultiSelect === "locations"}
+            setOpen={() => toggleMultiSelect("locations")}
           />
           
           <label className="block mt-4 mb-2">
@@ -135,6 +146,8 @@ export default function FormFilter({ onFilterApply, apiEndpoint = "http://127.0.
             selected={selectedNews}
             onChange={setSelectedNews}
             placeholder="Pilih sumber berita"
+            isOpen={openMultiSelect === "news"}
+            setOpen={() => toggleMultiSelect("news")}
           />
           
           <label className="block mt-4 mb-2">

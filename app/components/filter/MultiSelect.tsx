@@ -1,10 +1,8 @@
 "use client";
 
-import * as React from "react";
 import { X, ChevronDown } from "lucide-react";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
@@ -16,6 +14,8 @@ type MultiSelectProps = {
   selected: string[];
   onChange: (selected: string[]) => void;
   placeholder?: string;
+  isOpen: boolean;
+  setOpen: () => void;
 };
 
 export function MultiSelect({
@@ -23,30 +23,25 @@ export function MultiSelect({
   selected,
   onChange,
   placeholder = "Pilih opsi...",
+  isOpen,
+  setOpen,
 }: MultiSelectProps) {
-  const [open, setOpen] = React.useState(false);
-
   const handleUnselect = (option: string) => {
     onChange(selected.filter((s) => s !== option));
   };
 
   const selectables = options.filter((option) => !selected.includes(option));
 
-  const allSelected = selected.length === options.length;
   const toggleSelectAll = () => {
-    if (allSelected) {
-      onChange([]);
-    } else {
-      onChange(options);
-    }
-    setOpen(false);
-  }
+    onChange(options);
+    setOpen();
+  };
 
   return (
     <div className="relative w-full">
       <div
         className="flex items-center justify-between border border-gray-300 rounded-md px-3 py-2 cursor-pointer bg-white shadow-sm"
-        onClick={() => setOpen(!open)}
+        onClick={setOpen}
       >
         {selected.length > 0 ? (
           <div className="flex flex-wrap gap-1">
@@ -71,7 +66,7 @@ export function MultiSelect({
         <ChevronDown className="h-4 w-4 text-gray-500" />
       </div>
 
-      {open && selectables.length > 0 && (
+      {isOpen && options.length > 0 && (
         <div className="absolute w-full mt-2 rounded-md border bg-white shadow-lg z-10">
           <Command>
             <CommandList>
@@ -79,16 +74,15 @@ export function MultiSelect({
                 onSelect={toggleSelectAll}
                 className="cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md font-semibold"
               >
-                {allSelected?"Hapus Semua":"Pilih Semua"}
+                Pilih Semua
               </CommandItem>
-              <CommandEmpty>Tidak ada hasil.</CommandEmpty>
               <CommandGroup>
                 {selectables.map((option) => (
                   <CommandItem
                     key={option}
                     onSelect={() => {
                       onChange([...selected, option]);
-                      setOpen(false);
+                      setOpen();
                     }}
                     className="cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md"
                   >

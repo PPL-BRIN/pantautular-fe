@@ -4,7 +4,7 @@ import am5geodata_indonesiaLow from "@amcharts/amcharts5-geodata/indonesiaLow";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import { MapLocation, MapConfig } from "../types";
 import { getTooltipHTML } from "../utils/tooltipUtils";
-import { useMapStore } from "@/store/store";
+import { useMapStore } from "../store/store";
 
 export class MapChartService {
   private root: am5.Root | null = null;

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useIndonesiaMap } from '../../hooks/useIndonesiaMap';
 import { MapChartService } from '../../services/mapChartService';
 import { MapLocation, MapConfig } from '../../types';
@@ -336,4 +336,57 @@ describe('useIndonesiaMap', () => {
     capturedErrorHandler(false);
     expect(setIsInitializedMock).not.toHaveBeenCalled();
   });
+
+  test('should call setIsInitialized(true) only when mounted is true', async () => {
+    // Arrange
+    // Override the useEffect implementation to control the mounted flag
+    let mountedFlag = true;
+    jest.spyOn(React, 'useEffect').mockImplementation((callback) => {
+      // Simulate the useEffect callback
+      const cleanup = callback();
+      
+      // Return a cleanup function that can control the mounted flag
+      return () => {
+        mountedFlag = false;
+        if (cleanup) cleanup();
+      };
+    });
+    
+    // Mock successful initialization
+    ((MapChartService.prototype.initialize as unknown) as jest.Mock).mockImplementation(() => {
+      // Check mounted flag before calling setIsInitialized
+      if (mountedFlag) {
+        mockInitialize(true);
+      }
+    });
+    
+    // Act
+    renderHook(() => useIndonesiaMap(containerId, mockLocations, mockConfig));
+    
+    // Assert
+    expect(mockInitialize).toHaveBeenCalledWith(true);
+    
+    // Reset mock to check if it's called again
+    mockInitialize.mockClear();
+    
+    // Simulate component unmounting by setting mounted to false
+    mountedFlag = false;
+    
+    // Act - try initializing again with mounted = false
+    ((MapChartService.prototype.initialize as unknown) as jest.Mock).mockImplementation(() => {
+      // This should not call setIsInitialized because mounted is false
+      if (mountedFlag) {
+        mockInitialize(true);
+      }
+    });
+    
+    renderHook(() => useIndonesiaMap(containerId, mockLocations, mockConfig));
+    
+    // Assert - setIsInitialized should not be called when mounted is false
+    expect(mockInitialize).not.toHaveBeenCalled();
+  });
+
+
+
+
 });

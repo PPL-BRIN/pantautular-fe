@@ -2,7 +2,7 @@ import { MapChartService } from '../../services/mapChartService';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5map from "@amcharts/amcharts5/map";
 import { MapConfig, MapLocation } from "../../types";
-
+import { useMapStore } from '../../store/store';
 
 const mockChildrenPush = jest.fn();
 const mockEventsOn = jest.fn();
@@ -87,7 +87,8 @@ jest.mock("@amcharts/amcharts5/map", () => {
             return null;
           }),
         appear: jest.fn(),
-        goHome: jest.fn()
+        goHome: jest.fn(),
+        on: jest.fn(),
       }))
     },
     MapPolygonSeries: {
@@ -140,6 +141,14 @@ jest.mock("@amcharts/amcharts5-geodata/indonesiaLow", () => {
     default: {}
   };
 });
+
+jest.mock('../../store/store', () => ({
+  useMapStore: {
+    getState: jest.fn().mockReturnValue({
+      setCountSelectedPoints: jest.fn()
+    })
+  }
+}));
 
 describe('MapChartService', () => {
   let mapService: MapChartService;
@@ -580,4 +589,131 @@ describe('MapChartService', () => {
     expect(createdBullet).toHaveProperty('type', 'Bullet');
   });
 
+
+
+});
+
+describe('MapChartService Point Counting', () => {
+  let mapService: MapChartService;
+  const mockConfig: MapConfig = {
+    zoomLevel: 5,
+    centerPoint: { longitude: 120, latitude: -5 }
+  };
+
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="chartdiv"></div>';
+    jest.clearAllMocks();
+    mapService = new MapChartService();
+    mapService.initialize('chartdiv', mockConfig);
+  });
+
+  afterEach(() => {
+    mapService.dispose();
+  });
+
+  describe('countSelectedPoints', () => {
+    // Positive cases
+    test('getter returns correct count', () => {
+      (mapService as any)._countSelectedPoints = 5;
+      expect(mapService.countSelectedPoints).toBe(5);
+    });
+
+    // Private setter tests through getPointsInSelection
+    test('setter updates Zustand store', () => {
+      (mapService as any).countSelectedPoints = 10;
+      expect(useMapStore.getState().setCountSelectedPoints).toHaveBeenCalledWith(10);
+    });
+
+    // Corner case
+    test('handles zero count', () => {
+      (mapService as any).countSelectedPoints = 0;
+      expect(mapService.countSelectedPoints).toBe(0);
+      expect(useMapStore.getState().setCountSelectedPoints).toHaveBeenCalledWith(0);
+    });
+  });
+
+  describe('getPointsInSelection', () => {
+    const mockLocations: MapLocation[] = [
+      { location__latitude: -6.2, location__longitude: 106.8, city: 'Jakarta', id: '1' },
+      { location__latitude: -7.8, location__longitude: 110.4, city: 'Yogyakarta', id: '2' }
+    ];
+
+    beforeEach(() => {
+      // Mock chart methods
+      (mapService as any).chart = {
+        invert: jest.fn(),
+        innerWidth: jest.fn().mockReturnValue(1000),
+        innerHeight: jest.fn().mockReturnValue(800)
+      };
+      (mapService as any).locations = mockLocations;
+    });
+
+    // Positive cases
+    test('counts points within viewport correctly', () => {
+      // Mock viewport coordinates that include all points
+      (mapService as any).chart.invert
+        .mockReturnValueOnce({ longitude: 100, latitude: 0 })  // Top-left
+        .mockReturnValueOnce({ longitude: 120, latitude: -10 }); // Bottom-right
+
+      (mapService as any).getPointsInSelection();
+      expect(mapService.countSelectedPoints).toBe(2);
+    });
+
+    test('handles points at viewport edges', () => {
+      // Mock viewport coordinates exactly matching a point
+      (mapService as any).chart.invert
+        .mockReturnValueOnce({ longitude: 106.8, latitude: -6.2 })
+        .mockReturnValueOnce({ longitude: 106.8, latitude: -6.2 });
+
+      (mapService as any).getPointsInSelection();
+      expect(mapService.countSelectedPoints).toBe(1);
+    });
+
+    // Negative cases
+    test('handles undefined chart', () => {
+      (mapService as any).chart = null;
+      (mapService as any).getPointsInSelection();
+      expect(mapService.countSelectedPoints).toBe(0);
+    });
+
+    test('handles undefined locations', () => {
+      (mapService as any).locations = null;
+      (mapService as any).getPointsInSelection();
+      expect(mapService.countSelectedPoints).toBe(0);
+    });
+
+    // Corner cases
+    test('handles date line crossing (180/-180)', () => {
+      (mapService as any).chart.invert
+        .mockReturnValueOnce({ longitude: 170, latitude: 0 })
+        .mockReturnValueOnce({ longitude: -170, latitude: -10 });
+
+      const dateLineMockLocations: MapLocation[] = [
+        { location__latitude: -5, location__longitude: 175, city: 'Near Date Line East', id: '1' },
+        { location__latitude: -5, location__longitude: -175, city: 'Near Date Line West', id: '2' }
+      ];
+      (mapService as any).locations = dateLineMockLocations;
+
+      (mapService as any).getPointsInSelection();
+      expect(mapService.countSelectedPoints).toBe(2);
+    });
+
+    test('handles empty viewport (same top-left and bottom-right)', () => {
+      (mapService as any).chart.invert
+        .mockReturnValueOnce({ longitude: 100, latitude: -5 })
+        .mockReturnValueOnce({ longitude: 100, latitude: -5 });
+
+      (mapService as any).getPointsInSelection();
+      expect(mapService.countSelectedPoints).toBe(0);
+    });
+
+    test('handles invalid viewport coordinates', () => {
+      (mapService as any).chart.invert
+        .mockReturnValueOnce({ longitude: NaN, latitude: NaN })
+        .mockReturnValueOnce({ longitude: NaN, latitude: NaN });
+
+      (mapService as any).getPointsInSelection();
+      expect(mapService.countSelectedPoints).toBe(0);
+    });
+  });
 });

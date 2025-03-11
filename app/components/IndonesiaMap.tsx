@@ -3,7 +3,7 @@ import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { useMapError } from "../../hooks/useMapError";
 import MapLoadErrorPopup from "./MapLoadErrorPopup";
 import { MapLocation, MapConfig } from "../../types";
-import { useMapStore } from "@/store/store";
+import { useMapStore } from "../../store/store";
 
 export const MAP_LOAD_TIMEOUT = 500;
 

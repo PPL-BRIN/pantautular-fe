@@ -29,10 +29,6 @@
       ]
     }
   },
-<<<<<<< HEAD
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "__tests__/home.test.tsx", "jest.config.js", "jest.setup.js"],
-  "exclude": ["node_modules"]
-=======
   "include": [
     "next-env.d.ts",
     "**/*.ts",
@@ -43,5 +39,4 @@
   "exclude": [
     "node_modules"
   ]
->>>>>>> 98e445727dc389488c686ec0e24731deb434ea42
 }

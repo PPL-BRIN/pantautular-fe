@@ -81,18 +81,6 @@ export default function MapPage() {
     );
   }
 
-  if (error) {
-    return (
-      <>
-        <Navbar />
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-5rem)]">
-          <p className="text-red-500">Error: {error.message}</p>
-          <p>Please try refreshing the page</p>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <Navbar />
@@ -104,6 +92,7 @@ export default function MapPage() {
           config={defaultMapConfig}
           width="100%"
           height="100%"
+          onError={(message) => setMapError(message)}
         />
         <button
           data-testid="filter-button"

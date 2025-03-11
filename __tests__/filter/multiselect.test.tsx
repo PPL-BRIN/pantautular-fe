@@ -3,10 +3,16 @@ import { MultiSelect } from "../../app/components/filter/MultiSelect";
 
 beforeAll(() => {
   global.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
+    observe(target: Element) {
+      console.log(`Observing: ${target}`);
+    }
+    unobserve(target: Element) {
+      console.log(`Unobserving: ${target}`);
+    }
+    disconnect() {
+      console.log("Disconnecting ResizeObserver");
+    }
+  }
 
   Element.prototype.scrollIntoView = jest.fn();
 });

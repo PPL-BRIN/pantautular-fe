@@ -1,4 +1,8 @@
+import { FilterState } from "@/types";
 import { mapApi } from "../../services/api";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 describe('mapApi', () => {
     const mockResponse = [
@@ -66,5 +70,94 @@ describe('mapApi', () => {
             const result = await mapApi.getLocations();
             expect(result).toEqual([]);
         });
+    });
+
+    describe('getFilteredLocations', () => {
+      it('fetches filtered locations successfully', async () => {
+        const mockFilters: FilterState = {
+          diseases: ['COVID-19'],
+          locations: ['Jakarta'],
+          level_of_alertness: 3,
+          portals: ['Portal A'],
+          start_date: '2025-01-01',
+          end_date: '2025-01-31',
+        };
+  
+        global.fetch = jest.fn().mockResolvedValue({
+          ok: true,
+          json: async () => mockResponse,
+        });
+  
+        const result = await mapApi.getFilteredLocations(mockFilters);
+  
+        expect(global.fetch).toHaveBeenCalledWith(`${API_BASE_URL}/cases/locations/`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-api-key': String(API_KEY),
+          },
+          credentials: 'include',
+          body: JSON.stringify(mockFilters),
+        });
+  
+        expect(result).toEqual(mockResponse);
+      });
+  
+      it('throws an error when the response is not ok', async () => {
+        const mockFilters: FilterState = {
+          diseases: ['COVID-19'],
+          locations: ['Jakarta'],
+          level_of_alertness: 3,
+          portals: ['Portal A'],
+          start_date: '2025-01-01',
+          end_date: '2025-01-31',
+        };
+  
+        global.fetch = jest.fn().mockResolvedValue({
+          ok: false,
+          status: 500,
+        });
+  
+        await expect(mapApi.getFilteredLocations(mockFilters)).rejects.toThrow('HTTP error! status: 500');
+  
+        expect(global.fetch).toHaveBeenCalledWith(`${API_BASE_URL}/cases/locations/`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-api-key': String(API_KEY),
+          },
+          credentials: 'include',
+          body: JSON.stringify(mockFilters),
+        });
+      });
+  
+      it('throws an error when fetch fails', async () => {
+        const mockFilters: FilterState = {
+          diseases: ['COVID-19'],
+          locations: ['Jakarta'],
+          level_of_alertness: 3,
+          portals: ['Portal A'],
+          start_date: '2025-01-01',
+          end_date: '2025-01-31',
+        };
+  
+        const mockError = new Error('Network error');
+        global.fetch = jest.fn().mockRejectedValue(mockError);
+  
+        await expect(mapApi.getFilteredLocations(mockFilters)).rejects.toThrow('Network error');
+  
+        expect(global.fetch).toHaveBeenCalledWith(`${API_BASE_URL}/cases/locations/`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-api-key': String(API_KEY),
+          },
+          credentials: 'include',
+          body: JSON.stringify(mockFilters),
+        });
+      });
     });
 });

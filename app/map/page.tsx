@@ -8,11 +8,41 @@ import { defaultMapConfig } from "../../data/indonesiaLocations";
 import Navbar from "../components/Navbar";
 import MapLoadErrorPopup from "../components/MapLoadErrorPopup"; // Komponen popup error
 import NoDataPopup from "../components/NoDataPopup"; // Komponen popup data tidak ditemukan
+import FormFilter from "../components/filter/FormFilter";
+import { mapApi } from "../../services/api";
+import { MapLocation, FilterState } from "@/types";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function MapPage() {
   const { data: locations, isLoading, error } = useLocations();
   const { error: mapError, setError: setMapError, clearError } = useMapError();
   const [isEmptyData, setIsEmptyData] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<FilterState>({
+    diseases: [],
+    locations: [],
+    level_of_alertness: 0,
+    portals: [],
+    start_date: "",
+    end_date: "",
+  });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filteredData, setFilteredData] = useState<MapLocation[] | null>(null);
+
+  const apiEndpoint = `${API_BASE_URL}/api/filters/`;
+
+  const handleFilterApply = (filters: FilterState) => {
+    setAppliedFilters(filters);
+    console.log("Filters applied:", filters);
+    setIsFilterOpen(false); // Close filter panel after applying
+  };
+
+  useEffect(() => {
+    if (locations && locations.length === 0 && !isLoading) {
+      console.log(locations.length)
+      setIsEmptyData(true);
+    }
+  }, [locations]);
 
   useEffect(() => {
     if (error) {
@@ -28,11 +58,17 @@ export default function MapPage() {
   }, [error, setMapError]);
 
   useEffect(() => {
-    if (locations && locations.length === 0 && !isLoading) {
-      console.log(locations.length)
-      setIsEmptyData(true);
-    }
-  }, [locations]);
+    const fetchFilteredData = async () => {
+      try {
+        const data = await mapApi.getFilteredLocations(appliedFilters);
+        setFilteredData(data);
+      } catch (err) {
+        console.error("Error fetching filtered data:", err);
+      }
+    };
+
+    fetchFilteredData();
+  }, [appliedFilters]);
 
   if (isLoading) {
     return (
@@ -52,12 +88,28 @@ export default function MapPage() {
         {mapError && <MapLoadErrorPopup message={mapError} onClose={clearError} />}
         {isEmptyData && <NoDataPopup onClose={() => setIsEmptyData(false)} />}
         <IndonesiaMap
-          locations={locations}
+          locations={filteredData || locations}
           config={defaultMapConfig}
           width="100%"
           height="100%"
           onError={(message) => setMapError(message)}
         />
+        <button
+          data-testid="filter-button"
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="absolute top-4 left-4 bg-white shadow-lg rounded-full p-3 z-10 hover:bg-gray-100 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+        </button>
+        
+        <div className={`absolute top-20 left-4 z-20 transition-all duration-300 transform ${isFilterOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}`}>
+          <FormFilter 
+            onFilterApply={handleFilterApply}
+            apiEndpoint={apiEndpoint}
+          />
+        </div>
       </div>
     </>
   );

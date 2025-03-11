@@ -5,7 +5,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css"; 
 
 interface DateRangePickerProps {
-  dateRange: { start: string; end: string };
+  dateRange: Readonly<{ start: string; end: string }>;
   setDateRange: (dateRange: { start: string; end: string }) => void;
 }
 

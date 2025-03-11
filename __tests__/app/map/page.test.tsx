@@ -5,7 +5,6 @@ import { useLocations } from '../../../hooks/useLocations';
 import { mapApi } from '../../../services/api';
 import { FilterState } from '@/types';
 import { useEffect } from "react";
-import "@testing-library/jest-dom";
 import { useMapError } from "../../../hooks/useMapError";
 
 // Mock dependencies

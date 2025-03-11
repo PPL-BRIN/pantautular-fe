@@ -26,7 +26,7 @@ interface FilterState {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_URL}/api/filters/` }: FormFilterProps) {
+export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_URL}/api/filters/` }: Readonly<FormFilterProps>) {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     diseases: [],
     locations: [],

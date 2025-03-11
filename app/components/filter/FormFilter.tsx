@@ -114,9 +114,7 @@ export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_UR
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col">
-          <label className="block mb-2">
-            <span className="text-gray-700">Jenis Penyakit</span>
-          </label>
+          <span className="block mb-2 mt-2 text-gray-700">Jenis Penyakit</span>
           <MultiSelect
             options={filterOptions.diseases}
             selected={selectedDiseases}
@@ -126,9 +124,7 @@ export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_UR
             setOpen={() => toggleMultiSelect("diseases")}
           />
           
-          <label className="block mt-4 mb-2">
-            <span className="text-gray-700">Lokasi</span>
-          </label>
+          <span className="block mb-2 mt-2 text-gray-700">Lokasi</span>
           <MultiSelect
             options={filterOptions.locations}
             selected={selectedLocations}
@@ -138,9 +134,7 @@ export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_UR
             setOpen={() => toggleMultiSelect("locations")}
           />
           
-          <label className="block mt-4 mb-2">
-            <span className="text-gray-700">Sumber Berita</span>
-          </label>
+          <span className="block mb-2 mt-2 text-gray-700">Sumber Berita</span>
           <MultiSelect
             options={filterOptions.news}
             selected={selectedNews}
@@ -150,9 +144,7 @@ export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_UR
             setOpen={() => toggleMultiSelect("news")}
           />
           
-          <label className="block mt-4 mb-2">
-            <span className="text-gray-700">Tingkat Kewaspadaan</span>
-          </label>
+          <span className="block mb-2 mt-2 text-gray-700">Tingkat Kewaspadaan</span>
           <div className="border border-gray-300 rounded-md pb-1 pr-3 flex items-center justify-between shadow-sm mb-4">
             <span className="text-gray-400 pl-3">Tingkat Kewaspadaan:</span>
             <div className="flex gap-1">
@@ -171,9 +163,7 @@ export default function FormFilter({ onFilterApply, apiEndpoint = `${API_BASE_UR
             </div>
           </div>
           
-          <label className="block mb-2">
-            <span className="text-gray-700">Tanggal</span>
-          </label>
+          <span className="block mb-2 mt-1 text-gray-700">Tanggal</span>
           <DateRangePickerComponent 
             dateRange={dateRange} 
             setDateRange={setDateRange}

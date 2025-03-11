@@ -20,7 +20,12 @@ export default function About() {
 
       <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 mt-10 mb-16">
         <div className="flex-1 flex justify-center">
-          <Image src="/tentang_kami.jpeg" alt="PantauTular_tentang_kami" className="w-full max-w-md h-auto"/>
+          <Image 
+            src="/tentang_kami.jpeg" 
+            alt="PantauTular_tentang_kami"
+            width={500}
+            height={300}
+            className="w-full max-w-md h-auto"/>
         </div>
 
         <div className="flex-1 text-center md:text-left">
@@ -52,7 +57,12 @@ export default function About() {
         </div>
 
         <div className="flex-1 flex justify-center">
-          <Image src="/latar_belakang.jpeg" alt="PantauTular_latar_belakang" className="w-full max-w-md h-auto" />
+          <Image 
+            src="/latar_belakang.jpeg" 
+            alt="PantauTular_latar_belakang" 
+            width={500}
+            height={300}
+            className="w-full max-w-md h-auto" />
         </div>
       </div>
 

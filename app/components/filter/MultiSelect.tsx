@@ -39,11 +39,9 @@ export function MultiSelect({
 
   return (
     <div className="relative w-full">
-      <div
+      <button
         className="flex items-center justify-between border border-gray-300 rounded-md px-3 py-2 cursor-pointer bg-white shadow-sm"
         onClick={setOpen}
-        role="button"
-        tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             setOpen();
@@ -71,7 +69,7 @@ export function MultiSelect({
           <span className="text-gray-400">{placeholder}</span>
         )}
         <ChevronDown className="h-4 w-4 text-gray-500" />
-      </div>
+      </button>
 
       {isOpen && options.length > 0 && (
         <div className="absolute w-full mt-2 rounded-md border bg-white shadow-lg z-10">

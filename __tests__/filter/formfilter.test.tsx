@@ -131,10 +131,9 @@ jest.mock('../../app/components/filter/MultiSelect', () => ({
       {isOpen && (
         <div>
           {options.map(option => (
-            <div 
+            <button 
               key={option} 
               onClick={() => onChange()}
-              role="button"
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -143,7 +142,7 @@ jest.mock('../../app/components/filter/MultiSelect', () => ({
               }}
             >
               {option}
-            </div>
+            </button>
           ))}
         </div>
       )}

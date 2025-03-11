@@ -1,4 +1,7 @@
 module.exports = {
+  coveragePathIgnorePatterns: [
+    "<rootDir>/components/ui/" // Exclude all files in components/ui
+  ],
   preset: "ts-jest", // Untuk TypeScript
   testEnvironment: "jsdom",
   transform: {

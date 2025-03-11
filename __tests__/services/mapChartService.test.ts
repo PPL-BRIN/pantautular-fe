@@ -680,39 +680,57 @@ test('populateLocations handles error', () => {
 });
 
   // Test untuk baris 141 (error handling di setupClusterBullet)
-  test("setupClusterBullet handles error", () => {
-    // Setup
+  test("setupClusterBullet handles error", async () => {
     const mockOnError = jest.fn();
     mapService = new MapChartService(mockOnError);
   
-    // Initialize map
-    mapService.initialize("chartdiv", mockConfig);
+    // Paksa agar root dan pointSeries tidak null
+    (mapService as any).root = {
+      dispose: jest.fn(),
+      setThemes: jest.fn(),
+      container: { children: { push: jest.fn() } },
+    };
   
-    // Mock `am5.Container.new` untuk melempar error
-    const originalContainerNew = am5.Container.new;
-    am5.Container.new = jest.fn().mockImplementationOnce(() => {
+    (mapService as any).pointSeries = {
+      set: jest.fn((key, callback) => {
+        console.log("✅ pointSeries.set dipanggil dengan:", key);
+        callback({});  // Memastikan callback berjalan
+      }),
+      bullets: { push: jest.fn() },
+      data: { push: jest.fn() },
+      zoomToCluster: jest.fn(),
+    };
+  
+    const setupClusterBulletSpy = jest.spyOn(mapService as any, "setupClusterBullet");
+  
+    // Mock `am5.Container.new` agar selalu melempar error
+    am5.Container.new = jest.fn().mockImplementation(() => {
+      console.log("🔥 Mock am5.Container.new dipanggil");
       throw new Error("Test cluster bullet error");
     });
   
-    // Spy console.error untuk menangkap error logging
     const consoleSpy = jest.spyOn(console, "error").mockImplementation();
   
     // Panggil method setupClusterBullet
     (mapService as any).setupClusterBullet();
   
-    // Verifikasi bahwa `console.error` dipanggil
+    // Pastikan setupClusterBullet dipanggil
+    expect(setupClusterBulletSpy).toHaveBeenCalled();
+  
+    // Tunggu eksekusi async selesai
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  
+    // Pastikan `console.error` dipanggil dengan error yang benar
     expect(consoleSpy).toHaveBeenCalledWith(
       "Error setting up cluster bullet:",
       expect.any(Error)
     );
   
-    // Verifikasi bahwa `onError` dipanggil dengan pesan yang benar
+    // Pastikan `onError` dipanggil dengan pesan yang benar
     expect(mockOnError).toHaveBeenCalledWith("Error setting up cluster bullet.");
   
-    // Pulihkan mock
-    am5.Container.new = originalContainerNew;
     consoleSpy.mockRestore();
-  });
+  });  
   
 
 // Test untuk baris 175 (error handling di setupRegularBullet)

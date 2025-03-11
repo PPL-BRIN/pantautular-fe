@@ -1,44 +1,51 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { MapChartService } from "../services/mapChartService";
 import { MapLocation, MapConfig } from "../types";
 
 export const useIndonesiaMap = (
   containerId: string,
   locations: MapLocation[],
-  config: MapConfig
+  config: MapConfig,
 ) => {
   const mapServiceRef = useRef<MapChartService | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Memoize locations and config to prevent unnecessary re-renders
   const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
-  const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
 
   useEffect(() => {
-    // Dispose of the existing service if it exists
-    if (mapServiceRef.current) {
-      mapServiceRef.current.dispose();
-      mapServiceRef.current = null;
-    }
-
+    let mounted = true;
     
-    // Create a new map service
-    mapServiceRef.current = new MapChartService();
+    const initializeMap = async () => {
+      try {
+        if (mapServiceRef.current) {
+          mapServiceRef.current.dispose();
+          mapServiceRef.current = null;
+        }
 
-    // Initialize the chart
-    mapServiceRef.current.initialize(containerId, memoizedConfig);
+        mapServiceRef.current = new MapChartService();
+        mapServiceRef.current.initialize(containerId, config);
+        mapServiceRef.current.populateLocations(memoizedLocations);
 
-    // Add location data
-    mapServiceRef.current.populateLocations(memoizedLocations);
-    
-
-    // Cleanup function
-    return () => {
-      if (mapServiceRef.current) {
-        mapServiceRef.current.dispose();
+        if (mounted) {
+          setIsInitialized(true);
+        }
+      } catch (error) {
         mapServiceRef.current = null;
+        if (mounted) setIsInitialized(false);
       }
     };
-  }, [containerId, memoizedLocations]);
 
-  return { mapService: mapServiceRef.current };
+    initializeMap();
+
+    return () => {
+      mounted = false;
+      if (mapServiceRef.current) {
+        mapServiceRef.current.dispose();
+      }
+    };
+  }, [containerId, memoizedLocations])
+  return {
+    mapService: mapServiceRef.current,
+    isInitialized
+  };
 };

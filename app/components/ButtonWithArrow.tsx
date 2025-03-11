@@ -1,10 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import ButtonBase from "./ButtonBase";
 
-interface ButtonWithArrowProps extends Readonly<{
+interface ButtonWithArrowProps {
   children: React.ReactNode;
   href: string;
-}> {}
+}
 
 export default function ButtonWithArrow({ children, href }: ButtonWithArrowProps) {
   return (

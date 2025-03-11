@@ -41,16 +41,18 @@ export default function MapPage() {
     );
   }
 
+  let popup = null;
+  if (mapError) {
+    popup = <MapLoadErrorPopup message={mapError} onClose={clearError} />;
+  } else if (isEmptyData) {
+    popup = <NoDataPopup onClose={() => setIsEmptyData(false)} />;
+  }
+
   return (
     <>
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
-        {mapError ? (
-          <MapLoadErrorPopup message={mapError} onClose={clearError} />
-        ) : isEmptyData ? (
-          <NoDataPopup onClose={() => setIsEmptyData(false)} />
-        ) : null}
-
+        {popup}
         <IndonesiaMap
           locations={locations || []}
           config={defaultMapConfig}

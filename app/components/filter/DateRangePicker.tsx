@@ -9,7 +9,7 @@ interface DateRangePickerProps {
   setDateRange: (dateRange: { start: string; end: string }) => void;
 }
 
-export function DateRangePickerComponent({ dateRange, setDateRange }: DateRangePickerProps) {
+export function DateRangePickerComponent({ dateRange, setDateRange }: Readonly<DateRangePickerProps>) {
   const [isOpen, setIsOpen] = useState(false);
   const defaultStart = new Date();
   const defaultEnd = addDays(new Date(), 7);

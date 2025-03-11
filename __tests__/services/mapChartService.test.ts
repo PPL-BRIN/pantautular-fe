@@ -693,7 +693,6 @@ test('populateLocations handles error', () => {
   
     (mapService as any).pointSeries = {
       set: jest.fn((key, callback) => {
-        console.log("✅ pointSeries.set dipanggil dengan:", key);
         callback({});  // Memastikan callback berjalan
       }),
       bullets: { push: jest.fn() },
@@ -705,7 +704,6 @@ test('populateLocations handles error', () => {
   
     // Mock `am5.Container.new` agar selalu melempar error
     am5.Container.new = jest.fn().mockImplementation(() => {
-      console.log("🔥 Mock am5.Container.new dipanggil");
       throw new Error("Test cluster bullet error");
     });
   
@@ -732,39 +730,63 @@ test('populateLocations handles error', () => {
     consoleSpy.mockRestore();
   });  
   
-
-// Test untuk baris 175 (error handling di setupRegularBullet)
-test("setupRegularBullet handles error", () => {
-  // Setup
-  const mockOnError = jest.fn();
-  mapService = new MapChartService(mockOnError);
-
-  // Initialize map
-  mapService.initialize("chartdiv", mockConfig);
-
-  // Mock `am5.Circle.new` untuk melempar error
-  const originalCircleNew = am5.Circle.new;
-  am5.Circle.new = jest.fn().mockImplementationOnce(() => {
-    throw new Error("Test regular bullet error");
-  });
-
-  // Spy console.error untuk menangkap error logging
-  const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-
-  // Panggil method setupRegularBullet
-  (mapService as any).setupRegularBullet();
-
-  // Verifikasi bahwa `console.error` dipanggil
-  expect(consoleSpy).toHaveBeenCalledWith(
-    "Error setting up regular bullet:",
-    expect.any(Error)
-  );
-
-  // Verifikasi bahwa `onError` dipanggil dengan pesan yang benar
-  expect(mockOnError).toHaveBeenCalledWith("Error setting up regular bullet.");
-
-  // Pulihkan mock
-  am5.Circle.new = originalCircleNew;
-  consoleSpy.mockRestore();
-});
+  // Test untuk baris 175 (error handling di setupRegularBullet)
+  test("setupRegularBullet handles error", async () => {
+    const mockOnError = jest.fn();
+    mapService = new MapChartService(mockOnError);
+  
+    // Paksa agar root dan pointSeries tidak null
+    (mapService as any).root = {
+      dispose: jest.fn(),
+      setThemes: jest.fn(),
+      container: { children: { push: jest.fn() } },
+    };
+  
+    (mapService as any).pointSeries = {
+      set: jest.fn((key, callback) => {
+        console.log("✅ pointSeries.set dipanggil dengan:", key);
+        callback({});
+      }),
+      bullets: { push: jest.fn((callback) => {
+        console.log("✅ bullets.push dipanggil");
+        callback();
+      }) },
+      data: { push: jest.fn() },
+      zoomToCluster: jest.fn(),
+    };
+  
+    const setupRegularBulletSpy = jest.spyOn(mapService as any, "setupRegularBullet");
+  
+    // Mock `am5.Circle.new` untuk melempar error
+    const originalCircleNew = am5.Circle.new;
+    am5.Circle.new = jest.fn().mockImplementation(() => {
+      console.log("🔥 Mock am5.Circle.new dipanggil");
+      throw new Error("Test regular bullet error");
+    });
+  
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+  
+    // Panggil method setupRegularBullet
+    (mapService as any).setupRegularBullet();
+  
+    // Pastikan setupRegularBullet dipanggil
+    expect(setupRegularBulletSpy).toHaveBeenCalled();
+  
+    // Tunggu eksekusi async selesai
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  
+    // Pastikan `console.error` dipanggil dengan error yang benar
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Error setting up regular bullet:",
+      expect.any(Error)
+    );
+  
+    // Pastikan `onError` dipanggil dengan pesan yang benar
+    expect(mockOnError).toHaveBeenCalledWith("Error setting up regular bullet.");
+  
+    // Pulihkan mock
+    am5.Circle.new = originalCircleNew;
+    consoleSpy.mockRestore();
+  });  
+  
 });

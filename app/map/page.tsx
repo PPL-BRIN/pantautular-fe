@@ -6,11 +6,11 @@ import { useLocations } from "../../hooks/useLocations";
 import { useMapError } from "../../hooks/useMapError"; // Hook untuk menangani error peta
 import { defaultMapConfig } from "../../data/indonesiaLocations";
 import Navbar from "../components/Navbar";
+import MapLoadErrorPopup from "../components/MapLoadErrorPopup"; // Komponen popup error
+import NoDataPopup from "../components/NoDataPopup"; // Komponen popup data tidak ditemukan
 import FormFilter from "../components/filter/FormFilter";
 import { mapApi } from "../../services/api";
 import { MapLocation, FilterState } from "@/types";
-import MapLoadErrorPopup from "../components/MapLoadErrorPopup"; // Komponen popup error
-import NoDataPopup from "../components/NoDataPopup"; // Komponen popup data tidak ditemukan
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 

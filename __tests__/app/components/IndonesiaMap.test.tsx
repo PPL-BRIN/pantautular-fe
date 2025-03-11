@@ -41,7 +41,7 @@ describe("useIndonesiaMap", () => {
   });
 
   test("should dispose and reinitialize when mapServiceRef.current exists", async () => {
-    mapServiceRef.current = new MapChartService() as any;
+    mapServiceRef.current = { initialize: jest.fn(), populateLocations: jest.fn(), dispose: mockDispose };
 
     const { result } = renderHook(() =>
       useIndonesiaMap(containerId, mockLocations, mockConfig, mockOnError)

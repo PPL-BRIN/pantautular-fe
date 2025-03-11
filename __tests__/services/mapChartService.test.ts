@@ -116,7 +116,7 @@ const testEarlyReturn = (
   expect(spy).toHaveReturned();
 };
 
-// Helper for error-handling tests (with a small delay to allow async logging)
+// Helper for error-handling tests (with a delay to allow async logging)
 async function expectErrorHandling(
   methodCall: () => void,
   expectedConsoleMsg: string,
@@ -179,7 +179,7 @@ describe("MapChartService", () => {
     expect(root.setThemes).toHaveBeenCalled();
   });
 
-  // New test: simulate missing container with onError callback
+  // Test missing container on initialize
   test("initialize calls onError when container is not found", () => {
     const onErrorMock = jest.fn();
     const originalGetElementById = document.getElementById;
@@ -190,25 +190,21 @@ describe("MapChartService", () => {
     document.getElementById = originalGetElementById;
   });
 
-  // Early return tests for various methods
-  test("setupZoomControl returns early if chart or root is null", () => {
-    testEarlyReturn(mapService, "setupZoomControl");
-  });
-  test("setupPolygonSeries returns early if chart or root is null", () => {
-    testEarlyReturn(mapService, "setupPolygonSeries");
-  });
-  test("setupPointSeries returns early if chart or root is null", () => {
-    testEarlyReturn(mapService, "setupPointSeries");
-  });
-  test("populateLocations returns early if pointSeries is null", () => {
-    testEarlyReturn(mapService, "populateLocations", { pointSeries: null });
-  });
-  test("setupClusterBullet returns early if chart or root is null", () => {
-    testEarlyReturn(mapService, "setupClusterBullet");
-  });
-  test("setupRegularBullet returns early if chart or root is null", () => {
-    testEarlyReturn(mapService, "setupRegularBullet");
-  });
+  // Early-return tests using parameterized style
+  const earlyReturnCases = [
+    { method: "setupZoomControl", nullProps: { chart: null, root: null } },
+    { method: "setupPolygonSeries", nullProps: { chart: null, root: null } },
+    { method: "setupPointSeries", nullProps: { chart: null, root: null } },
+    { method: "populateLocations", nullProps: { pointSeries: null } },
+    { method: "setupClusterBullet", nullProps: { chart: null, root: null } },
+    { method: "setupRegularBullet", nullProps: { chart: null, root: null } },
+  ];
+  test.each(earlyReturnCases)(
+    "$method returns early if specified properties are null",
+    ({ method, nullProps }) => {
+      testEarlyReturn(mapService, method, nullProps);
+    }
+  );
 
   // Functional tests
   test("setupZoomControl adds zoom control to chart", () => {
@@ -286,212 +282,189 @@ describe("MapChartService", () => {
   test("dispose cleans up resources", () => {
     mapService.initialize("chartdiv", mockConfig);
     mapService.dispose();
-    const root = (mapService as any).root;
-    expect(root).toBeNull();
+    expect((mapService as any).root).toBeNull();
   });
 
-  // Parameterized error-handling tests with onError callback
-  describe("Error handling with onError callback", () => {
-    const onErrorMock = jest.fn();
-    beforeEach(() => {
-      mapService = new MapChartService(onErrorMock);
-      mapService.initialize("chartdiv", mockConfig);
-    });
-    afterEach(() => {
-      onErrorMock.mockClear();
-    });
+  // Combined parameterized error-handling tests
+  const errorTestCasesCombined: Array<{
+    name: string;
+    method: string;
+    override: () => () => void;
+    expectedConsole: string;
+    expectedOnError?: string;
+    withOnError: boolean;
+  }> = [
+    // With onError callback
+    {
+      name: "setupPolygonSeries",
+      method: "setupPolygonSeries",
+      override: () => {
+        const original = am5map.MapPolygonSeries.new;
+        am5map.MapPolygonSeries.new = jest.fn().mockImplementationOnce(() => {
+          throw new Error("Test polygon series error");
+        });
+        return () => (am5map.MapPolygonSeries.new = original);
+      },
+      expectedConsole: "Error setting up polygon series:",
+      expectedOnError: "Error setting up map polygons.",
+      withOnError: true,
+    },
+    {
+      name: "setupPointSeries",
+      method: "setupPointSeries",
+      override: () => {
+        const original = am5map.ClusteredPointSeries.new;
+        am5map.ClusteredPointSeries.new = jest.fn().mockImplementationOnce(() => {
+          throw new Error("Test point series error");
+        });
+        return () => (am5map.ClusteredPointSeries.new = original);
+      },
+      expectedConsole: "Error setting up point series:",
+      expectedOnError: "Error setting up map points.",
+      withOnError: true,
+    },
+    {
+      name: "populateLocations",
+      method: "populateLocations",
+      override: () => {
+        const pointSeries = (mapService as any).pointSeries;
+        const original = pointSeries.data.push;
+        pointSeries.data.push = jest.fn().mockImplementationOnce(() => {
+          throw new Error("Test populate locations error");
+        });
+        return () => (pointSeries.data.push = original);
+      },
+      expectedConsole: "Error populating locations:",
+      withOnError: true,
+    },
+    {
+      name: "setupClusterBullet",
+      method: "setupClusterBullet",
+      override: () => {
+        const original = (mapService as any).pointSeries.set;
+        (mapService as any).pointSeries.set = jest.fn().mockImplementationOnce(() => {
+          throw new Error("Test cluster bullet error");
+        });
+        return () => ((mapService as any).pointSeries.set = original);
+      },
+      expectedConsole: "Error setting up cluster bullet:",
+      expectedOnError: "Error setting up cluster bullet.",
+      withOnError: true,
+    },
+    {
+      name: "setupRegularBullet",
+      method: "setupRegularBullet",
+      override: () => {
+        const original = (mapService as any).pointSeries.bullets.push;
+        (mapService as any).pointSeries.bullets.push = jest.fn().mockImplementationOnce(() => {
+          throw new Error("Test regular bullet error");
+        });
+        return () => ((mapService as any).pointSeries.bullets.push = original);
+      },
+      expectedConsole: "Error setting up regular bullet:",
+      expectedOnError: "Error setting up regular bullet.",
+      withOnError: true,
+    },
+    // Without onError callback
+    {
+      name: "setupRegularBullet without onError",
+      method: "setupRegularBullet",
+      override: () => {
+        const original = (mapService as any).pointSeries.bullets.push;
+        (mapService as any).pointSeries.bullets.push = jest.fn().mockImplementationOnce(() => {
+          throw new Error("Test regular bullet error");
+        });
+        return () => ((mapService as any).pointSeries.bullets.push = original);
+      },
+      expectedConsole: "Error setting up regular bullet:",
+      withOnError: false,
+    },
+    {
+      name: "setupClusterBullet without onError",
+      method: "setupClusterBullet",
+      override: () => {
+        const original = (mapService as any).pointSeries.set;
+        (mapService as any).pointSeries.set = jest.fn().mockImplementationOnce(() => {
+          throw new Error("Test cluster bullet error");
+        });
+        return () => ((mapService as any).pointSeries.set = original);
+      },
+      expectedConsole: "Error setting up cluster bullet:",
+      withOnError: false,
+    },
+    {
+      name: "setupPointSeries without onError",
+      method: "setupPointSeries",
+      override: () => {
+        const original = (mapService as any).chart.series.push;
+        (mapService as any).chart.series.push = jest.fn().mockImplementation(() => {
+          throw new Error("Test point series error");
+        });
+        return () => ((mapService as any).chart.series.push = original);
+      },
+      expectedConsole: "Error setting up point series:",
+      withOnError: false,
+    },
+    {
+      name: "setupPolygonSeries without onError",
+      method: "setupPolygonSeries",
+      override: () => {
+        const original = (mapService as any).chart.series.push;
+        (mapService as any).chart.series.push = jest.fn().mockImplementation(() => {
+          throw new Error("Test polygon series error");
+        });
+        return () => ((mapService as any).chart.series.push = original);
+      },
+      expectedConsole: "Error setting up polygon series:",
+      withOnError: false,
+    },
+    {
+      name: "initialize without onError",
+      method: "initialize",
+      override: () => {
+        const original = document.getElementById;
+        document.getElementById = jest.fn().mockReturnValue(null);
+        return () => (document.getElementById = original);
+      },
+      expectedConsole: "Error initializing map:",
+      withOnError: false,
+    },
+  ];
 
-    const errorTestCases: Array<{
-      name: string;
-      method: string;
-      override: () => () => void;
-      expectedConsole: string;
-      expectedOnError: string;
-    }> = [
-      {
-        name: "setupPolygonSeries",
-        method: "setupPolygonSeries",
-        override: () => {
-          const original = am5map.MapPolygonSeries.new;
-          am5map.MapPolygonSeries.new = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Test polygon series error");
-          });
-          return () => (am5map.MapPolygonSeries.new = original);
-        },
-        expectedConsole: "Error setting up polygon series:",
-        expectedOnError: "Error setting up map polygons.",
-      },
-      {
-        name: "setupPointSeries",
-        method: "setupPointSeries",
-        override: () => {
-          const original = am5map.ClusteredPointSeries.new;
-          am5map.ClusteredPointSeries.new = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Test point series error");
-          });
-          return () => (am5map.ClusteredPointSeries.new = original);
-        },
-        expectedConsole: "Error setting up point series:",
-        expectedOnError: "Error setting up map points.",
-      },
-      {
-        name: "populateLocations",
-        method: "populateLocations",
-        override: () => {
-          const pointSeries = (mapService as any).pointSeries;
-          const original = pointSeries.data.push;
-          pointSeries.data.push = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Test populate locations error");
-          });
-          return () => (pointSeries.data.push = original);
-        },
-        expectedConsole: "Error populating locations:",
-        expectedOnError: "",
-      },
-      {
-        name: "setupClusterBullet",
-        method: "setupClusterBullet",
-        override: () => {
-          const original = (mapService as any).pointSeries.set;
-          (mapService as any).pointSeries.set = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Test cluster bullet error");
-          });
-          return () => ((mapService as any).pointSeries.set = original);
-        },
-        expectedConsole: "Error setting up cluster bullet:",
-        expectedOnError: "Error setting up cluster bullet.",
-      },
-      {
-        name: "setupRegularBullet",
-        method: "setupRegularBullet",
-        override: () => {
-          const original = (mapService as any).pointSeries.bullets.push;
-          (mapService as any).pointSeries.bullets.push = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Test regular bullet error");
-          });
-          return () => ((mapService as any).pointSeries.bullets.push = original);
-        },
-        expectedConsole: "Error setting up regular bullet:",
-        expectedOnError: "Error setting up regular bullet.",
-      },
-    ];
-
-    test.each(errorTestCases)(
-      "$name handles error",
-      async ({ method, override, expectedConsole, expectedOnError }) => {
-        const restore = override();
-        await expectErrorHandling(
-          () => (mapService as any)[method](),
-          expectedConsole,
-          expectedOnError || null,
-          10,
-          expectedOnError ? onErrorMock : undefined
-        );
-        restore();
+  test.each(errorTestCasesCombined)(
+    "$name handles error (withOnError: $withOnError)",
+    async ({ method, override, expectedConsole, expectedOnError, withOnError }) => {
+      const onErrorMock = withOnError ? jest.fn() : undefined;
+      if (withOnError) {
+        mapService = new MapChartService(onErrorMock);
+      } else {
+        mapService = new MapChartService();
       }
-    );
-  });
-
-  // Parameterized error-handling tests without onError callback
-  describe("Error handling without onError callback", () => {
-    beforeEach(() => {
-      mapService = new MapChartService();
+      // Always initialize first
       mapService.initialize("chartdiv", mockConfig);
-    });
+      const restore = override();
+      // For initialize, call with parameters; others, call without.
+      const callMethod =
+        method === "initialize"
+          ? () => (mapService as any)[method]("chartdiv", mockConfig)
+          : () => (mapService as any)[method]();
+      await expectErrorHandling(callMethod, expectedConsole, expectedOnError || null, 10, onErrorMock);
+      restore();
+    }
+  );
 
-    const errorTestCasesNoOnError: Array<{
-      name: string;
-      method: string;
-      override: () => () => void;
-      expectedConsole: string;
-    }> = [
-      {
-        name: "setupRegularBullet without onError",
-        method: "setupRegularBullet",
-        override: () => {
-          const original = (mapService as any).pointSeries.bullets.push;
-          (mapService as any).pointSeries.bullets.push = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Test regular bullet error");
-          });
-          return () => ((mapService as any).pointSeries.bullets.push = original);
-        },
-        expectedConsole: "Error setting up regular bullet:",
-      },
-      {
-        name: "setupClusterBullet without onError",
-        method: "setupClusterBullet",
-        override: () => {
-          const original = (mapService as any).pointSeries.set;
-          (mapService as any).pointSeries.set = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Test cluster bullet error");
-          });
-          return () => ((mapService as any).pointSeries.set = original);
-        },
-        expectedConsole: "Error setting up cluster bullet:",
-      },
-      {
-        name: "setupPointSeries without onError",
-        method: "setupPointSeries",
-        override: () => {
-          const original = (mapService as any).chart.series.push;
-          (mapService as any).chart.series.push = jest.fn().mockImplementation(() => {
-            throw new Error("Test point series error");
-          });
-          return () => ((mapService as any).chart.series.push = original);
-        },
-        expectedConsole: "Error setting up point series:",
-      },
-      {
-        name: "setupPolygonSeries without onError",
-        method: "setupPolygonSeries",
-        override: () => {
-          const original = (mapService as any).chart.series.push;
-          (mapService as any).chart.series.push = jest.fn().mockImplementation(() => {
-            throw new Error("Test polygon series error");
-          });
-          return () => ((mapService as any).chart.series.push = original);
-        },
-        expectedConsole: "Error setting up polygon series:",
-      },
-      {
-        name: "initialize without onError",
-        method: "initialize",
-        override: () => {
-          const original = document.getElementById;
-          document.getElementById = jest.fn().mockReturnValue(null);
-          return () => (document.getElementById = original);
-        },
-        expectedConsole: "Error initializing map:",
-      },
-    ];
-
-    test.each(errorTestCasesNoOnError)(
-      "$name handles error without onError",
-      async ({ method, override, expectedConsole }) => {
-        const restore = override();
-        await expectErrorHandling(
-          () => (mapService as any)[method]("chartdiv", mockConfig),
-          expectedConsole
-        );
-        restore();
-      }
-    );
-  });
-
-  // Test to cover the regular bullet creation branch in setupRegularBullet
+  // Test to cover regular bullet creation branch in setupRegularBullet
   test("setupRegularBullet creates a regular bullet", () => {
-    // Set up a fake root with a dummy dispose method and a fake pointSeries with a bullets.push spy.
+    // Set up fake root (with dummy dispose) and fake pointSeries with bullets.push spy.
     const fakeRoot = { dispose: jest.fn() } as any;
     const fakePointSeries = { bullets: { push: jest.fn() } } as any;
     (mapService as any).root = fakeRoot;
     (mapService as any).pointSeries = fakePointSeries;
 
-    // Call setupRegularBullet.
     (mapService as any).setupRegularBullet();
     expect(fakePointSeries.bullets.push).toHaveBeenCalledTimes(1);
     const bulletFactory = fakePointSeries.bullets.push.mock.calls[0][0];
 
-    // Override am5.Circle.new and am5.Bullet.new to simulate creation.
     const fakeCircle = {} as any;
     const fakeBullet = {} as any;
     const originalCircleNew = am5.Circle.new;
@@ -499,7 +472,6 @@ describe("MapChartService", () => {
     am5.Circle.new = jest.fn().mockReturnValue(fakeCircle);
     am5.Bullet.new = jest.fn().mockReturnValue(fakeBullet);
 
-    // Call the bullet factory function.
     const bullet = bulletFactory();
     expect(am5.Circle.new).toHaveBeenCalledWith(fakeRoot, expect.objectContaining({
       radius: 6,
@@ -512,30 +484,21 @@ describe("MapChartService", () => {
     expect(am5.Bullet.new).toHaveBeenCalledWith(fakeRoot, { sprite: fakeCircle });
     expect(bullet).toBe(fakeBullet);
 
-    // Restore originals.
     am5.Circle.new = originalCircleNew;
     am5.Bullet.new = originalBulletNew;
   });
 
   test("setupClusterBullet covers container creation and click event", () => {
-    // Setup valid root and pointSeries with a set method.
     const fakeRoot = { dispose: jest.fn() } as any;
     const zoomToClusterMock = jest.fn();
-    const fakePointSeries = {
-      set: jest.fn(),
-      zoomToCluster: zoomToClusterMock,
-    } as any;
+    const fakePointSeries = { set: jest.fn(), zoomToCluster: zoomToClusterMock } as any;
     (mapService as any).pointSeries = fakePointSeries;
     (mapService as any).root = fakeRoot;
 
-    // Call setupClusterBullet to register the clusteredBullet callback.
     (mapService as any).setupClusterBullet();
     expect(fakePointSeries.set).toHaveBeenCalledWith("clusteredBullet", expect.any(Function));
-
-    // Retrieve the factory callback.
     const clusterBulletFactory = fakePointSeries.set.mock.calls[0][1];
 
-    // Override am5.Container.new to simulate a container.
     const fakeContainer = {
       children: { push: jest.fn() },
       events: { on: jest.fn() },
@@ -543,7 +506,6 @@ describe("MapChartService", () => {
     const originalContainerNew = am5.Container.new;
     am5.Container.new = jest.fn().mockReturnValue(fakeContainer);
 
-    // Override other am5 methods to simulate creation.
     const fakeCircle = {};
     const fakeLabel = {};
     const fakeBullet = {};
@@ -554,19 +516,16 @@ describe("MapChartService", () => {
     am5.Label.new = jest.fn().mockReturnValue(fakeLabel);
     am5.Bullet.new = jest.fn().mockReturnValue(fakeBullet);
 
-    // Invoke the factory callback with fakeRoot.
     const bullet = clusterBulletFactory(fakeRoot);
     expect(bullet).toBe(fakeBullet);
     expect(fakeContainer.children.push).toHaveBeenCalledTimes(4);
     expect(fakeContainer.events.on).toHaveBeenCalledWith("click", expect.any(Function));
 
-    // Simulate a click event.
     const clickCallback = fakeContainer.events.on.mock.calls[0][1];
     const fakeDataItem = { id: "test-cluster" };
     clickCallback({ target: { dataItem: fakeDataItem } });
     expect(zoomToClusterMock).toHaveBeenCalledWith(fakeDataItem);
 
-    // Restore original implementations.
     am5.Container.new = originalContainerNew;
     am5.Circle.new = originalCircleNew;
     am5.Label.new = originalLabelNew;

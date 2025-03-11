@@ -17,9 +17,14 @@ interface FilterOptions {
   news: SelectOption[];
 }
 
+interface MultiSelectFormProps {
+  onSubmitFilterState?: (filterState: FilterState) => void;
+  apiFilterOptions?: string;
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export default function MultiSelectForm({apiFilterOptions = `${API_BASE_URL}/api/filters/` }) {
+export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions = `${API_BASE_URL}/api/filters/` }: MultiSelectFormProps) {
   const [selectedDiseases, setSelectedDiseases] = useState<SelectOption[]>([]);
   const [selectedNews, setSelectedNews] = useState<SelectOption[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<SelectOption[]>([]);
@@ -46,7 +51,7 @@ export default function MultiSelectForm({apiFilterOptions = `${API_BASE_URL}/api
     e.preventDefault();
     setIsSubmitting(true);
 
-    const payload: FilterState = {
+    const filterState: FilterState = {
       diseases: selectedDiseases.map((disease) => disease.value),
       locations: selectedLocations.map((location) => location.value),
       portals: selectedNews.map((news) => news.value),
@@ -56,20 +61,11 @@ export default function MultiSelectForm({apiFilterOptions = `${API_BASE_URL}/api
     };
 
     try {
-      const response = await fetch("/api/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        alert("Data berhasil dikirim!");
-      } else {
-        alert("Gagal mengirim data.");
+      if (onSubmitFilterState) {
+        onSubmitFilterState(filterState);
       }
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan saat mengirim data.");
     } finally {
       setIsSubmitting(false);
     }
@@ -246,3 +242,5 @@ export default function MultiSelectForm({apiFilterOptions = `${API_BASE_URL}/api
     </div>
   );
 }
+
+export type { FilterState };

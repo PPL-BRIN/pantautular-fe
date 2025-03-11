@@ -1,4 +1,4 @@
 module.exports = {
-    __esModule: true,
-    default: {}
-  };
+  __esModule: true,
+  default: {}
+};

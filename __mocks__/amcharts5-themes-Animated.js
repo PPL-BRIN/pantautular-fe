@@ -1,6 +1,6 @@
 module.exports = {
-    __esModule: true,
-    default: {
-      new: jest.fn().mockReturnValue({})
-    }
-  };
+  __esModule: true,
+  default: {
+    new: jest.fn().mockReturnValue({})
+  }
+};

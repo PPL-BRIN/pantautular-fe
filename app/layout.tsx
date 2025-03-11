@@ -1,11 +1,20 @@
-import type { Metadata } from "next";
-import Head from "next/head";
+import type { Metadata, Viewport } from "next";
+import "../styles/globals.css";
 
 const inter = { className: "" };
 
 export const metadata: Metadata = {
   title: "PantauTular",
   description: "Platform informasi sebaran penyakit menular di Indonesia",
+  other: {
+    "http-equiv": "Content-Security-Policy",
+    content: "upgrade-insecure-requests",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -15,16 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>PantauTular</title>
-        <meta
-          httpEquiv="Content-Security-Policy"
-          content="upgrade-insecure-requests"
-        />
-      </Head>
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} min-h-screen`}>
+        <main className="min-h-screen pt-20">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }

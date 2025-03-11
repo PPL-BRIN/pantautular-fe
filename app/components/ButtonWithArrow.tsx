@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import ButtonBase from "./ButtonBase";
+import React from "react";
 
 interface ButtonWithArrowProps extends Readonly<{
   children: React.ReactNode;

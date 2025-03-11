@@ -4,25 +4,23 @@ import { MapChartService } from "../../services/mapChartService";
 import { MapLocation, MapConfig } from "../../types";
 import { useRef } from "react";
 
-// Mock fungsi-fungsi dari MapChartService
+// Mock functions from MapChartService
 const mockInitialize = jest.fn();
 const mockPopulateLocations = jest.fn();
 const mockDispose = jest.fn();
 
-// Mock MapChartService agar menggunakan fungsi di atas
+// Mock MapChartService to use the above functions
 jest.mock("../../services/mapChartService", () => {
   return {
-    MapChartService: jest.fn().mockImplementation(() => {
-      return {
-        initialize: mockInitialize,
-        populateLocations: mockPopulateLocations,
-        dispose: mockDispose,
-      };
-    }),
+    MapChartService: jest.fn().mockImplementation(() => ({
+      initialize: mockInitialize,
+      populateLocations: mockPopulateLocations,
+      dispose: mockDispose,
+    })),
   };
 });
 
-// Mock useRef dari React
+// Mock useRef from React
 jest.mock("react", () => ({
   ...jest.requireActual("react"),
   useRef: jest.fn(),
@@ -49,7 +47,7 @@ describe("useIndonesiaMap", () => {
     zoomLevel: 5,
     centerPoint: { longitude: 120, latitude: -5 },
   };
-  const mockOnError = jest.fn(); // Mock fungsi error handling
+  const mockOnError = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -58,6 +56,28 @@ describe("useIndonesiaMap", () => {
     document.body.innerHTML = `<div id="${containerId}"></div>`;
   });
 
+  // Helper function to test error scenarios
+  const testErrorScenario = async (
+    simulateError: () => void,
+    expectedErrorMessage: string
+  ) => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    simulateError();
+    renderHook(() =>
+      useIndonesiaMap(containerId, mockLocations, mockConfig, mockOnError)
+    );
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Error in useIndonesiaMap:",
+        expect.objectContaining({ message: expectedErrorMessage })
+      );
+    });
+    expect(mockOnError).toHaveBeenCalledWith(
+      "Failed to load the map. Please try again."
+    );
+    consoleSpy.mockRestore();
+  };
+
   test("should return early if mapServiceRef.current is already set", () => {
     mapServiceRef.current = new MapChartService(mockOnError);
 
@@ -65,13 +85,13 @@ describe("useIndonesiaMap", () => {
       useIndonesiaMap(containerId, mockLocations, mockConfig, mockOnError)
     );
 
-    // Re-render hook dengan props yang sama
+    // Re-render hook with the same props
     rerender();
 
-    // Pastikan dispose dipanggil karena instance sebelumnya harus dibuang
+    // Ensure dispose is called as the previous instance should be discarded
     expect(mockDispose).toHaveBeenCalled();
 
-    // Set kembali mapServiceRef ke null setelah dispose
+    // Reset the ref after dispose
     mapServiceRef.current = null;
     expect(mapServiceRef.current).toBeNull();
   });
@@ -80,85 +100,44 @@ describe("useIndonesiaMap", () => {
     renderHook(() =>
       useIndonesiaMap(containerId, mockLocations, mockConfig, mockOnError)
     );
-  
-    // Tunggu hingga efek selesai dan populateLocations() dipanggil
+
+    // Wait until the effect completes and populateLocations() is called
     await waitFor(() => {
       expect(mockPopulateLocations).toHaveBeenCalledWith(mockLocations);
     });
-  
-    // Pastikan MapChartService dibuat sekali
+
+    // Ensure MapChartService is created once
     expect(MapChartService).toHaveBeenCalledTimes(1);
-  
-    // Pastikan metode initialize() dipanggil
+
+    // Ensure initialize() is called with the correct arguments
     expect(mockInitialize).toHaveBeenCalledWith(containerId, mockConfig);
-  });  
+  });
 
   test("should dispose of MapChartService instance on unmount", () => {
     const { unmount } = renderHook(() =>
       useIndonesiaMap(containerId, mockLocations, mockConfig, mockOnError)
     );
 
-    // Unmount hook, harus memanggil dispose()
+    // Unmount hook, which should trigger dispose()
     unmount();
-
     expect(mockDispose).toHaveBeenCalled();
   });
 
   test("should properly handle errors during initialization", async () => {
-    // Mock console.error to prevent actual console output during tests
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    
-    // Simulate error in initialize
-    mockInitialize.mockImplementation(() => {
-      throw new Error("Initialization error");
-    });
-    
-    renderHook(() =>
-      useIndonesiaMap(containerId, mockLocations, mockConfig, mockOnError)
-    );
-    
-    // Verify console.error was called with the expected message
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Error in useIndonesiaMap:", 
-        expect.objectContaining({ message: "Initialization error" })
-      );
-    });
-    
-    // Verify onError callback was called with the expected message
-    expect(mockOnError).toHaveBeenCalledWith("Failed to load the map. Please try again.");
-    
-    // Restore console.error
-    consoleSpy.mockRestore();
+    await testErrorScenario(() => {
+      mockInitialize.mockImplementation(() => {
+        throw new Error("Initialization error");
+      });
+    }, "Initialization error");
   });
-  
-  // Test for negative case - error in populateLocations is also caught
+
   test("should handle errors during populateLocations", async () => {
-    // Mock console.error to prevent actual console output
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    
-    // Allow initialize to succeed but make populateLocations throw
+    // Allow initialize to succeed
     mockInitialize.mockImplementation(() => {});
-    mockPopulateLocations.mockImplementation(() => {
-      throw new Error("Population error");
-    });
-    
-    renderHook(() =>
-      useIndonesiaMap(containerId, mockLocations, mockConfig, mockOnError)
-    );
-    
-    // Verify console.error was called with the expected message
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Error in useIndonesiaMap:", 
-        expect.objectContaining({ message: "Population error" })
-      );
-    });
-    
-    // Verify onError callback was called
-    expect(mockOnError).toHaveBeenCalledWith("Failed to load the map. Please try again.");
-    
-    // Restore console.error
-    consoleSpy.mockRestore();
+    await testErrorScenario(() => {
+      mockPopulateLocations.mockImplementation(() => {
+        throw new Error("Population error");
+      });
+    }, "Population error");
   });
 });

@@ -3,16 +3,21 @@
 import { useEffect, useState } from "react";
 import { IndonesiaMap } from "../components/IndonesiaMap";
 import { useLocations } from "../../hooks/useLocations";
+import { useMapError } from "../../hooks/useMapError"; // Hook untuk menangani error peta
 import { defaultMapConfig } from "../../data/indonesiaLocations";
 import Navbar from "../components/Navbar";
 import FormFilter from "../components/filter/FormFilter";
 import { mapApi } from "../../services/api";
 import { MapLocation, FilterState } from "@/types";
+import MapLoadErrorPopup from "../components/MapLoadErrorPopup"; // Komponen popup error
+import NoDataPopup from "../components/NoDataPopup"; // Komponen popup data tidak ditemukan
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function MapPage() {
   const { data: locations, isLoading, error } = useLocations();
+  const { error: mapError, setError: setMapError, clearError } = useMapError();
+  const [isEmptyData, setIsEmptyData] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterState>({
     diseases: [],
     locations: [],
@@ -31,6 +36,26 @@ export default function MapPage() {
     console.log("Filters applied:", filters);
     setIsFilterOpen(false); // Close filter panel after applying
   };
+
+  useEffect(() => {
+    if (locations && locations.length === 0 && !isLoading) {
+      console.log(locations.length)
+      setIsEmptyData(true);
+    }
+  }, [locations]);
+
+  useEffect(() => {
+    if (error) {
+      if (
+        error.message.includes("No case locations found matching the filters") ||
+        error.message.includes("No case locations found")
+      ) {
+        setIsEmptyData(true); 
+      } else {
+        setMapError(error.message); // Tampilkan MapLoadErrorPopup jika error lain
+      }
+    }
+  }, [error, setMapError]);
 
   useEffect(() => {
     const fetchFilteredData = async () => {
@@ -72,6 +97,8 @@ export default function MapPage() {
     <>
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
+        {mapError && <MapLoadErrorPopup message={mapError} onClose={clearError} />}
+        {isEmptyData && <NoDataPopup onClose={() => setIsEmptyData(false)} />}
         <IndonesiaMap
           locations={filteredData || locations}
           config={defaultMapConfig}

@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useUserLocation } from "../../hooks/useUserLocation";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { MapLocation, MapConfig } from "../../types";
 import { LocationError } from "../../services/LocationService";
 import LocationButton from "./LocationButton";
 import LocationPermissionPopup from "./LocationPermissionPopup";
-import LocationErrorPopup from "./LocationErrorPopup"
+import LocationErrorPopup from "./LocationErrorPopup";
 
 interface IndonesiaMapProps {
   locations: MapLocation[];
@@ -23,91 +23,57 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   onError,
 }) => {
   const mapContainerId = "chartdiv";
-  const [errorTriggered, setErrorTriggered] = useState(false);
-  const isFirstRender = useRef(true);
-  
-  // Full configuration with defaults
+  const [showPermissionPopup, setShowPermissionPopup] = useState(false);
+  const [locationError, setLocationError] = useState<LocationError | null>(null);
+
   const fullConfig: MapConfig = {
     zoomLevel: config.zoomLevel ?? 2,
     centerPoint: config.centerPoint ?? { longitude: 113.9213, latitude: 0.7893 },
   };
 
+  // Gunakan useIndonesiaMap untuk menangani peta
+  const { mapService } = useIndonesiaMap(mapContainerId, locations, fullConfig, onError);
 
-  const { mapService } = useIndonesiaMap(mapContainerId, locations, config);
-
+  // Fungsi untuk menangani zoom ke lokasi user
   const handleLocationSuccess = useCallback((latitude: number, longitude: number) => {
-    console.log(`Map will zoom to: ${latitude}, ${longitude}`);
+    console.log(`Zooming to user location: ${latitude}, ${longitude}`);
     
     if (mapService) {
-      // Use the coordinates to update the map
       mapService.zoomToLocation(latitude, longitude);
     }
   }, [mapService]);
 
-  const [showPermissionPopup, setShowPermissionPopup] = useState(false);
-  const [locationError, setLocationError] = useState<LocationError | null>(null);
-
+  // Gunakan useUserLocation untuk menangani izin lokasi
   const { handleAllow, handleDeny } = useUserLocation(
     setShowPermissionPopup,
     setLocationError,
     handleLocationSuccess,
     () => setLocationError({ type: "PERMISSION_DENIED", message: "Anda menolak izin lokasi." })
   );
-  
-  // Wrap the onError callback to prevent repeated initialization after error
-  const handleError = (message: string) => {
-    if (!errorTriggered) {
-      setErrorTriggered(true);
-      onError(message);
-    }
-  };
-  
-  // Reset error flag when locations or config changes
-  useEffect(() => {
-    // Skip resetting on first render
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    
-    // Only reset if we have actual data
-    if (locations && locations.length > 0) {
-      setErrorTriggered(false);
-    }
-  }, [locations, config]);
 
-  // Only initialize map if no errors have been triggered
-  useIndonesiaMap(
-    mapContainerId,
-    errorTriggered ? [] : locations, // Empty locations when error is triggered
-    fullConfig,
-    handleError
-  );
-
-  // Return statement exactly as before
   return (
-    <div className="relative w-full h-full"> {/* Keep relative for absolute children */}
+    <div className="relative w-full h-full">
       <div
         id={mapContainerId}
         data-testid="map-container"
-        style={{ 
-          width, 
+        style={{
+          width,
           height,
-          position: "absolute", // Make map container fill the parent
+          position: "absolute",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0
         }}
       />
-      
-      {/* Location Button - still works with absolute positioning */}
+
+      {/* Tombol izin lokasi */}
       <LocationButton 
         onClick={() => setShowPermissionPopup(true)}
         className="absolute top-4 left-4 z-10"
       />
       
-      {/* Popups remain the same */}
+      {/* Popup izin lokasi */}
       <LocationPermissionPopup
         open={showPermissionPopup}
         onClose={() => setShowPermissionPopup(false)}
@@ -115,7 +81,7 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
         onDeny={handleDeny}
       />
       
-      {/* Error Popup */}
+      {/* Popup error lokasi */}
       {locationError && (
         <LocationErrorPopup
           open={!!locationError}

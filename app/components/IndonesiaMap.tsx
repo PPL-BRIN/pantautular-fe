@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useUserLocation } from "../../hooks/useUserLocation";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { MapLocation, MapConfig } from "../../types";
@@ -52,7 +52,8 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
     setLocationError,
     handleLocationSuccess,
     () => setLocationError({ type: "PERMISSION_DENIED", message: "Anda menolak izin lokasi." })
-
+  );
+  
   // Wrap the onError callback to prevent repeated initialization after error
   const handleError = (message: string) => {
     if (!errorTriggered) {

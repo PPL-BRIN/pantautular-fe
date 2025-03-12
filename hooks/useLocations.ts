@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { MapLocation } from '../types';
+import { MapLocation, FilterState } from '../types';
 import { mapApi } from '../services/api';
 
-export const useLocations = () => {
+export const useLocations = (filterState: FilterState) => {
   const [data, setData] = useState<MapLocation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -12,7 +12,7 @@ export const useLocations = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const locations = await mapApi.getLocations();
+        const locations = await mapApi.getFilteredLocations(filterState);
         setData(locations);
       } catch (err) {
         console.error('Error in useLocations:', err);
@@ -25,7 +25,7 @@ export const useLocations = () => {
     };
 
     fetchData();
-  }, []);
+  }, [filterState]);
 
   return { data, isLoading, error };
 };

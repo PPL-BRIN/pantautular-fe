@@ -24,7 +24,7 @@ export class MapChartService {
       this.root.setThemes([am5themes_Animated.new(this.root)]);
 
       this.chart = this.root.container.children.push(
-        am5map.MapChart.new(this.root!, {
+        am5map.MapChart.new(this.root, {
           panX: "rotateX",
           panY: "translateY",
           homeZoomLevel: config.zoomLevel,
@@ -46,17 +46,17 @@ export class MapChartService {
 
   private setupZoomControl(): void {
     if (!this.chart || !this.root) return;
-
-    let zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(this.root!, {}));
+    const root = this.root;
+    const zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
     zoomControl.homeButton.set("visible", true);
   }
 
   private setupPolygonSeries(): void {
     if (!this.chart || !this.root) return;
-
     try {
-      let polygonSeries = this.chart.series.push(
-        am5map.MapPolygonSeries.new(this.root!, {
+      const root = this.root;
+      const polygonSeries = this.chart.series.push(
+        am5map.MapPolygonSeries.new(root, {
           geoJSON: am5geodata_indonesiaLow,
           exclude: ["AQ"],
         })
@@ -77,10 +77,10 @@ export class MapChartService {
 
   private setupPointSeries(): void {
     if (!this.chart || !this.root) return;
-
     try {
+      const root = this.root;
       this.pointSeries = this.chart.series.push(
-        am5map.ClusteredPointSeries.new(this.root!, {
+        am5map.ClusteredPointSeries.new(root, {
           groupIdField: "city",
           minDistance: 30,
           scatterDistance: 10,
@@ -99,25 +99,25 @@ export class MapChartService {
 
   private setupClusterBullet(): void {
     if (!this.pointSeries || !this.root) return;
-  
     try {
-      this.pointSeries.set("clusteredBullet", (root) => {
-        let container = am5.Container.new(root, {
+      const root = this.root;
+      this.pointSeries.set("clusteredBullet", (root: am5.Root) => {
+        const container = am5.Container.new(root, {
           cursorOverStyle: "pointer",
         });
-  
+
         container.children.push(
           am5.Circle.new(root, { radius: 8, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-  
+
         container.children.push(
           am5.Circle.new(root, { radius: 12, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-  
+
         container.children.push(
           am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-  
+
         container.children.push(
           am5.Label.new(root, {
             centerX: am5.p50,
@@ -128,13 +128,13 @@ export class MapChartService {
             text: "{value}",
           })
         );
-  
+
         container.events.on("click", (e) => {
           if (e.target.dataItem) {
             this.pointSeries?.zoomToCluster(e.target.dataItem as am5.DataItem<any>);
           }
         });
-  
+
         return am5.Bullet.new(root, {
           sprite: container,
         });
@@ -147,8 +147,8 @@ export class MapChartService {
 
   private setupRegularBullet(): void {
     if (!this.pointSeries || !this.root) return;
-
     try {
+      const root = this.root;
       const tooltipData = {
         id: "{id}",
         location: "{city}",
@@ -163,8 +163,8 @@ export class MapChartService {
       const tooltipHTML = getTooltipHTML(tooltipData);
 
       this.pointSeries.bullets.push(() =>
-        am5.Bullet.new(this.root!, {
-          sprite: am5.Circle.new(this.root!, {
+        am5.Bullet.new(root, {
+          sprite: am5.Circle.new(root, {
             radius: 6,
             tooltipY: 0,
             fill: am5.color(0xfc0339),
@@ -182,14 +182,13 @@ export class MapChartService {
 
   populateLocations(locations: MapLocation[]): void {
     if (!this.pointSeries) return;
-
     try {
       locations.forEach(location => {
         this.pointSeries!.data.push({
-          geometry: { 
-            type: "Point", 
+          geometry: {
+            type: "Point",
             coordinates: [
-              location.location__longitude, 
+              location.location__longitude,
               location.location__latitude,
             ]
           },

@@ -5,11 +5,11 @@ import { MapLocation, MapConfig } from "../types";
 export const useIndonesiaMap = (
   containerId: string,
   locations: MapLocation[],
-  config: MapConfig
+  config: MapConfig,
+  onError: (message: string) => void
 ) => {
   const mapServiceRef = useRef<MapChartService | null>(null);
 
-  // Memoize locations and config to prevent unnecessary re-renders
   const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
   const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
 
@@ -20,31 +20,33 @@ export const useIndonesiaMap = (
   }, []);
 
   useEffect(() => {
-    // Dispose of the existing service if it exists
     if (mapServiceRef.current) {
       mapServiceRef.current.dispose();
       mapServiceRef.current = null;
     }
 
-    
-    // Create a new map service
-    mapServiceRef.current = new MapChartService();
+    const mapService = new MapChartService(onError);
+    mapServiceRef.current = mapService;
 
-    // Initialize the chart
-    mapServiceRef.current.initialize(containerId, memoizedConfig);
+    const initializeMap = async () => {
+      try {
+        mapService.initialize(containerId, memoizedConfig); // Pastikan menangani error async
+        mapService.populateLocations(memoizedLocations);
+      } catch (error) {
+        console.error("Error in useIndonesiaMap:", error);
+        onError("Failed to load the map. Please try again.");
+      }
+    };
 
-    // Add location data
-    mapServiceRef.current.populateLocations(memoizedLocations);
-    
+    initializeMap(); // Jalankan fungsi async
 
-    // Cleanup function
     return () => {
       if (mapServiceRef.current) {
         mapServiceRef.current.dispose();
         mapServiceRef.current = null;
       }
     };
-  }, [containerId, memoizedLocations, memoizedConfig]);
+  }, [containerId, memoizedLocations, memoizedConfig, onError]);
 
   return { mapService: mapServiceRef.current, showUserLocation };
 };

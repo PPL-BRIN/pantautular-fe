@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useCallback } from "react";
 import { MapChartService } from "../services/mapChartService";
 import { MapLocation, MapConfig } from "../types";
 
@@ -12,6 +12,12 @@ export const useIndonesiaMap = (
   // Memoize locations and config to prevent unnecessary re-renders
   const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
   const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
+
+  const showUserLocation = useCallback((latitude: number, longitude: number) => {
+    if (mapServiceRef.current) {
+      mapServiceRef.current.zoomToLocation(latitude, longitude);
+    }
+  }, []);
 
   useEffect(() => {
     // Dispose of the existing service if it exists
@@ -40,5 +46,5 @@ export const useIndonesiaMap = (
     };
   }, [containerId, memoizedLocations, memoizedConfig]);
 
-  return { mapService: mapServiceRef.current };
+  return { mapService: mapServiceRef.current, showUserLocation };
 };

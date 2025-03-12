@@ -9,6 +9,7 @@ export class MapChartService {
   private root: am5.Root | null = null;
   private chart: am5map.MapChart | null = null;
   private pointSeries: am5map.ClusteredPointSeries | null = null;
+  private locationSeries: am5map.MapPointSeries | null = null;
   private readonly onError: ((message: string) => void) | null = null;
 
   constructor(onError?: (message: string) => void) {
@@ -198,6 +199,64 @@ export class MapChartService {
       });
     } catch (error) {
       console.error("Error populating locations:", error);
+    }
+  }
+
+  createLocationMarker(): void {
+    if (!this.chart || !this.root) return;
+    
+    this.locationSeries = this.chart.series.push(
+      am5map.MapPointSeries.new(this.root, {})
+    );
+
+    this.locationSeries.bullets.push(() =>
+      am5.Bullet.new(this.root, {
+        sprite: am5.Circle.new(this.root, {
+          radius: 8,
+          fill: am5.color(0x2196F3),
+          strokeWidth: 2,
+          stroke: am5.color(0xFFFFFF),
+        }),
+      })
+    );
+
+    this.locationSeries.bullets.push(() =>
+      am5.Bullet.new(this.root, {
+        sprite: am5.Circle.new(this.root, {
+          radius: 12,
+          fill: am5.color(0x2196F3),
+          fillOpacity: 0.3,
+        }),
+      })
+    );
+  }
+
+  zoomToLocation(latitude: number, longitude: number): void {
+    if (!this.chart || !this.root) return;
+    
+    // Create location marker series if it doesn't exist yet
+    if (!this.locationSeries) {
+      this.createLocationMarker();
+    }
+    
+    try {
+      // Clear previous location marker if any
+      this.locationSeries!.data.clear();
+      
+      // Add new location marker
+      this.locationSeries!.data.push({
+        geometry: {
+          type: "Point",
+          coordinates: [longitude, latitude]
+        },
+        title: "Your Location"
+      });
+
+      // Zoom to the location
+      this.chart.zoomToGeoPoint({ longitude, latitude }, 32, true);
+    } catch (error) {
+      console.error("Failed to zoom to location: ", error);
+      throw error;
     }
   }
 

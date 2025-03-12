@@ -6,13 +6,15 @@ import Image from "next/image";
 export default function About() {
   return (
     <>
+    <div className="relative z-50">
       <Navbar />
-    <section className="flex flex-col items-center justify-center min-h-screen px-6 bg-white">
+    </div>
+    <section className="flex flex-col items-center justify-center min-h-screen px-6 bg-white z-10">
       <h1 className="text-4xl font-bold text-blue-900 text-center mt-36 mb-10">
         Tentang PantauTular
       </h1>
 
-      <SectionContainer className="text-center mt-10 mb-10">
+      <SectionContainer className="text-center mt-10 mb-10 z-0">
         <p className="text-[525252]">
           <strong className="italic">PantauTular</strong> adalah platform inovatif penyedia informasi sebaran penyakit menular di seluruh wilayah Indonesia. Bekerja sama dengan Badan Riset dan Inovasi Nasional (BRIN), PantauTular berkomitmen untuk menyajikan data yang akurat dan terkini tentang kondisi kesehatan masyarakat sehingga memungkinkan pengguna untuk memantau dan mengantisipasi penyebaran penyakit menular dengan lebih efektif.
         </p>
@@ -38,10 +40,10 @@ export default function About() {
         </div>
       </div>
 
-      <SectionContainer className="flex flex-col text-center mt-10 mb-10 relative">
+      <SectionContainer className="flex flex-col text-center mt-10 mb-10 relative z-0">
         <BackgroundCircle size={{ width: "720px", height: "200px" }} position="left-1/2"/>        
         <h2 className="text-2xl font-bold mb-4 z-10">Kami memahami pentingnya</h2>
-        <p className="raltive text-[525252] z-10">
+        <p className="relative text-[525252] z-10">
           <strong className="italic">akses cepat dan mudah</strong> terhadap informasi kesehatan, terutama dalam situasi krisis. Oleh karena itu, PantauTular dirancang dengan <strong className="italic">antarmuka yang ramah pengguna</strong> dan <strong className="italic">dapat diakses melalui berbagai platform</strong>, termasuk web dan mobile, sehingga memungkinkan siapa pun untuk memanfaatkannya tanpa hambatan.
         </p>
       </SectionContainer>
@@ -66,7 +68,7 @@ export default function About() {
         </div>
       </div>
 
-      <SectionContainer className="flex flex-col text-center mt-10 mb-20">
+      <SectionContainer className="flex flex-col text-center mt-10 mb-20 z-0">
         <h2 className="text-2xl font-bold mb-4 z-10">Dengan demikian,</h2>
         <BackgroundCircle size={{ width: "400px", height: "200px" }} position="left-1/10"/>
         <BackgroundCircle size={{ width: "400px", height: "100px" }} position="left-3/4"/>

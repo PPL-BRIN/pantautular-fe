@@ -1,16 +1,20 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useUserLocation } from "../../hooks/useUserLocation";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { MapLocation, MapConfig } from "../../types";
 import { LocationError } from "../../services/LocationService";
 // import LocationButton from "./LocationButton";
 import LocationPermissionPopup from "./LocationPermissionPopup";
+<<<<<<< HEAD
 import LocationErrorPopup from "./LocationErrorPopup"
 import DashboardButton from "./floating_buttons/DashboardButton";
 import WarningButton from "./floating_buttons/WarningButton";
 import FilterButton from "./floating_buttons/FilterButton";
 import LocationButton from "./floating_buttons/LocationButton";
 import {MapButton} from "./floating_buttons/MapButton";
+=======
+import LocationErrorPopup from "./LocationErrorPopup";
+>>>>>>> origin/pbi-c03-integrate_form_popup_location
 
 interface IndonesiaMapProps {
   locations: MapLocation[];
@@ -41,7 +45,11 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
 
   // Fungsi untuk menangani zoom ke lokasi user
   const handleLocationSuccess = useCallback((latitude: number, longitude: number) => {
+<<<<<<< HEAD
     console.log("Zooming to user location: ${latitude}, ${longitude}");
+=======
+    console.log(`Zooming to user location: ${latitude}, ${longitude}`);
+>>>>>>> origin/pbi-c03-integrate_form_popup_location
     
     if (mapService) {
       mapService.zoomToLocation(latitude, longitude);
@@ -56,22 +64,26 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
     () => setLocationError({ type: "PERMISSION_DENIED", message: "Anda menolak izin lokasi." })
   );
 
+<<<<<<< HEAD
   // Return statement exactly as before
+=======
+>>>>>>> origin/pbi-c03-integrate_form_popup_location
   return (
-    <div className="relative w-full h-full"> {/* Keep relative for absolute children */}
+    <div className="relative w-full h-full">
       <div
         id={mapContainerId}
         data-testid="map-container"
-        style={{ 
-          width, 
+        style={{
+          width,
           height,
-          position: "absolute", // Make map container fill the parent
+          position: "absolute",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0
         }}
       />
+<<<<<<< HEAD
       
       <div className="absolute top-4 left-4 flex gap-4">
         <FilterButton />
@@ -82,8 +94,16 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
         <DashboardButton />
         <MapButton />
       </div>
+=======
+
+      {/* Tombol izin lokasi */}
+      <LocationButton 
+        onClick={() => setShowPermissionPopup(true)}
+        className="absolute top-4 left-4 z-10"
+      />
+>>>>>>> origin/pbi-c03-integrate_form_popup_location
       
-      {/* Popups remain the same */}
+      {/* Popup izin lokasi */}
       <LocationPermissionPopup
         open={showPermissionPopup}
         onClose={() => setShowPermissionPopup(false)}
@@ -91,7 +111,7 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
         onDeny={handleDeny}
       />
       
-      {/* Error Popup */}
+      {/* Popup error lokasi */}
       {locationError && (
         <LocationErrorPopup
           open={!!locationError}

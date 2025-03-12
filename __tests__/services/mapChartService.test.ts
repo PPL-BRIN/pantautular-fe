@@ -457,4 +457,44 @@ describe("MapChartService", () => {
     am5.Label.new = originalLabelNew;
     am5.Bullet.new = originalBulletNew;
   });
+
+  test("setupClusterBullet does not call zoomToCluster when dataItem is undefined", () => {
+    // Arrange: set up fake root dan pointSeries.
+    const fakeRoot = { dispose: jest.fn() } as any;
+    const zoomToClusterMock = jest.fn();
+    const fakePointSeries = { set: jest.fn(), zoomToCluster: zoomToClusterMock } as any;
+    (mapService as any).pointSeries = fakePointSeries;
+    (mapService as any).root = fakeRoot;
+    (mapService as any).setupClusterBullet();
+  
+    // Ambil factory function untuk cluster bullet.
+    const clusterBulletFactory = fakePointSeries.set.mock.calls[0][1];
+  
+    // Buat fake container dan bullet dengan type assertion to any
+    const fakeContainer = {
+      children: { push: jest.fn() },
+      events: { on: jest.fn() },
+    } as any;
+    const containerNewSpy = jest.spyOn(am5.Container, "new").mockReturnValue(fakeContainer);
+    
+    const fakeBullet = {} as any;
+    const circleNewSpy = jest.spyOn(am5.Circle, "new").mockReturnValue({} as any);
+    const bulletNewSpy = jest.spyOn(am5.Bullet, "new").mockReturnValue(fakeBullet);
+  
+    // Act: Panggil factory sehingga event listener didaftarkan.
+    clusterBulletFactory(fakeRoot);
+    expect(fakeContainer.events.on).toHaveBeenCalledWith("click", expect.any(Function));
+    const clickCallback = fakeContainer.events.on.mock.calls[0][1];
+  
+    // Simulasikan event klik tanpa dataItem.
+    clickCallback({ target: {} });
+  
+    // Assert: pastikan zoomToCluster tidak terpanggil.
+    expect(zoomToClusterMock).not.toHaveBeenCalled();
+  
+    // Clean up spies.
+    containerNewSpy.mockRestore();
+    circleNewSpy.mockRestore();
+    bulletNewSpy.mockRestore();
+  });  
 });

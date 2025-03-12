@@ -54,7 +54,7 @@ export default function MapPage() {
     <>
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
-        <div className="absolute top-4 left-4 bg-white shadow-lg rounded-lg p-4 z-20 max-w-lg">
+        <div className="absolute top-4 left-4 bg-white shadow-lg rounded-lg p-4 z-10 max-w-lg">
           <MultiSelectForm
             onSubmitFilterState={setFilterState}
             initialFilterState={filterState}
@@ -73,14 +73,14 @@ export default function MapPage() {
             </div>
           )}
           
-          {error && (
+          {/* {error && (
             <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-20">
               <div className="flex flex-col items-center">
                 <p className="text-red-500 text-lg font-medium">Error: {error.message}</p>
                 <p>Please try refreshing the page</p>
               </div>
             </div>
-          )}
+          )} */}
           
           {/* IndonesiaMap is always rendered, even during loading */}
           {popup}

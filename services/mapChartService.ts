@@ -183,23 +183,20 @@ export class MapChartService {
 
   populateLocations(locations: MapLocation[]): void {
     if (!this.pointSeries) return;
-    try {
-      locations.forEach(location => {
-        this.pointSeries!.data.push({
-          geometry: {
-            type: "Point",
-            coordinates: [
-              location.location__longitude,
-              location.location__latitude,
-            ]
-          },
-          city: location.city,
-          id: location.id,
-        });
+    
+    locations.forEach(location => {
+      this.pointSeries!.data.push({
+        geometry: { 
+          type: "Point", 
+          coordinates: [
+            parseFloat(location.location__longitude), 
+            parseFloat(location.location__latitude),
+          ] 
+        },
+        city: location.city,
+        id: location.id,
       });
-    } catch (error) {
-      console.error("Error populating locations:", error);
-    }
+    });
   }
 
   createLocationMarker(): void {

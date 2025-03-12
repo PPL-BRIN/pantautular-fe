@@ -94,6 +94,57 @@ describe("MultiSelectForm Component", () => {
     }
   };
 
+  // Helper functions to reduce duplication
+  const waitForLoading = async () => {
+    await waitFor(() => {
+      expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
+    });
+  };
+
+  const submitForm = async () => {
+    const submitButton = screen.getByText("Kirim Data");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+  };
+
+  const resetForm = async () => {
+    const resetButton = screen.getByText("Reset");
+    await act(async () => {
+      fireEvent.click(resetButton);
+    });
+  };
+
+  const selectOption = async (selectIndex: number, value: string) => {
+    const selectElements = screen.getAllByTestId("select");
+    await act(async () => {
+      fireEvent.change(selectElements[selectIndex], { target: { value } });
+    });
+  };
+
+  const selectDisease = async (value: string) => selectOption(0, value);
+  const selectLocation = async (value: string) => selectOption(1, value);
+  const selectNews = async (value: string) => selectOption(2, value);
+
+  const setAlertLevel = async (level: number) => {
+    const starButtons = screen.getAllByRole("button").filter(btn => 
+      btn.textContent === "☆" || btn.textContent === "★"
+    );
+    await act(async () => {
+      fireEvent.click(starButtons[level - 1]);
+    });
+  };
+
+  const setDateRange = async (startDate: string, endDate: string) => {
+    const startDatePicker = screen.getByTestId("date-picker-Mulai");
+    const endDatePicker = screen.getByTestId("date-picker-Selesai");
+    
+    await act(async () => {
+      fireEvent.change(startDatePicker, { target: { value: startDate } });
+      fireEvent.change(endDatePicker, { target: { value: endDate } });
+    });
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     console.error = jest.fn();
@@ -110,10 +161,7 @@ describe("MultiSelectForm Component", () => {
     test("renders the form correctly and fetches filter options", async () => {
       render(<MultiSelectForm />);
       
-      // First wait for loading spinner to disappear
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
+      await waitForLoading();
       
       // Then check for form elements
       expect(screen.getByText("Jenis Penyakit")).toBeInTheDocument();
@@ -127,49 +175,17 @@ describe("MultiSelectForm Component", () => {
       const mockOnSubmitFilterState = jest.fn();
       render(<MultiSelectForm onSubmitFilterState={mockOnSubmitFilterState} />);
       
-      // Wait for filter options to load
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
+      await waitForLoading();
 
-      // Select disease
-      const selectElements = screen.getAllByTestId("select");
-      await act(async () => {
-        fireEvent.change(selectElements[0], { target: { value: "covid" } });
-      });
-
-      // Select location
-      await act(async () => {
-        fireEvent.change(selectElements[1], { target: { value: "jakarta" } });
-      });
-
-      // Select news
-      await act(async () => {
-        fireEvent.change(selectElements[2], { target: { value: "cnn" } });
-      });
-
-      // Set level of alertness
-      const starButtons = screen.getAllByRole("button").filter(btn => 
-        btn.textContent === "☆" || btn.textContent === "★"
-      );
-      await act(async () => {
-        fireEvent.click(starButtons[2]); // Click the third star
-      });
-
-      // Set date range
-      const startDatePicker = screen.getByTestId("date-picker-Mulai");
-      const endDatePicker = screen.getByTestId("date-picker-Selesai");
-      
-      await act(async () => {
-        fireEvent.change(startDatePicker, { target: { value: "2023-01-01" } });
-        fireEvent.change(endDatePicker, { target: { value: "2023-01-31" } });
-      });
+      // Make selections
+      await selectDisease("covid");
+      await selectLocation("jakarta");
+      await selectNews("cnn");
+      await setAlertLevel(3);
+      await setDateRange("2023-01-01", "2023-01-31");
 
       // Submit form
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      await submitForm();
 
       // Verify onSubmitFilterState was called with correct data
       expect(mockOnSubmitFilterState).toHaveBeenCalledWith(
@@ -188,37 +204,18 @@ describe("MultiSelectForm Component", () => {
       const mockOnSubmitFilterState = jest.fn();
       render(<MultiSelectForm onSubmitFilterState={mockOnSubmitFilterState} />);
       
-      // Wait for loading spinner to disappear first
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
+      await waitForLoading();
 
       // Set values first
-      const selectElements = screen.getAllByTestId("select");
-      const starButtons = screen.getAllByRole("button").filter(btn => 
-        btn.textContent === "☆" || btn.textContent === "★"
-      );
-      const startDatePicker = screen.getByTestId("date-picker-Mulai");
-      const endDatePicker = screen.getByTestId("date-picker-Selesai");
-      
-      await act(async () => {
-        fireEvent.change(selectElements[0], { target: { value: "covid" } });
-        fireEvent.click(starButtons[3]); // Click the fourth star
-        fireEvent.change(startDatePicker, { target: { value: "2023-01-01" } });
-        fireEvent.change(endDatePicker, { target: { value: "2023-01-31" } });
-      });
+      await selectDisease("covid");
+      await setAlertLevel(4);
+      await setDateRange("2023-01-01", "2023-01-31");
 
-      // Click reset button
-      const resetButton = screen.getByText("Reset");
-      await act(async () => {
-        fireEvent.click(resetButton);
-      });
+      // Reset form
+      await resetForm();
 
-      // Submit form after reset to verify cleared values
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      // Submit form after reset
+      await submitForm();
 
       // Verify onSubmitFilterState was called with empty values
       expect(mockOnSubmitFilterState).toHaveBeenCalledWith({
@@ -245,11 +242,7 @@ describe("MultiSelectForm Component", () => {
 
       render(<MultiSelectForm />);
       
-      // Instead of checking for alerts, we verify loading state disappears
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-      
+      await waitForLoading();
       expect(console.error).toHaveBeenCalledWith("Failed to fetch filter options");
     });
     
@@ -260,10 +253,7 @@ describe("MultiSelectForm Component", () => {
 
       render(<MultiSelectForm />);
       
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-      
+      await waitForLoading();
       expect(console.error).toHaveBeenCalled();
     });
 
@@ -276,16 +266,8 @@ describe("MultiSelectForm Component", () => {
       
       render(<MultiSelectForm onSubmitFilterState={mockOnSubmitFilterState} />);
       
-      // Wait for loading spinner to disappear
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-
-      // Submit form
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      await waitForLoading();
+      await submitForm();
 
       expect(console.error).toHaveBeenCalled();
     });
@@ -310,10 +292,7 @@ describe("MultiSelectForm Component", () => {
     // Check that loading state is displayed
     expect(screen.getByText("Loading filter options...")).toBeInTheDocument();
     
-    // Wait for loading to finish
-    await waitFor(() => {
-      expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-    });
+    await waitForLoading();
   });
 
   // EDGE CASES
@@ -338,17 +317,8 @@ describe("MultiSelectForm Component", () => {
     test("handles 'Select All' option for diseases", async () => {
       render(<MultiSelectForm />);
       
-      // Wait for filter options to load
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
-      });
-
-      const diseaseSelect = screen.getAllByTestId("select")[0];
-      
-      // Select "all" option
-      await act(async () => {
-        fireEvent.change(diseaseSelect, { target: { value: "all" } });
-      });
+      await waitForLoading();
+      await selectDisease("all");
       
       // Submit form to verify all diseases are selected
       const mockOnSubmitFilterState = jest.fn();
@@ -365,79 +335,39 @@ describe("MultiSelectForm Component", () => {
         });
       };
       
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      await submitForm();
       
-      // Now toggle back by selecting "all" again
-      await act(async () => {
-        fireEvent.change(diseaseSelect, { target: { value: "all" } });
-      });
+      // Toggle back by selecting "all" again
+      await selectDisease("all");
     });
 
     test("handles 'Select All' option for locations", async () => {
       render(<MultiSelectForm />);
       
-      // Wait for loading spinner to disappear
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-
-      const locationSelect = screen.getAllByTestId("select")[1];
+      await waitForLoading();
+      await selectLocation("all");
       
-      // Select "all" option
-      await act(async () => {
-        fireEvent.change(locationSelect, { target: { value: "all" } });
-      });
-      
-      // Select "all" option again to toggle back
-      await act(async () => {
-        fireEvent.change(locationSelect, { target: { value: "all" } });
-      });
+      // Toggle back by selecting "all" again
+      await selectLocation("all");
     });
 
     test("handles 'Select All' option for news", async () => {
       render(<MultiSelectForm />);
       
-      // Wait for filter options to load
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-
-      const newsSelect = screen.getAllByTestId("select")[2];
+      await waitForLoading();
+      await selectNews("all");
       
-      // Select "all" option
-      await act(async () => {
-        fireEvent.change(newsSelect, { target: { value: "all" } });
-      });
-      
-      // Select "all" option again to toggle back
-      await act(async () => {
-        fireEvent.change(newsSelect, { target: { value: "all" } });
-      });
+      // Toggle back by selecting "all" again
+      await selectNews("all");
     });
 
     test("handles date selection edge cases", async () => {
       render(<MultiSelectForm />);
       
-      // Wait for loading spinner to disappear
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-
-      const startDatePicker = screen.getByTestId("date-picker-Mulai");
-      const endDatePicker = screen.getByTestId("date-picker-Selesai");
+      await waitForLoading();
       
-      // Set end date first
-      await act(async () => {
-        fireEvent.change(endDatePicker, { target: { value: "2023-01-31" } });
-      });
-      
-      // Then set start date after end date (should limit max date)
-      await act(async () => {
-        fireEvent.change(startDatePicker, { target: { value: "2023-01-01" } });
-      });
+      // Set dates
+      await setDateRange("2023-01-01", "2023-01-31");
       
       // Submit to check the date objects in payload
       const mockOnSubmitFilterState = jest.fn();
@@ -454,10 +384,7 @@ describe("MultiSelectForm Component", () => {
         });
       };
       
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      await submitForm();
       
       expect(mockOnSubmitFilterState).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -471,16 +398,8 @@ describe("MultiSelectForm Component", () => {
       const mockOnSubmitFilterState = jest.fn();
       render(<MultiSelectForm onSubmitFilterState={mockOnSubmitFilterState} />);
       
-      // Wait for filter options to load
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-
-      // Submit form without making any selections
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      await waitForLoading();
+      await submitForm();
 
       expect(mockOnSubmitFilterState).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -493,65 +412,33 @@ describe("MultiSelectForm Component", () => {
         })
       );
     });
-    
-    // test("displays loading state during submission", async () => {
-    //   const delayedMockSubmit = jest.fn().mockImplementation(() => {
-    //     return new Promise(resolve => setTimeout(resolve, 2000));
-    //   });
-      
-    //   render(<MultiSelectForm onSubmitFilterState={delayedMockSubmit} />);
-      
-    //   // Wait for filter options to load
-    //   await waitFor(() => {
-    //     expect(global.fetch).toHaveBeenCalledTimes(1);
-    //   });
-
-    //   // Submit form
-    //   const submitButton = screen.getByTestId("submit-button-form-filter");
-      
-    //   fireEvent.click(submitButton);
-      
-    //   // Wait for loading state to appear
-    //   await waitFor(() => {
-    //     expect(screen.getByText("Mengirim...")).toBeInTheDocument();
-    //   });
-
-    //   // Wait for the mock function to complete
-    //   await waitFor(() => {
-    //     expect(delayedMockSubmit).toHaveBeenCalled();
-    //   }, { timeout: 1000 });
-    // });
   });
 
   // INITIAL FILTER STATE TESTS
   describe("Initial Filter State", () => {
+    const createInitialState = (overrides = {}) => ({
+      diseases: ["covid"],
+      locations: ["jakarta"],
+      portals: ["cnn"],
+      level_of_alertness: 4,
+      start_date: new Date("2023-02-01"),
+      end_date: new Date("2023-02-28"),
+      ...overrides
+    });
+
     test("correctly pre-populates form with initialFilterState", async () => {
-      const initialState = {
-        diseases: ["covid"],
-        locations: ["jakarta"],
-        portals: ["cnn"],
-        level_of_alertness: 4,
-        start_date: new Date("2023-02-01"),
-        end_date: new Date("2023-02-28")
-      };
+      const initialState = createInitialState();
       
       render(<MultiSelectForm initialFilterState={initialState} />);
       
-      // Wait for filter options to load
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
+      await waitForLoading();
 
       // Check that values are pre-populated
       const selectElements = screen.getAllByTestId("select");
       
-      // Check disease selection
+      // Check selections
       expect(selectElements[0]).toHaveValue(["covid"]);
-      
-      // Check location selection
       expect(selectElements[1]).toHaveValue(["jakarta"]);
-      
-      // Check news source selection
       expect(selectElements[2]).toHaveValue(["cnn"]);
       
       // Check level of alertness - stars should be filled
@@ -576,20 +463,16 @@ describe("MultiSelectForm Component", () => {
     });
     
     test("handles initialFilterState with values not in filter options", async () => {
-      const initialState = {
+      const initialState = createInitialState({
         diseases: ["malaria"], // Not in original options
         locations: ["surabaya"], // Not in original options
         portals: ["reuters"], // Not in original options
-        level_of_alertness: 2,
-        start_date: new Date("2023-03-01"),
-        end_date: new Date("2023-03-15")
-      };
+        level_of_alertness: 2
+      });
       
       render(<MultiSelectForm initialFilterState={initialState} />);
       
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
+      await waitForLoading();
       
       const selectElements = screen.getAllByTestId("select");
       
@@ -609,14 +492,11 @@ describe("MultiSelectForm Component", () => {
     });
     
     test("submits form with initialFilterState unchanged", async () => {
-      const initialState = {
-        diseases: ["covid"],
-        locations: ["jakarta"],
-        portals: ["cnn"],
+      const initialState = createInitialState({
         level_of_alertness: 3,
         start_date: new Date("2023-04-01"),
         end_date: new Date("2023-04-30")
-      };
+      });
       
       const mockOnSubmitFilterState = jest.fn();
       render(<MultiSelectForm 
@@ -624,15 +504,8 @@ describe("MultiSelectForm Component", () => {
         onSubmitFilterState={mockOnSubmitFilterState}
       />);
       
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-      
-      // Submit form without making any changes to the initial state
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      await waitForLoading();
+      await submitForm();
       
       // Check that the submitted values match the initial state
       expect(mockOnSubmitFilterState).toHaveBeenCalledWith({
@@ -646,14 +519,12 @@ describe("MultiSelectForm Component", () => {
     });
     
     test("resets form with initialFilterState to empty values", async () => {
-      const initialState = {
+      const initialState = createInitialState({
         diseases: ["covid", "dengue"],
         locations: ["jakarta", "bandung"],
         portals: ["cnn", "bbc"],
         level_of_alertness: 5,
-        start_date: new Date("2023-05-01"),
-        end_date: new Date("2023-05-31")
-      };
+      });
       
       const mockOnSubmitFilterState = jest.fn();
       render(<MultiSelectForm 
@@ -661,21 +532,9 @@ describe("MultiSelectForm Component", () => {
         onSubmitFilterState={mockOnSubmitFilterState}
       />);
       
-      await waitFor(() => {
-        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
-      });
-      
-      // Click reset button
-      const resetButton = screen.getByText("Reset");
-      await act(async () => {
-        fireEvent.click(resetButton);
-      });
-      
-      // Submit form to verify reset values
-      const submitButton = screen.getByText("Kirim Data");
-      await act(async () => {
-        fireEvent.click(submitButton);
-      });
+      await waitForLoading();
+      await resetForm();
+      await submitForm();
       
       // Check that the form was reset to empty values
       expect(mockOnSubmitFilterState).toHaveBeenCalledWith({

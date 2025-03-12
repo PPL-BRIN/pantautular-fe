@@ -522,4 +522,170 @@ describe("MultiSelectForm Component", () => {
     //   }, { timeout: 1000 });
     // });
   });
+
+  // INITIAL FILTER STATE TESTS
+  describe("Initial Filter State", () => {
+    test("correctly pre-populates form with initialFilterState", async () => {
+      const initialState = {
+        diseases: ["covid"],
+        locations: ["jakarta"],
+        portals: ["cnn"],
+        level_of_alertness: 4,
+        start_date: new Date("2023-02-01"),
+        end_date: new Date("2023-02-28")
+      };
+      
+      render(<MultiSelectForm initialFilterState={initialState} />);
+      
+      // Wait for filter options to load
+      await waitFor(() => {
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
+      });
+
+      // Check that values are pre-populated
+      const selectElements = screen.getAllByTestId("select");
+      
+      // Check disease selection
+      expect(selectElements[0]).toHaveValue(["covid"]);
+      
+      // Check location selection
+      expect(selectElements[1]).toHaveValue(["jakarta"]);
+      
+      // Check news source selection
+      expect(selectElements[2]).toHaveValue(["cnn"]);
+      
+      // Check level of alertness - stars should be filled
+      const starButtons = screen.getAllByRole("button").filter(btn => 
+        btn.textContent === "☆" || btn.textContent === "★"
+      );
+      
+      // First 4 stars should be filled (★) for level 4
+      for (let i = 0; i < 4; i++) {
+        expect(starButtons[i].textContent).toBe("★");
+      }
+      
+      // 5th star should be empty (☆)
+      expect(starButtons[4].textContent).toBe("☆");
+      
+      // Check date values
+      const startDatePicker = screen.getByTestId("date-picker-Mulai");
+      const endDatePicker = screen.getByTestId("date-picker-Selesai");
+      
+      expect(startDatePicker).toHaveValue("2023-02-01");
+      expect(endDatePicker).toHaveValue("2023-02-28");
+    });
+    
+    test("handles initialFilterState with values not in filter options", async () => {
+      const initialState = {
+        diseases: ["malaria"], // Not in original options
+        locations: ["surabaya"], // Not in original options
+        portals: ["reuters"], // Not in original options
+        level_of_alertness: 2,
+        start_date: new Date("2023-03-01"),
+        end_date: new Date("2023-03-15")
+      };
+      
+      render(<MultiSelectForm initialFilterState={initialState} />);
+      
+      await waitFor(() => {
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
+      });
+      
+      const selectElements = screen.getAllByTestId("select");
+      
+      // Check that custom values are added to the selections
+      expect(selectElements[0]).toHaveValue(["malaria"]);
+      expect(selectElements[1]).toHaveValue(["surabaya"]);
+      expect(selectElements[2]).toHaveValue(["reuters"]);
+      
+      // Check level of alertness
+      const starButtons = screen.getAllByRole("button").filter(btn => 
+        btn.textContent === "☆" || btn.textContent === "★"
+      );
+      
+      expect(starButtons[0].textContent).toBe("★");
+      expect(starButtons[1].textContent).toBe("★");
+      expect(starButtons[2].textContent).toBe("☆");
+    });
+    
+    test("submits form with initialFilterState unchanged", async () => {
+      const initialState = {
+        diseases: ["covid"],
+        locations: ["jakarta"],
+        portals: ["cnn"],
+        level_of_alertness: 3,
+        start_date: new Date("2023-04-01"),
+        end_date: new Date("2023-04-30")
+      };
+      
+      const mockOnSubmitFilterState = jest.fn();
+      render(<MultiSelectForm 
+        initialFilterState={initialState}
+        onSubmitFilterState={mockOnSubmitFilterState}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
+      });
+      
+      // Submit form without making any changes to the initial state
+      const submitButton = screen.getByText("Kirim Data");
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
+      
+      // Check that the submitted values match the initial state
+      expect(mockOnSubmitFilterState).toHaveBeenCalledWith({
+        diseases: ["covid"],
+        locations: ["jakarta"],
+        portals: ["cnn"],
+        level_of_alertness: 3,
+        start_date: expect.any(Date),
+        end_date: expect.any(Date)
+      });
+    });
+    
+    test("resets form with initialFilterState to empty values", async () => {
+      const initialState = {
+        diseases: ["covid", "dengue"],
+        locations: ["jakarta", "bandung"],
+        portals: ["cnn", "bbc"],
+        level_of_alertness: 5,
+        start_date: new Date("2023-05-01"),
+        end_date: new Date("2023-05-31")
+      };
+      
+      const mockOnSubmitFilterState = jest.fn();
+      render(<MultiSelectForm 
+        initialFilterState={initialState}
+        onSubmitFilterState={mockOnSubmitFilterState}
+      />);
+      
+      await waitFor(() => {
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
+      });
+      
+      // Click reset button
+      const resetButton = screen.getByText("Reset");
+      await act(async () => {
+        fireEvent.click(resetButton);
+      });
+      
+      // Submit form to verify reset values
+      const submitButton = screen.getByText("Kirim Data");
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
+      
+      // Check that the form was reset to empty values
+      expect(mockOnSubmitFilterState).toHaveBeenCalledWith({
+        diseases: [],
+        locations: [],
+        portals: [],
+        level_of_alertness: 0,
+        start_date: null,
+        end_date: null
+      });
+    });
+  });
 });

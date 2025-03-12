@@ -139,7 +139,7 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
 
   return (
     <div className="max-w-lg mx-auto mt-10">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form data-testid="map-filter-select" onSubmit={handleSubmit} className="space-y-4">
         {/* diseases */}
         <div>
           <label className="block text-sm font-medium">Jenis Penyakit</label>
@@ -232,10 +232,11 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
           </button>
           <button
             type="submit"
+            data-testid="submit-button-form-filter"
             className="w-1/4 bg-blue-500 text-white py-2 rounded-md"
             disabled={isSubmitting}
             >
-            {isSubmitting ? "Mengirim..." : "Kirim Data"}
+            Kirim Data
           </button>
         </div>
       </form>

@@ -21,14 +21,16 @@ interface MultiSelectFormProps {
   onSubmitFilterState?: (filterState: FilterState) => void;
   apiFilterOptions?: string;
   initialFilterState?: FilterState | null;
+  onError: (message: string) => void;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function MultiSelectForm({
-  onSubmitFilterState, 
   apiFilterOptions = `${API_BASE_URL}/api/filters/`, 
-  initialFilterState 
+  onSubmitFilterState, 
+  initialFilterState,
+  onError
 }: MultiSelectFormProps) {
   const [selectedDiseases, setSelectedDiseases] = useState<SelectOption[]>([]);
   const [selectedNews, setSelectedNews] = useState<SelectOption[]>([]);
@@ -72,6 +74,7 @@ export default function MultiSelectForm({
       }
     } catch (error) {
       console.error(error);
+      onError("Failed to load the map. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -130,6 +133,7 @@ export default function MultiSelectForm({
         }
       } catch (error) {
         console.error("Error fetching filter data", error);
+        onError("Failed to load the map. Please try again.");
       } finally {
         setIsLoadingFilters(false);
       }

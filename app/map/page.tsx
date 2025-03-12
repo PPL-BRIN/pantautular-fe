@@ -11,7 +11,7 @@ import NoDataPopup from "../components/NoDataPopup";
 import MultiSelectForm, { FilterState } from "../components/filter/MultiSelectForm";
 
 export default function MapPage() {
-  const [filterState, setFilterState] = React.useState<FilterState | null>(null);
+  const [filterState, setFilterState] = useState<FilterState | null>(null);
   const { data: locations, isLoading, error } = useLocations(filterState);
   const { error: mapError, setError: setMapError, clearError } = useMapError();
   const [isEmptyData, setIsEmptyData] = useState(false);
@@ -58,6 +58,7 @@ export default function MapPage() {
           <MultiSelectForm
             onSubmitFilterState={setFilterState}
             initialFilterState={filterState}
+            onError={(message) => setMapError(message)}
           />
         </div>
         

@@ -28,65 +28,32 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   onError,
 }) => {
   const mapContainerId = "chartdiv";
-  const [errorTriggered, setErrorTriggered] = useState(false);
-  const isFirstRender = useRef(true);
-  
-  // Full configuration with defaults
+  const [showPermissionPopup, setShowPermissionPopup] = useState(false);
+  const [locationError, setLocationError] = useState<LocationError | null>(null);
+
   const fullConfig: MapConfig = {
     zoomLevel: config.zoomLevel ?? 2,
     centerPoint: config.centerPoint ?? { longitude: 113.9213, latitude: 0.7893 },
   };
 
+  // Gunakan useIndonesiaMap untuk menangani peta
+  const { mapService } = useIndonesiaMap(mapContainerId, locations, fullConfig, onError);
 
-  const { mapService } = useIndonesiaMap(mapContainerId, locations, config);
-
+  // Fungsi untuk menangani zoom ke lokasi user
   const handleLocationSuccess = useCallback((latitude: number, longitude: number) => {
-    console.log(`Map will zoom to: ${latitude}, ${longitude}`);
+    console.log("Zooming to user location: ${latitude}, ${longitude}");
     
     if (mapService) {
-      // Use the coordinates to update the map
       mapService.zoomToLocation(latitude, longitude);
     }
   }, [mapService]);
 
-  const [showPermissionPopup, setShowPermissionPopup] = useState(false);
-  const [locationError, setLocationError] = useState<LocationError | null>(null);
-
+  // Gunakan useUserLocation untuk menangani izin lokasi
   const { handleAllow, handleDeny } = useUserLocation(
     setShowPermissionPopup,
     setLocationError,
     handleLocationSuccess,
     () => setLocationError({ type: "PERMISSION_DENIED", message: "Anda menolak izin lokasi." })
-  );
-  
-  // Wrap the onError callback to prevent repeated initialization after error
-  const handleError = (message: string) => {
-    if (!errorTriggered) {
-      setErrorTriggered(true);
-      onError(message);
-    }
-  };
-  
-  // Reset error flag when locations or config changes
-  useEffect(() => {
-    // Skip resetting on first render
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    
-    // Only reset if we have actual data
-    if (locations && locations.length > 0) {
-      setErrorTriggered(false);
-    }
-  }, [locations, config]);
-
-  // Only initialize map if no errors have been triggered
-  useIndonesiaMap(
-    mapContainerId,
-    errorTriggered ? [] : locations, // Empty locations when error is triggered
-    fullConfig,
-    handleError
   );
 
   // Return statement exactly as before

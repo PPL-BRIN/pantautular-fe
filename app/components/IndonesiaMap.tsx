@@ -1,6 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useUserLocation } from "../../hooks/useUserLocation";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { MapLocation, MapConfig } from "../../types";
+import { LocationError } from "../../services/LocationService";
+import LocationButton from "./LocationButton";
+import LocationPermissionPopup from "./LocationPermissionPopup";
+import LocationErrorPopup from "./LocationErrorPopup"
 
 interface IndonesiaMapProps {
   locations: MapLocation[];
@@ -27,6 +32,28 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
     centerPoint: config.centerPoint ?? { longitude: 113.9213, latitude: 0.7893 },
   };
 
+
+  const { mapService } = useIndonesiaMap(mapContainerId, locations, config);
+
+  const handleLocationSuccess = useCallback((latitude: number, longitude: number) => {
+    console.log(`Map will zoom to: ${latitude}, ${longitude}`);
+    
+    if (mapService) {
+      // Use the coordinates to update the map
+      mapService.zoomToLocation(latitude, longitude);
+    }
+  }, [mapService]);
+
+  const [showPermissionPopup, setShowPermissionPopup] = useState(false);
+  const [locationError, setLocationError] = useState<LocationError | null>(null);
+
+  const { handleAllow, handleDeny } = useUserLocation(
+    setShowPermissionPopup,
+    setLocationError,
+    handleLocationSuccess,
+    () => setLocationError({ type: "PERMISSION_DENIED", message: "Anda menolak izin lokasi." })
+  );
+  
   // Wrap the onError callback to prevent repeated initialization after error
   const handleError = (message: string) => {
     if (!errorTriggered) {
@@ -59,10 +86,43 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
 
   // Return statement exactly as before
   return (
-    <div
-      id={mapContainerId}
-      data-testid="map-container"
-      style={{ width, height }}
-    />
+    <div className="relative w-full h-full"> {/* Keep relative for absolute children */}
+      <div
+        id={mapContainerId}
+        data-testid="map-container"
+        style={{ 
+          width, 
+          height,
+          position: "absolute", // Make map container fill the parent
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0
+        }}
+      />
+      
+      {/* Location Button - still works with absolute positioning */}
+      <LocationButton 
+        onClick={() => setShowPermissionPopup(true)}
+        className="absolute top-4 left-4 z-10"
+      />
+      
+      {/* Popups remain the same */}
+      <LocationPermissionPopup
+        open={showPermissionPopup}
+        onClose={() => setShowPermissionPopup(false)}
+        onAllow={handleAllow}
+        onDeny={handleDeny}
+      />
+      
+      {/* Error Popup */}
+      {locationError && (
+        <LocationErrorPopup
+          open={!!locationError}
+          errorType={locationError.type}
+          onOpenChange={() => setLocationError(null)}
+        />
+      )}
+    </div>
   );
 };

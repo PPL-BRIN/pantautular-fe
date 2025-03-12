@@ -9,6 +9,7 @@ export class MapChartService {
   private root: am5.Root | null = null;
   private chart: am5map.MapChart | null = null;
   private pointSeries: am5map.ClusteredPointSeries | null = null;
+  private locationSeries: am5map.MapPointSeries | null = null;
   private readonly onError: ((message: string) => void) | null = null;
 
   constructor(onError?: (message: string) => void) {
@@ -46,17 +47,17 @@ export class MapChartService {
 
   private setupZoomControl(): void {
     if (!this.chart || !this.root) return;
-
-    let zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(this.root, {}));
+    const root = this.root;
+    const zoomControl = this.chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
     zoomControl.homeButton.set("visible", true);
   }
 
   private setupPolygonSeries(): void {
     if (!this.chart || !this.root) return;
-
     try {
-      let polygonSeries = this.chart.series.push(
-        am5map.MapPolygonSeries.new(this.root, {
+      const root = this.root;
+      const polygonSeries = this.chart.series.push(
+        am5map.MapPolygonSeries.new(root, {
           geoJSON: am5geodata_indonesiaLow,
           exclude: ["AQ"],
         })
@@ -77,10 +78,10 @@ export class MapChartService {
 
   private setupPointSeries(): void {
     if (!this.chart || !this.root) return;
-
     try {
+      const root = this.root;
       this.pointSeries = this.chart.series.push(
-        am5map.ClusteredPointSeries.new(this.root, {
+        am5map.ClusteredPointSeries.new(root, {
           groupIdField: "city",
           minDistance: 30,
           scatterDistance: 10,
@@ -99,25 +100,25 @@ export class MapChartService {
 
   private setupClusterBullet(): void {
     if (!this.pointSeries || !this.root) return;
-  
     try {
-      this.pointSeries.set("clusteredBullet", (root) => {
-        let container = am5.Container.new(root, {
+      const root = this.root;
+      this.pointSeries.set("clusteredBullet", (root: am5.Root) => {
+        const container = am5.Container.new(root, {
           cursorOverStyle: "pointer",
         });
-  
+
         container.children.push(
           am5.Circle.new(root, { radius: 8, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-  
+
         container.children.push(
           am5.Circle.new(root, { radius: 12, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-  
+
         container.children.push(
           am5.Circle.new(root, { radius: 16, fillOpacity: 0.3, tooltipY: 0, fill: am5.color(0xfc0339) })
         );
-  
+
         container.children.push(
           am5.Label.new(root, {
             centerX: am5.p50,
@@ -128,11 +129,13 @@ export class MapChartService {
             text: "{value}",
           })
         );
-  
+
         container.events.on("click", (e) => {
-          this.pointSeries?.zoomToCluster(e.target.dataItem);
+          if (e.target.dataItem) {
+            this.pointSeries?.zoomToCluster(e.target.dataItem as am5.DataItem<any>);
+          }
         });
-  
+
         return am5.Bullet.new(root, {
           sprite: container,
         });
@@ -144,52 +147,51 @@ export class MapChartService {
   }
 
   private setupRegularBullet(): void {
-  if (!this.pointSeries || !this.root) return;
+    if (!this.pointSeries || !this.root) return;
+    try {
+      const root = this.root;
+      const tooltipData = {
+        id: "{id}",
+        location: "{city}",
+        summary: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo",
+        gender: "Lorem",
+        age: "0",
+        alertLevel: "Lorem",
+        relatedSearch: "Lorem ipsum dolor sit",
+        source: "https://www.detik.com",
+      };
 
-  try {
-    const tooltipData = {
-      id: "{id}",
-      location: "{city}",
-      summary: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo",
-      gender: "Lorem",
-      age: "0",
-      alertLevel: "Lorem",
-      relatedSearch: "Lorem ipsum dolor sit",
-      source: "https://www.detik.com",
-    };
+      const tooltipHTML = getTooltipHTML(tooltipData);
 
-    const tooltipHTML = getTooltipHTML(tooltipData);
-
-    this.pointSeries.bullets.push(() =>
-      am5.Bullet.new(this.root, {
-        sprite: am5.Circle.new(this.root, {
-          radius: 6,
-          tooltipY: 0,
-          fill: am5.color(0xfc0339),
-          cursorOverStyle: "pointer",
-          showTooltipOn: "click",
-          tooltipHTML: tooltipHTML,
-        }),
-      })
-    );
-  } catch (error) {
-    console.error("Error setting up regular bullet:", error);
-    if (this.onError) this.onError("Error setting up regular bullet.");
-  }
+      this.pointSeries.bullets.push(() =>
+        am5.Bullet.new(root, {
+          sprite: am5.Circle.new(root, {
+            radius: 6,
+            tooltipY: 0,
+            fill: am5.color(0xfc0339),
+            cursorOverStyle: "pointer",
+            showTooltipOn: "click",
+            tooltipHTML: tooltipHTML,
+          }),
+        })
+      );
+    } catch (error) {
+      console.error("Error setting up regular bullet:", error);
+      if (this.onError) this.onError("Error setting up regular bullet.");
+    }
   }
 
   populateLocations(locations: MapLocation[]): void {
     if (!this.pointSeries) return;
-
     try {
       locations.forEach(location => {
         this.pointSeries!.data.push({
-          geometry: { 
-            type: "Point", 
+          geometry: {
+            type: "Point",
             coordinates: [
-              parseFloat(location.location__longitude), 
-              parseFloat(location.location__latitude),
-            ] 
+              location.location__longitude,
+              location.location__latitude,
+            ]
           },
           city: location.city,
           id: location.id,
@@ -197,6 +199,64 @@ export class MapChartService {
       });
     } catch (error) {
       console.error("Error populating locations:", error);
+    }
+  }
+
+  createLocationMarker(): void {
+    if (!this.chart || !this.root) return;
+    
+    this.locationSeries = this.chart.series.push(
+      am5map.MapPointSeries.new(this.root, {})
+    );
+
+    this.locationSeries.bullets.push(() =>
+      am5.Bullet.new(this.root, {
+        sprite: am5.Circle.new(this.root, {
+          radius: 8,
+          fill: am5.color(0x2196F3),
+          strokeWidth: 2,
+          stroke: am5.color(0xFFFFFF),
+        }),
+      })
+    );
+
+    this.locationSeries.bullets.push(() =>
+      am5.Bullet.new(this.root, {
+        sprite: am5.Circle.new(this.root, {
+          radius: 12,
+          fill: am5.color(0x2196F3),
+          fillOpacity: 0.3,
+        }),
+      })
+    );
+  }
+
+  zoomToLocation(latitude: number, longitude: number): void {
+    if (!this.chart || !this.root) return;
+    
+    // Create location marker series if it doesn't exist yet
+    if (!this.locationSeries) {
+      this.createLocationMarker();
+    }
+    
+    try {
+      // Clear previous location marker if any
+      this.locationSeries!.data.clear();
+      
+      // Add new location marker
+      this.locationSeries!.data.push({
+        geometry: {
+          type: "Point",
+          coordinates: [longitude, latitude]
+        },
+        title: "Your Location"
+      });
+
+      // Zoom to the location
+      this.chart.zoomToGeoPoint({ longitude, latitude }, 32, true);
+    } catch (error) {
+      console.error("Failed to zoom to location: ", error);
+      throw error;
     }
   }
 

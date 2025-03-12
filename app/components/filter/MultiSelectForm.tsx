@@ -32,6 +32,7 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
   const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingFilters, setIsLoadingFilters] = useState(false);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     diseases: [],
     locations: [],
@@ -73,6 +74,7 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
 
   useEffect(() => {
     async function fetchFilters() {
+      setIsLoadingFilters(true);
       try {
         const response = await fetch(apiFilterOptions, {
           method: "GET",
@@ -89,13 +91,13 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
             locations: [{ value: "all", label: "Pilih Semua" }, ...responseFilters.data.locations],
             news: [{ value: "all", label: "Pilih Semua" }, ...responseFilters.data.news],
           });
-          alert("Data fetched successfully!");
         } else {
-          alert("Failed to fetch data");
+          console.error("Failed to fetch filter options");
         }
       } catch (error) {
-        console.error(error);
-        alert("Error fetching filter data");
+        console.error("Error fetching filter data", error);
+      } finally {
+        setIsLoadingFilters(false);
       }
     }
 
@@ -124,7 +126,8 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
       }
     } else {
       setSelectedLocations(newValue as SelectOption[]);
-    }  };
+    }  
+  };
 
   const handleNewsChange = (newValue: MultiValue<SelectOption>) => {
     if (newValue.some((option) => option.value === "all")) {
@@ -135,7 +138,19 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
       }
     } else {
       setSelectedNews(newValue as SelectOption[]);
-    }  };
+    }  
+  };
+
+  if (isLoadingFilters) {
+    return (
+      <div className="max-w-lg mx-auto mt-10 p-4">
+        <div className="flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p>Loading filter options...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto mt-10">
@@ -236,7 +251,7 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
             className="w-1/4 bg-blue-500 text-white py-2 rounded-md"
             disabled={isSubmitting}
             >
-            Kirim Data
+            {isSubmitting ? "Mengirim..." : "Kirim Data"}
           </button>
         </div>
       </form>

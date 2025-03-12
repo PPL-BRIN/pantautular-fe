@@ -20,11 +20,16 @@ interface FilterOptions {
 interface MultiSelectFormProps {
   onSubmitFilterState?: (filterState: FilterState) => void;
   apiFilterOptions?: string;
+  initialFilterState?: FilterState | null;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions = `${API_BASE_URL}/api/filters/` }: MultiSelectFormProps) {
+export default function MultiSelectForm({
+  onSubmitFilterState, 
+  apiFilterOptions = `${API_BASE_URL}/api/filters/`, 
+  initialFilterState 
+}: MultiSelectFormProps) {
   const [selectedDiseases, setSelectedDiseases] = useState<SelectOption[]>([]);
   const [selectedNews, setSelectedNews] = useState<SelectOption[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<SelectOption[]>([]);
@@ -86,11 +91,40 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
         
         if (response.ok) {
           const responseFilters = await response.json();
-          setFilterOptions({
+          const options = {
             diseases: [{ value: "all", label: "Pilih Semua" }, ...responseFilters.data.diseases],
             locations: [{ value: "all", label: "Pilih Semua" }, ...responseFilters.data.locations],
             news: [{ value: "all", label: "Pilih Semua" }, ...responseFilters.data.news],
-          });
+          };
+          setFilterOptions(options);
+          
+          // Populate form with initialFilterState if available
+          if (initialFilterState) {
+            setSelectedDiseases(
+              initialFilterState.diseases.map(disease => 
+                options.diseases.find(option => option.value === disease) || 
+                { value: disease, label: disease }
+              )
+            );
+            
+            setSelectedLocations(
+              initialFilterState.locations.map(location => 
+                options.locations.find(option => option.value === location) || 
+                { value: location, label: location }
+              )
+            );
+            
+            setSelectedNews(
+              initialFilterState.portals.map(portal => 
+                options.news.find(option => option.value === portal) || 
+                { value: portal, label: portal }
+              )
+            );
+            
+            setSelectedLevelOfAlertness(initialFilterState.level_of_alertness || 0);
+            setSelectedStartDate(initialFilterState.start_date ? new Date(initialFilterState.start_date) : null);
+            setSelectedEndDate(initialFilterState.end_date ? new Date(initialFilterState.end_date) : null);
+          }
         } else {
           console.error("Failed to fetch filter options");
         }
@@ -102,7 +136,7 @@ export default function MultiSelectForm({onSubmitFilterState, apiFilterOptions =
     }
 
     fetchFilters();
-  }, [apiFilterOptions]);
+  }, [apiFilterOptions, initialFilterState]);
 
   // Handle onChange for Select components
   const handleDiseaseChange = (newValue: MultiValue<SelectOption>) => {

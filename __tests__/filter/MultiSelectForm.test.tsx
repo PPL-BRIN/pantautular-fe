@@ -110,10 +110,12 @@ describe("MultiSelectForm Component", () => {
     test("renders the form correctly and fetches filter options", async () => {
       render(<MultiSelectForm />);
       
+      // First wait for loading spinner to disappear
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
       
+      // Then check for form elements
       expect(screen.getByText("Jenis Penyakit")).toBeInTheDocument();
       expect(screen.getByText("Lokasi")).toBeInTheDocument();
       expect(screen.getByText("Sumber Berita")).toBeInTheDocument();
@@ -127,7 +129,7 @@ describe("MultiSelectForm Component", () => {
       
       // Wait for filter options to load
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
 
       // Select disease
@@ -186,9 +188,9 @@ describe("MultiSelectForm Component", () => {
       const mockOnSubmitFilterState = jest.fn();
       render(<MultiSelectForm onSubmitFilterState={mockOnSubmitFilterState} />);
       
-      // Wait for filter options to load
+      // Wait for loading spinner to disappear first
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
 
       // Set values first
@@ -243,9 +245,12 @@ describe("MultiSelectForm Component", () => {
 
       render(<MultiSelectForm />);
       
+      // Instead of checking for alerts, we verify loading state disappears
       await waitFor(() => {
-        expect(global.alert).toHaveBeenCalledWith("Failed to fetch data");
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
+      
+      expect(console.error).toHaveBeenCalledWith("Failed to fetch filter options");
     });
     
     test("handles fetch error", async () => {
@@ -256,8 +261,10 @@ describe("MultiSelectForm Component", () => {
       render(<MultiSelectForm />);
       
       await waitFor(() => {
-        expect(global.alert).toHaveBeenCalledWith("Error fetching filter data");
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
+      
+      expect(console.error).toHaveBeenCalled();
     });
 
     test("handles submission error", async () => {
@@ -269,9 +276,9 @@ describe("MultiSelectForm Component", () => {
       
       render(<MultiSelectForm onSubmitFilterState={mockOnSubmitFilterState} />);
       
-      // Wait for filter options to load
+      // Wait for loading spinner to disappear
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
 
       // Submit form
@@ -281,6 +288,31 @@ describe("MultiSelectForm Component", () => {
       });
 
       expect(console.error).toHaveBeenCalled();
+    });
+  });
+
+  // Add a new test for loading state
+  test("shows loading state when fetching filter options", async () => {
+    // Delay the mock response
+    (global.fetch as jest.Mock).mockImplementationOnce(() =>
+      new Promise(resolve => 
+        setTimeout(() => 
+          resolve({
+            ok: true,
+            json: () => Promise.resolve(mockFilterOptions)
+          })
+        , 100)
+      )
+    );
+
+    render(<MultiSelectForm />);
+    
+    // Check that loading state is displayed
+    expect(screen.getByText("Loading filter options...")).toBeInTheDocument();
+    
+    // Wait for loading to finish
+    await waitFor(() => {
+      expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
     });
   });
 
@@ -347,9 +379,9 @@ describe("MultiSelectForm Component", () => {
     test("handles 'Select All' option for locations", async () => {
       render(<MultiSelectForm />);
       
-      // Wait for filter options to load
+      // Wait for loading spinner to disappear
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
 
       const locationSelect = screen.getAllByTestId("select")[1];
@@ -370,7 +402,7 @@ describe("MultiSelectForm Component", () => {
       
       // Wait for filter options to load
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
 
       const newsSelect = screen.getAllByTestId("select")[2];
@@ -389,9 +421,9 @@ describe("MultiSelectForm Component", () => {
     test("handles date selection edge cases", async () => {
       render(<MultiSelectForm />);
       
-      // Wait for filter options to load
+      // Wait for loading spinner to disappear
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
 
       const startDatePicker = screen.getByTestId("date-picker-Mulai");
@@ -441,7 +473,7 @@ describe("MultiSelectForm Component", () => {
       
       // Wait for filter options to load
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Loading filter options...")).not.toBeInTheDocument();
       });
 
       // Submit form without making any selections

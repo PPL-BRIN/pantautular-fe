@@ -11,7 +11,15 @@ import NoDataPopup from "../components/NoDataPopup";
 import MultiSelectForm, { FilterState } from "../components/filter/MultiSelectForm";
 
 export default function MapPage() {
-  const [filterState, setFilterState] = useState<FilterState | null>(null);
+  const defaultFilterState: FilterState = {
+    diseases: [],
+    locations: [],
+    level_of_alertness: 0,
+    portals: [],
+    start_date: null,
+    end_date: null,
+  };
+  const [filterState, setFilterState] = useState<FilterState>(defaultFilterState);
   const { data: locations, isLoading, error } = useLocations(filterState);
   const { error: mapError, setError: setMapError, clearError } = useMapError();
   const [isEmptyData, setIsEmptyData] = useState(false);

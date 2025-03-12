@@ -9,7 +9,7 @@ export class MapChartService {
   private root: am5.Root | null = null;
   private chart: am5map.MapChart | null = null;
   private pointSeries: am5map.ClusteredPointSeries | null = null;
-  private onError: ((message: string) => void) | null = null;
+  private readonly onError: ((message: string) => void) | null = null;
 
   constructor(onError?: (message: string) => void) {
     this.onError = onError || null;

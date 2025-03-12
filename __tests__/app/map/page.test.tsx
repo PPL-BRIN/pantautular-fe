@@ -53,7 +53,7 @@ describe("MapPage Component", () => {
   const mockClearError = jest.fn();
 
   // Setup helper functions to reduce duplication
-  const renderComponent = (useLocationsMock: { isLoading: boolean; error: Error | null; data: any[] | null }) => {
+  const renderComponent = (useLocationsMock: { isLoading: boolean; error: Error | null; data: any[] | null | undefined }) => {
     jest.clearAllMocks();
     mockNoDataPopupOnClose = null;
     
@@ -77,16 +77,18 @@ describe("MapPage Component", () => {
   };
 
   test("should show loading state", () => {
-    renderComponent({ isLoading: true, error: null, data: null });
+    renderComponent({ isLoading: true, error: null, data: [] });
     expect(screen.getByText("Loading map data...")).toBeInTheDocument();
   });
 
-  test.each([
-    [new Error("Server error"), "map-error-popup"],
-    [new Error("No case locations found"), "no-data-popup"],
-  ])("should handle error states correctly", async (error, testId) => {
-    renderComponent({ isLoading: false, error, data: null });
-    await waitFor(() => expectComponentToBePresent(testId));
+  test("should show map error popup when server error occurs", async () => {
+    renderComponent({ isLoading: false, error: new Error("Server error"), data: [] });
+    await waitFor(() => expectComponentToBePresent("map-error-popup"));
+  });
+
+  test("should show no data popup when no locations found", async () => {
+    renderComponent({ isLoading: false, error: null, data: [] });
+    await waitFor(() => expectComponentToBePresent("no-data-popup"));
   });
 
   test("should render map when locations data is available", () => {
@@ -107,38 +109,64 @@ describe("MapPage Component", () => {
     expect(mockSetMapError).toHaveBeenCalledWith("Map loading failed test");
   });
 
-  // New test for empty locations array (lines 31-33)
   test("should show NoDataPopup when locations array is empty", async () => {
-    renderComponent({
-      isLoading: false,
-      error: null,
-      data: [], // Empty array
-    });
+    renderComponent({ isLoading: false, error: null, data: [] });
 
     await waitFor(() => expectComponentToBePresent("no-data-popup"));
   });
 
-  // New test for NoDataPopup onClose handler (line 53)
   test("should close NoDataPopup when close button is clicked", async () => {
-    // Render with empty data to show the popup
+    renderComponent({ isLoading: false, error: null, data: [] });
+
+    await waitFor(() => expectComponentToBePresent("no-data-popup"));
+    
+    fireEvent.click(screen.getByTestId("close-no-data-popup"));
+    
+    await waitFor(() => expectComponentToBeAbsent("no-data-popup"));
+  });
+
+  test("should show NoDataPopup when error message includes 'No case locations found'", async () => {
+    // Ensure mocks are cleared
+    jest.clearAllMocks();
+    
+    // Setup specific mock return values
+    (useLocations as jest.Mock).mockReturnValue({
+      isLoading: false,
+      error: new Error("No case locations found"),
+      data: [],
+    });
+    
+    (useMapError as jest.Mock).mockReturnValue({
+      error: null, // Initially no map error
+      setError: mockSetMapError,
+      clearError: mockClearError,
+    });
+  
+    render(<MapPage />);
+  
+    await waitFor(() => {
+      const noDataPopup = screen.getByTestId("no-data-popup");
+      expect(noDataPopup).toBeInTheDocument();
+      expect(screen.getByText("Data Tidak Ditemukan")).toBeInTheDocument();
+      expect(screen.queryByTestId("map-error-popup")).not.toBeInTheDocument();
+    }, { timeout: 2000 }); // Increased timeout if needed
+  });
+
+  test("should render IndonesiaMap with empty array when locations is undefined", async () => {
     renderComponent({
       isLoading: false,
       error: null,
-      data: [],
+      data: undefined, // Explicitly testing the undefined case
     });
-
-    // Verify popup is shown
-    await waitFor(() => expectComponentToBePresent("no-data-popup"));
-    
-    // Click the close button
-    if (mockNoDataPopupOnClose) {
-      mockNoDataPopupOnClose();
-    } else {
-      fireEvent.click(screen.getByTestId("close-no-data-popup"));
-    }
-    
-    // Verify popup is closed - we need to re-render to see the effect
-    // Re-render the component to see the state change
-    await waitFor(() => expectComponentToBeAbsent("no-data-popup"));
+  
+    await waitFor(() => {
+      expectComponentToBePresent("map-container");
+      expectComponentToBeAbsent("no-data-popup"); // Shouldn't show no data yet
+      expectComponentToBeAbsent("map-error-popup");
+      expect(mockSetMapError).toHaveBeenCalledWith("Map loading failed test"); // From MockIndonesiaMap
+    });
+  
+    // Verify the second useEffect doesn't trigger isEmptyData yet
+    expect(screen.queryByText("Data Tidak Ditemukan")).not.toBeInTheDocument();
   });
 });

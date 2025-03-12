@@ -24,8 +24,8 @@ export const useIndonesiaMap = (
 
     const initializeMap = async () => {
       try {
-        await mapService.initialize(containerId, memoizedConfig); // Pastikan menangani error async
-        await mapService.populateLocations(memoizedLocations);
+        mapService.initialize(containerId, memoizedConfig); // Pastikan menangani error async
+        mapService.populateLocations(memoizedLocations);
       } catch (error) {
         console.error("Error in useIndonesiaMap:", error);
         onError("Failed to load the map. Please try again.");

@@ -7,7 +7,7 @@ import { useMapError } from "../../hooks/useMapError"; // Hook untuk menangani e
 import { defaultMapConfig } from "../../data/indonesiaLocations";
 import Navbar from "../components/Navbar";
 import MapLoadErrorPopup from "../components/MapLoadErrorPopup"; // Komponen popup error
-import NoDataPopup from "../components/NoDataPopup"; // Komponen popup data tidak ditemukan
+import NoDataPopup from "../components/NoDataPopup"; 
 
 export default function MapPage() {
   const { data: locations, isLoading, error } = useLocations();
@@ -16,23 +16,19 @@ export default function MapPage() {
 
   useEffect(() => {
     if (error) {
-      if (
-        error.message.includes("No case locations found matching the filters") ||
-        error.message.includes("No case locations found")
-      ) {
-        setIsEmptyData(true); 
+      if (error.message.includes("No case locations found")) {
+        setIsEmptyData(true);
       } else {
-        setMapError(error.message); // Tampilkan MapLoadErrorPopup jika error lain
+        setMapError(error.message);
       }
     }
   }, [error, setMapError]);
 
   useEffect(() => {
-    if (locations && locations.length === 0 && !isLoading) {
-      console.log(locations.length)
+    if (!mapError && !error && locations != null && locations.length === 0 && !isLoading) {
       setIsEmptyData(true);
     }
-  }, [locations]);
+  }, [locations, isLoading, mapError, error]);
 
   if (isLoading) {
     return (
@@ -45,14 +41,20 @@ export default function MapPage() {
     );
   }
 
+  let popup = null;
+  if (mapError) {
+    popup = <MapLoadErrorPopup message={mapError} onClose={clearError} />;
+  } else if (isEmptyData) {
+    popup = <NoDataPopup onClose={() => setIsEmptyData(false)} />;
+  }
+
   return (
     <>
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
-        {mapError && <MapLoadErrorPopup message={mapError} onClose={clearError} />}
-        {isEmptyData && <NoDataPopup onClose={() => setIsEmptyData(false)} />}
+        {popup}
         <IndonesiaMap
-          locations={locations}
+          locations={locations || []}
           config={defaultMapConfig}
           width="100%"
           height="100%"

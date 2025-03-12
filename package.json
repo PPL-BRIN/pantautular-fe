@@ -15,9 +15,12 @@
     "@amcharts/amcharts5-fonts": "^5.0.1",
     "@amcharts/amcharts5-geodata": "^5.1.4",
     "lucide-react": "^0.476.0",
+    "msw": "^2.7.3",
     "next": "15.1.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-datepicker": "^8.2.0",
+    "react-dom": "^19.0.0",
+    "react-select": "^5.10.1"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",

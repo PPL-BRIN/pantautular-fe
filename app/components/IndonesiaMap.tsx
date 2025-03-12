@@ -3,9 +3,14 @@ import { useUserLocation } from "../../hooks/useUserLocation";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { MapLocation, MapConfig } from "../../types";
 import { LocationError } from "../../services/LocationService";
-import LocationButton from "./LocationButton";
+// import LocationButton from "./LocationButton";
 import LocationPermissionPopup from "./LocationPermissionPopup";
 import LocationErrorPopup from "./LocationErrorPopup"
+import DashboardButton from "./floating_buttons/DashboardButton";
+import WarningButton from "./floating_buttons/WarningButton";
+import FilterButton from "./floating_buttons/FilterButton";
+import LocationButton from "./floating_buttons/LocationButton";
+import {MapButton} from "./floating_buttons/MapButton";
 
 interface IndonesiaMapProps {
   locations: MapLocation[];
@@ -101,11 +106,15 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
         }}
       />
       
-      {/* Location Button - still works with absolute positioning */}
-      <LocationButton 
-        onClick={() => setShowPermissionPopup(true)}
-        className="absolute top-4 left-4 z-10"
-      />
+      <div className="absolute top-4 left-4 flex gap-4">
+        <FilterButton />
+        <LocationButton onClick={() => setShowPermissionPopup(true)}/>
+        <WarningButton />
+      </div>
+      <div className="absolute top-4 right-5 flex gap-2">
+        <DashboardButton />
+        <MapButton />
+      </div>
       
       {/* Popups remain the same */}
       <LocationPermissionPopup

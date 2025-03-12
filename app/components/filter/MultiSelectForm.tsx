@@ -140,7 +140,7 @@ export default function MultiSelectForm({
     }
 
     fetchFilters();
-  }, [apiFilterOptions, initialFilterState]);
+  }, [apiFilterOptions, initialFilterState, onError]);
 
   // Handle onChange for Select components
   const handleDiseaseChange = (newValue: MultiValue<SelectOption>) => {

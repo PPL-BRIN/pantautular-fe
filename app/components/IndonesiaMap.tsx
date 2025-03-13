@@ -26,8 +26,6 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   height = "100vh",
   width = "100vw",
   onError,
-  isFilterVisible,
-  onFilterToggle,
 }) => {
   const mapContainerId = "chartdiv";
   const [showPermissionPopup, setShowPermissionPopup] = useState(false);

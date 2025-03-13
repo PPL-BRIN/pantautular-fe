@@ -62,7 +62,7 @@ export default function MapPage() {
     <>
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
-        <div className="absolute top-4 left-4 bg-white shadow-lg rounded-lg p-4 z-10 max-w-lg">
+        <div className="absolute top-16 left-4 bg-white shadow-lg rounded-lg p-4 z-10 max-w-lg">
           <MultiSelectForm
             onSubmitFilterState={setFilterState}
             initialFilterState={filterState}

@@ -1,44 +1,62 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapChartService } from "../services/mapChartService";
 import { MapLocation, MapConfig } from "../types";
 
-export const useIndonesiaMap = (
-  containerId: string,
-  locations: MapLocation[],
-  config: MapConfig
-) => {
+export function useIndonesiaMap(
+  containerId: string, 
+  locations: MapLocation[], 
+  config: MapConfig, 
+  onError: (message: string) => void,
+  initialized = false
+) {
   const mapServiceRef = useRef<MapChartService | null>(null);
-
-  // Memoize locations and config to prevent unnecessary re-renders
-  const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
-  const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
-
+  const [mapService, setMapService] = useState<MapChartService | null>(null);
+  const locationsRef = useRef<MapLocation[]>(locations);
+  
+  // Set up the map once
   useEffect(() => {
-    // Dispose of the existing service if it exists
-    if (mapServiceRef.current) {
-      mapServiceRef.current.dispose();
-      mapServiceRef.current = null;
+    // If the map is already initialized and we have a service reference, don't reinitialize
+    if (initialized && mapServiceRef.current) {
+      return;
     }
-
     
-    // Create a new map service
-    mapServiceRef.current = new MapChartService();
-
-    // Initialize the chart
-    mapServiceRef.current.initialize(containerId, memoizedConfig);
-
-    // Add location data
-    mapServiceRef.current.populateLocations(memoizedLocations);
+    const service = new MapChartService(onError);
     
-
-    // Cleanup function
+    try {
+      service.initialize(containerId, config);
+      service.populateLocations(locations);
+      mapServiceRef.current = service;
+      setMapService(service);
+    } catch (error) {
+      console.error("Failed to initialize map:", error);
+      onError("Failed to initialize the map. Please try again.");
+    }
+    
     return () => {
-      if (mapServiceRef.current) {
+      if (!initialized && mapServiceRef.current) {
         mapServiceRef.current.dispose();
         mapServiceRef.current = null;
       }
     };
-  }, [containerId, memoizedLocations, memoizedConfig]);
-
+  }, [containerId, config, initialized, onError]);
+  
+  // Update locations when they change, without reinitializing the map
+  useEffect(() => {
+    // Skip if locations haven't changed
+    if (!mapServiceRef.current || locations === locationsRef.current) {
+      return;
+    }
+    
+    // Update reference
+    locationsRef.current = locations;
+    
+    // Clear and repopulate locations
+    try {
+      mapServiceRef.current.populateLocations(locations);
+    } catch (error) {
+      console.error("Failed to update map locations:", error);
+    }
+  }, [locations]);
+  
   return { mapService: mapServiceRef.current };
-};
+}

@@ -89,12 +89,14 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
         }}
       />
       
-      <div className="absolute top-4 left-32 z-20 flex gap-3">
+      {/* Changed from absolute to fixed positioning with greater top value to account for navbar */}
+      <div className="fixed top-[calc(5rem+1rem)] left-32 z-20 flex gap-3">
         <LocationButton onClick={() => setShowPermissionPopup(true)} />
         <WarningButton />
       </div>
       
-      <div className="absolute top-4 right-5 flex gap-2">
+      {/* Changed from absolute to fixed positioning with greater top value to account for navbar */}
+      <div className="fixed top-[calc(5rem+1rem)] right-5 z-20 flex gap-2">
         <DashboardButton />
         <MapButton />
       </div>

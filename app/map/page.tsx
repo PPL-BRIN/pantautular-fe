@@ -63,7 +63,8 @@ export default function MapPage() {
     <>
       <Navbar />
       <div className="w-full h-[calc(100vh-5rem)] relative">
-        <div className="absolute top-4 left-4 z-20">
+        {/* Changed from absolute to fixed positioning with greater top value to account for navbar */}
+        <div className="fixed top-[calc(5rem+1rem)] left-4 z-30">
           <FilterButton 
             onClick={toggleFilterVisibility}
             isActive={isFilterVisible}
@@ -72,7 +73,7 @@ export default function MapPage() {
 
         {/* Conditionally render the filter form */}
         {isFilterVisible && (
-          <div className="absolute top-20 left-4 bg-white shadow-lg rounded-lg p-4 z-10 max-w-lg">
+          <div className="fixed top-[calc(5rem+5rem)] left-4 bg-white shadow-lg rounded-lg p-4 z-20 max-w-lg overflow-auto max-h-[70vh]">
             <MultiSelectForm
               onSubmitFilterState={(state) => {
                 setFilterState(state);

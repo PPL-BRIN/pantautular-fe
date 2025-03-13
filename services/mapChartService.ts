@@ -184,6 +184,10 @@ export class MapChartService {
   populateLocations(locations: MapLocation[]): void {
     if (!this.pointSeries) return;
     
+    // Clear existing data first
+    this.pointSeries.data.clear();
+    
+    // Add new locations
     locations.forEach(location => {
       this.pointSeries!.data.push({
         geometry: { 

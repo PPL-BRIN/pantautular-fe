@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useUserLocation } from "../../hooks/useUserLocation";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { MapLocation, MapConfig } from "../../types";
@@ -32,14 +32,29 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   const mapContainerId = "chartdiv";
   const [showPermissionPopup, setShowPermissionPopup] = useState(false);
   const [locationError, setLocationError] = useState<LocationError | null>(null);
-
+  const mapInitialized = useRef(false);
+  
   const fullConfig: MapConfig = {
     zoomLevel: config.zoomLevel ?? 2,
     centerPoint: config.centerPoint ?? { longitude: 113.9213, latitude: 0.7893 },
   };
-
-  // Gunakan useIndonesiaMap untuk menangani peta
-  const { mapService } = useIndonesiaMap(mapContainerId, locations, fullConfig, onError);
+  
+  // Custom dependency array that excludes isFilterVisible to prevent map re-rendering
+  // when only the filter visibility changes
+  const { mapService } = useIndonesiaMap(
+    mapContainerId, 
+    locations, 
+    fullConfig, 
+    onError,
+    mapInitialized.current
+  );
+  
+  // Set mapInitialized to true after first render
+  useEffect(() => {
+    if (!mapInitialized.current && mapService) {
+      mapInitialized.current = true;
+    }
+  }, [mapService]);
 
   // Fungsi untuk menangani zoom ke lokasi user
   const handleLocationSuccess = useCallback((latitude: number, longitude: number) => {

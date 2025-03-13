@@ -3,12 +3,10 @@ import { useUserLocation } from "../../hooks/useUserLocation";
 import { useIndonesiaMap } from "../../hooks/useIndonesiaMap";
 import { MapLocation, MapConfig } from "../../types";
 import { LocationError } from "../../services/LocationService";
-// import LocationButton from "./LocationButton";
 import LocationPermissionPopup from "./LocationPermissionPopup";
 import LocationErrorPopup from "./LocationErrorPopup"
 import DashboardButton from "./floating_buttons/DashboardButton";
 import WarningButton from "./floating_buttons/WarningButton";
-import FilterButton from "./floating_buttons/FilterButton";
 import LocationButton from "./floating_buttons/LocationButton";
 import {MapButton} from "./floating_buttons/MapButton";
 
@@ -18,6 +16,8 @@ interface IndonesiaMapProps {
   height?: string;
   width?: string;
   onError: (message: string) => void;
+  isFilterVisible?: boolean;
+  onFilterToggle?: () => void;
 }
 
 export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
@@ -26,6 +26,8 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   height = "100vh",
   width = "100vw",
   onError,
+  isFilterVisible,
+  onFilterToggle,
 }) => {
   const mapContainerId = "chartdiv";
   const [showPermissionPopup, setShowPermissionPopup] = useState(false);
@@ -41,7 +43,7 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
 
   // Fungsi untuk menangani zoom ke lokasi user
   const handleLocationSuccess = useCallback((latitude: number, longitude: number) => {
-    console.log("Zooming to user location: ${latitude}, ${longitude}");
+    console.log(`Zooming to user location: ${latitude}, ${longitude}`);
     
     if (mapService) {
       mapService.zoomToLocation(latitude, longitude);
@@ -72,11 +74,11 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
         }}
       />
       
-      <div className="absolute top-4 left-4 flex gap-4">
-        <FilterButton />
-        <LocationButton onClick={() => setShowPermissionPopup(true)}/>
+      <div className="absolute top-4 left-32 z-20 flex gap-3">
+        <LocationButton onClick={() => setShowPermissionPopup(true)} />
         <WarningButton />
       </div>
+      
       <div className="absolute top-4 right-5 flex gap-2">
         <DashboardButton />
         <MapButton />

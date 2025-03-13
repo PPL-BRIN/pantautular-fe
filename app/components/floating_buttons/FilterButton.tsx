@@ -1,14 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { cn } from "@/utils/tmg"
 import type { ButtonHTMLAttributes } from "react"
+
+// Simple utility function to combine class names
+const combineClasses = (...classes: (string | undefined)[]): string => {
+  return classes.filter(Boolean).join(' ')
+}
 
 interface FilterButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: () => void;
   variant?: "default" | "outline"
   size?: "sm" | "md" | "lg"
   className?: string
+  isActive?: boolean
 }
 
 export default function FilterButton({
@@ -17,9 +22,13 @@ export default function FilterButton({
   variant = "default",
   size = "md",
   disabled,
+  isActive: externalIsActive,
   ...props
 }: Readonly<FilterButtonProps>) {
-  const [isActive, setIsActive] = useState(false)
+  const [internalIsActive, setInternalIsActive] = useState(false)
+  
+  // Use external state if provided, otherwise use internal state
+  const isActive = externalIsActive !== undefined ? externalIsActive : internalIsActive
 
   // Size mappings with fixed width and height
   const sizeClasses = {
@@ -50,13 +59,15 @@ export default function FilterButton({
   }
 
   const handleClick = () => {
-    setIsActive(!isActive)
+    if (externalIsActive === undefined) {
+      setInternalIsActive(!internalIsActive)
+    }
     if (onClick) onClick()
   }
 
   return (
     <button
-      className={cn(
+      className={combineClasses(
         "flex items-center gap-2 rounded-full transition-colors",
         sizeClasses[size],
         variantClasses[variant],
@@ -67,7 +78,7 @@ export default function FilterButton({
       aria-label={isActive ? "Close filters" : "Open filters"}
       {...props}
     >
-      <div className={cn("flex items-center justify-center rounded-full", iconSize[size], iconWrapperClasses[variant])}>
+      <div className={combineClasses("flex items-center justify-center rounded-full", iconSize[size], iconWrapperClasses[variant])}>
         {isActive ? (
           <svg width="100%" height="100%" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

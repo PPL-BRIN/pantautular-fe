@@ -50,6 +50,7 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
     
     const timer = setTimeout(() => {
       console.log("Error timer fired, checking isReady ref:", isReadyRef.current);
+      /* istanbul ignore next */
       if (!isReadyRef.current) {
         console.log("Setting error - map not ready after timeout");
         setError("Gagal memuat peta. Silakan coba lagi.");

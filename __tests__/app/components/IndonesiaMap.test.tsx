@@ -215,6 +215,4 @@ describe("IndonesiaMap Component", () => {
     expect(mockSetError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
     expect(mockOnError).toHaveBeenCalledWith("Gagal memuat peta. Silakan coba lagi.");
   });
-
-  
 });

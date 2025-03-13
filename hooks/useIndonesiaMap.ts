@@ -13,7 +13,6 @@ export const useIndonesiaMap = (
   const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
 
   useEffect(() => {
-    let mounted = true;
     
     const initializeMap = async () => {
       try {
@@ -26,19 +25,17 @@ export const useIndonesiaMap = (
         mapServiceRef.current.initialize(containerId, config);
         mapServiceRef.current.populateLocations(memoizedLocations);
 
-        if (mounted) {
-          setIsInitialized(true);
-        }
+        setIsInitialized(true);
+        
       } catch (error) {
         mapServiceRef.current = null;
-        if (mounted) setIsInitialized(false);
+        setIsInitialized(false);
       }
     };
 
     initializeMap();
 
     return () => {
-      mounted = false;
       if (mapServiceRef.current) {
         mapServiceRef.current.dispose();
       }

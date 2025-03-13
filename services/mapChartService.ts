@@ -173,7 +173,8 @@ export class MapChartService {
       );
 
       container.events.on("click", (e) => {
-        this.pointSeries?.zoomToCluster(e.target.dataItem);
+        const dataItem = e.target.dataItem;
+        this.pointSeries?.zoomToCluster(dataItem as any);
       });
 
       return am5.Bullet.new(root, {

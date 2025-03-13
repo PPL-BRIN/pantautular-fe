@@ -31,29 +31,26 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
   };
 
   const { mapService } = useIndonesiaMap(mapContainerId, locations, fullConfig); // Use the map service without passing selected count directly
-  const isReady = !!mapService;
-
-  const isReadyRef = useRef(isReady);
+  const isReadyRef = useRef(!!mapService);
 
   // Update ref every time isReady changes
   useEffect(() => {
-    isReadyRef.current = isReady;
+    isReadyRef.current = !!mapService;
     console.log("isReadyRef updated:", isReadyRef.current);
-  }, [isReady]);
+  }, [mapService]);
 
   // Error handling with timeout
   useEffect(() => {
-    if (isReady) {
+    if (mapService) {
       console.log("Map already ready, skipping error timer");
       return;
     }
     
     console.log("Setting up error timer");
-    let isMounted = true;
     
     const timer = setTimeout(() => {
       console.log("Error timer fired, checking isReady ref:", isReadyRef.current);
-      if (isMounted && !isReadyRef.current) {
+      if (!isReadyRef.current) {
         console.log("Setting error - map not ready after timeout");
         setError("Gagal memuat peta. Silakan coba lagi.");
         if (onError) onError("Gagal memuat peta. Silakan coba lagi.");
@@ -61,11 +58,10 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
     }, MAP_LOAD_TIMEOUT);
     
     return () => {
-      isMounted = false;
       console.log("Cleaning up error timer");
       clearTimeout(timer);
     };
-  }, [isReady, onError, setError]);
+  }, [mapService, onError, setError]);
 
   // Get countSelectedPoints from Zustand store
   const countSelectedPoints = useMapStore((state) => state.countSelectedPoints);

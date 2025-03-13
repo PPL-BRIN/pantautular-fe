@@ -1,49 +1,44 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { MapChartService } from "../services/mapChartService";
 import { MapLocation, MapConfig } from "../types";
 
 export const useIndonesiaMap = (
   containerId: string,
   locations: MapLocation[],
-  config: MapConfig,
+  config: MapConfig
 ) => {
   const mapServiceRef = useRef<MapChartService | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Memoize locations and config to prevent unnecessary re-renders
+  const memoizedLocations = useMemo(() => locations, [JSON.stringify(locations)]);
+  const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
 
   useEffect(() => {
-    let mounted = true;
+    // Dispose of the existing service if it exists
+    if (mapServiceRef.current) {
+      mapServiceRef.current.dispose();
+      mapServiceRef.current = null;
+    }
+
     
-    const initializeMap = async () => {
-      try {
-        if (mapServiceRef.current) {
-          mapServiceRef.current.dispose();
-          mapServiceRef.current = null;
-        }
+    // Create a new map service
+    mapServiceRef.current = new MapChartService();
 
-        mapServiceRef.current = new MapChartService();
-        mapServiceRef.current.initialize(containerId, config);
-        mapServiceRef.current.populateLocations(locations);
+    // Initialize the chart
+    mapServiceRef.current.initialize(containerId, memoizedConfig);
 
-        if (mounted) {
-          setIsInitialized(true);
-        }
-      } catch (error) {
-        mapServiceRef.current = null;
-        if (mounted) setIsInitialized(false);
-      }
-    };
+    // Add location data
+    mapServiceRef.current.populateLocations(memoizedLocations);
+    
 
-    initializeMap();
-
+    // Cleanup function
     return () => {
-      mounted = false;
       if (mapServiceRef.current) {
         mapServiceRef.current.dispose();
+        mapServiceRef.current = null;
       }
     };
-  }, [containerId, locations, config]);// Config harus dihapus kalo mau ngeadain informasi kuantitas kasus
-  return {
-    mapService: mapServiceRef.current,
-    isInitialized
-  };
+  }, [containerId, memoizedLocations, memoizedConfig]);
+
+  return { mapService: mapServiceRef.current };
 };

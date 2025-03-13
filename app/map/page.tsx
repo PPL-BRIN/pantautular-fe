@@ -20,7 +20,10 @@ export default function MapPage() {
 
   useEffect(() => {
     if (error) {
-      if (error.message.includes("No case locations found")) {
+      console.log(error.message)
+      if (error.message.includes("No case locations found") ||
+          error.message.includes("HTTP error! status: 404")
+      ) {
         setIsEmptyData(true);
       } else {
         setMapError(error.message);

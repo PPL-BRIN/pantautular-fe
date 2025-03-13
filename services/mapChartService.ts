@@ -23,7 +23,7 @@ export class MapChartService {
 
       this.root = am5.Root.new(containerId);
       this.root.setThemes([am5themes_Animated.new(this.root)]);
-
+      
       this.chart = this.root.container.children.push(
         am5map.MapChart.new(this.root, {
           panX: "rotateX",
@@ -63,9 +63,17 @@ export class MapChartService {
         })
       );
 
+
       polygonSeries.mapPolygons.template.setAll({
-        fill: am5.color(0xdadada),
+          fill: am5.color("#FFFFFF"), 
+          stroke: am5.color("#CCCCCC"), 
+          strokeWidth: 0.5,
       });
+
+      this.chart.set("background", am5.Rectangle.new(this.root, {
+          fill: am5.color("#E0E0E0"), 
+          fillOpacity: 1,
+      }));
 
       polygonSeries.events.on("datavalidated", () => {
         this.chart?.goHome();

@@ -9,6 +9,7 @@ import DashboardButton from "./floating_buttons/DashboardButton";
 import WarningButton from "./floating_buttons/WarningButton";
 import LocationButton from "./floating_buttons/LocationButton";
 import {MapButton} from "./floating_buttons/MapButton";
+import { useMapStore } from "@/store/store";
 
 interface IndonesiaMapProps {
   locations: MapLocation[];
@@ -70,6 +71,7 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
     handleLocationSuccess,
     () => setLocationError({ type: "PERMISSION_DENIED", message: "Anda menolak izin lokasi." })
   );
+  const countSelectedPoints = useMapStore((state) => state.countSelectedPoints);
 
   return (
     <div className="relative w-full h-full">
@@ -106,6 +108,9 @@ export const IndonesiaMap: React.FC<IndonesiaMapProps> = ({
         onAllow={handleAllow}
         onDeny={handleDeny}
       />
+      <div className="fixed bottom-5 left-5 z-20 bg-black/60 text-white text-lg font-bold p-2 rounded-lg">
+        {`Points Visible: ${countSelectedPoints}`}
+      </div>
       
       {/* Popup error lokasi */}
       {locationError && (

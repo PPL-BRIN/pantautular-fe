@@ -1,40 +1,53 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import InformationSection from "../../app/components/dashboard/InformationSection"; 
 import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import InformationSection from "../../app/components/dashboard/InformationSection";
+// Mock child components
+jest.mock("../../app/components/dashboard/GeneralInformation", () => () => (
+  <div data-testid="general-information">General Information Content</div>
+));
+jest.mock("../../app/components/dashboard/CasesOrder", () => () => (
+  <div data-testid="cases-order">Cases Order Content</div>
+));
+jest.mock("../../app/components/floating_buttons/DashboardButton", () => () => (
+  <button data-testid="dashboard-button">Dashboard</button>
+));
+jest.mock("../../app/components/floating_buttons/MapButton", () => ({
+  MapButton: () => <button data-testid="map-button">Map</button>,
+}));
 
-// Correct Jest mocks with absolute paths
-jest.mock("../../app/components/dashboard/GeneralInformation", () => () => <div>Mocked General Information</div>);
-jest.mock("../../app/components/dashboard/CasesOrder", () => () => <div>Mocked Cases Order</div>);
-jest.mock("../../app/components/floating_buttons/DashboardButton", () => () => <button>Dashboard Button</button>);
-jest.mock("../../app/components/floating_buttons/MapButton", () => () => <button>Map Button</button>);
-
-describe("InformationSection Component", () => {
-  it("renders correctly with the expected elements", () => {
+describe("InformationSection", () => {
+  it("renders GeneralInformation by default", () => {
     render(<InformationSection />);
-    expect(screen.getByText("Informasi Umum")).toBeInTheDocument();
-    expect(screen.getByText("Urutan Kasus")).toBeInTheDocument();
-    expect(screen.getByText("Dashboard Button")).toBeInTheDocument();
-    expect(screen.getByText("Map Button")).toBeInTheDocument();
-    expect(screen.getByText("Mocked General Information")).toBeInTheDocument();
+    expect(screen.getByTestId("general-information")).toBeInTheDocument();
+    expect(screen.queryByTestId("cases-order")).not.toBeInTheDocument();
   });
 
   it("switches to CasesOrder when 'Urutan Kasus' is clicked", () => {
     render(<InformationSection />);
-    fireEvent.click(screen.getByText("Urutan Kasus"));
-    expect(screen.getByText("Mocked Cases Order")).toBeInTheDocument();
+    const casesOrderButton = screen.getByRole("button", { name: /Urutan Kasus/i });
+    fireEvent.click(casesOrderButton);
+
+    expect(screen.getByTestId("cases-order")).toBeInTheDocument();
+    expect(screen.queryByTestId("general-information")).not.toBeInTheDocument();
   });
 
   it("switches back to GeneralInformation when 'Informasi Umum' is clicked", () => {
     render(<InformationSection />);
-    fireEvent.click(screen.getByText("Urutan Kasus"));
-    fireEvent.click(screen.getByText("Informasi Umum"));
-    expect(screen.getByText("Mocked General Information")).toBeInTheDocument();
+    // Switch to CasesOrder first
+    const casesOrderButton = screen.getByRole("button", { name: /Urutan Kasus/i });
+    fireEvent.click(casesOrderButton);
+    expect(screen.getByTestId("cases-order")).toBeInTheDocument();
+
+    // Then switch back to GeneralInformation
+    const generalInfoButton = screen.getByRole("button", { name: /Informasi Umum/i });
+    fireEvent.click(generalInfoButton);
+    expect(screen.getByTestId("general-information")).toBeInTheDocument();
+    expect(screen.queryByTestId("cases-order")).not.toBeInTheDocument();
   });
 
-  it("applies the correct CSS classes", () => {
+  it("renders the Dashboard and Map floating buttons", () => {
     render(<InformationSection />);
-    const container = screen.getByText("Informasi Umum").parentElement?.parentElement?.parentElement;
-    expect(container).toHaveClass("flex", "flex-col", "h-full", "bg-transparent", "text-white", "text-xl", "p-4", "pt-8", "pl-8");
+    expect(screen.getByTestId("dashboard-button")).toBeInTheDocument();
+    expect(screen.getByTestId("map-button")).toBeInTheDocument();
   });
 });

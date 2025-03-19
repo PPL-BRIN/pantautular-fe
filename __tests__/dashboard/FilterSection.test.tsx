@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import FilterSection from "../../app/components/dashboard/FilterSection"// Adjust the path based on your file structure
+import FilterSection from "../../app/components/dashboard/FilterSection"
 
 describe("FilterSection Component", () => {
   it("renders correctly with the expected text", () => {

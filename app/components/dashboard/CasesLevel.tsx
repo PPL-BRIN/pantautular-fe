@@ -16,7 +16,7 @@ interface AmChartKasusProps {
   };
 }
 
-export default function AmChartKasus ({ jsonData }: AmChartKasusProps) {
+export default function AmChartKasus ({ jsonData }: Readonly<AmChartKasusProps>) {
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -72,8 +72,6 @@ export default function AmChartKasus ({ jsonData }: AmChartKasusProps) {
       ];
       const colorArray = colorList.map(hex => am5.color(hex));
 
-      const allSeries = [];
-
       severityLevels.forEach((level, i) => {
         const color = colorArray[i % colorArray.length];
         const series = chart.series.push(am5xy.LineSeries.new(root, {
@@ -93,7 +91,6 @@ export default function AmChartKasus ({ jsonData }: AmChartKasusProps) {
 
         series.data.setAll(formattedData[level]);
         series.appear();
-        allSeries.push(series);
       });
 
       const cursor = chart.set('cursor', am5xy.XYCursor.new(root, {

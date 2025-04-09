@@ -4,12 +4,12 @@ import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 
 interface AgeData {
-  age: string;
-  value: number;
+  readonly age: string;
+  readonly value: number;
 }
 
 interface AgeStatisticCardProps {
-  data?: AgeData[];
+  data?: readonly AgeData[];
 }
 
 export default function AgeStatisticCard({ data = [
@@ -23,8 +23,11 @@ export default function AgeStatisticCard({ data = [
   const totalCases = data.reduce((sum, item) => sum + item.value, 0);
 
   useLayoutEffect(() => {
+    // Check if chartRef is available
+    if (!chartRef.current) return;
+    
     // Create root element
-    const root = am5.Root.new(chartRef.current!);
+    const root = am5.Root.new(chartRef.current);
 
     // Set themes
     root.setThemes([am5themes_Animated.new(root)]);
@@ -106,8 +109,8 @@ export default function AgeStatisticCard({ data = [
     });
 
     // Set data
-    xAxis.data.setAll(data);
-    series.data.setAll(data);
+    xAxis.data.setAll([...data]);
+    series.data.setAll([...data]);
 
     // Make stuff animate on load
     series.appear(1000);

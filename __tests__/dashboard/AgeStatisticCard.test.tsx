@@ -21,7 +21,7 @@ const setupMocks = () => {
   const mockLegendEventOn = jest.fn();
 
   // Common mock objects
-  const mockLabelsTemplate = createTemplatedMock();
+  createTemplatedMock();
   const mockGridTemplate = { set: jest.fn() };
   
   const mockXRenderer = {
@@ -206,14 +206,21 @@ const formattedTotals = {
 
 describe('AgeStatisticCard Component', () => {
   // Helper function to verify common chart initialization
-  const verifyChartInitialization = (data: { age: string; value: number; }[] | { age: string; value: number; }[]) => {
+  const verifyChartInitialization = (data: { age: string; value: number; }[]) => {
     expect(am5.Root.new).toHaveBeenCalledTimes(1);
     expect(mocks.mockRoot.setThemes).toHaveBeenCalledTimes(1);
-    expect(mocks.mockRoot.yAxes.push).toHaveBeenCalledTimes(1);
-    expect(mocks.mockRoot.series.push).toHaveBeenCalledTimes(1);
     
-    const mockXAxis = mocks.mockRoot.xAxes.push();
-    const mockSeries = mocks.mockRoot.series.push();
+    // Change these lines - chart not root initiates the axes and series
+    const chart = mocks.mockRoot.container.children.push();
+    expect(chart.xAxes.push).toHaveBeenCalled();
+    expect(chart.yAxes.push).toHaveBeenCalled();
+    expect(chart.series.push).toHaveBeenCalled();
+    
+    // Get the data that was passed to setAll
+    const mockSeries = chart.series.push();
+    const mockXAxis = chart.xAxes.push();
+    
+    // Check if correct data was passed
     expect(mockXAxis.data.setAll).toHaveBeenCalledWith(data);
     expect(mockSeries.data.setAll).toHaveBeenCalledWith(data);
   };
@@ -258,11 +265,12 @@ describe('AgeStatisticCard Component', () => {
     expect(am5xy.XYCursor.new).toHaveBeenCalledTimes(1);
     expect(mocks.mockCursor.lineY.set).toHaveBeenCalledWith("visible", false);
     
-    // Series config
-    const seriesConfig = mocks.mockRoot.series.push.mock.calls[0][0];
-    expect(seriesConfig).toHaveProperty('name', 'Series 1');
-    expect(seriesConfig).toHaveProperty('valueYField', 'value');
-    expect(seriesConfig).toHaveProperty('categoryXField', 'age');
+    // Series config - check the ColumnSeries creation instead of push arguments
+    expect(am5xy.ColumnSeries.new).toHaveBeenCalledWith(mocks.mockRoot, expect.objectContaining({
+      name: 'Series 1',
+      valueYField: 'value',
+      categoryXField: 'age'
+    }));
     
     // Axis styling
     expect(am5xy.AxisRendererX.new).toHaveBeenCalledWith(mocks.mockRoot, expect.objectContaining({
@@ -281,8 +289,12 @@ describe('AgeStatisticCard Component', () => {
     
     // Check for proper reinitialization
     expect(am5.Root.new).toHaveBeenCalledTimes(1);
-    expect(mocks.mockRoot.xAxes.push().data.setAll).toHaveBeenCalledWith(testData.custom);
-    expect(mocks.mockRoot.series.push().data.setAll).toHaveBeenCalledWith(testData.custom);
+    
+    // Get the chart first, then access axes and series
+    const chart = mocks.mockRoot.container.children.push();
+    expect(chart.xAxes.push().data.setAll).toHaveBeenCalledWith(testData.custom);
+    expect(chart.series.push().data.setAll).toHaveBeenCalledWith(testData.custom);
+    
     expect(screen.getByText(formattedTotals.custom)).toBeInTheDocument();
   });
 });

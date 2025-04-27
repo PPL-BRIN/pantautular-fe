@@ -1,28 +1,60 @@
+'use client';
+
+import { useState } from 'react';
+
 export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('https://<your-backend-domain>/authentication/password-reset-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Api-Key <API_KEY_JIKA_DIBUTUHKAN>'  // kalau endpoint kamu pakai API key auth
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setMessage('Jika email terdaftar, kami telah mengirimkan link reset password ke email Anda.');
+      } else {
+        const data = await response.json();
+        setMessage(data.error || 'Terjadi kesalahan. Silakan coba lagi.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setMessage('Terjadi kesalahan jaringan. Coba lagi nanti.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* Left side with illustration and logo */}
+      {/* Left side */}
       <div className="flex flex-col items-center justify-center bg-white p-6 md:w-1/2">
         <div className="flex w-full items-center justify-center mb-2">
           <div className="illustration-placeholder -mt-6">
-            <img 
-              src="/logo-forgotPassword.svg" 
-              alt="Forgot Password Illustration" 
-              width="455" 
-              height="340" 
-            />
+            <img src="/logo-forgotPassword.svg" alt="Forgot Password Illustration" className="object-contain max-h-96" />
           </div>
         </div>
       </div>
 
-      {/* Right side with form */}
+      {/* Right side */}
       <div className="flex flex-col justify-center p-4 md:w-1/2">
         <div className="mx-auto w-full max-w-md space-y-6">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-[#0A2463]">Lupa Kata Sandi</h1>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <label htmlFor="email" className="block text-lg font-medium">
                 Email
@@ -31,7 +63,10 @@ export default function ForgotPasswordPage() {
                 id="email"
                 type="email"
                 placeholder="Masukkan email terdaftar"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-md border border-gray-300 p-3 focus:border-[#0066CC] focus:outline-none focus:ring-1 focus:ring-[#0066CC]"
+                required
               />
             </div>
 
@@ -44,13 +79,21 @@ export default function ForgotPasswordPage() {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full rounded-md bg-[#0066CC] py-3 text-white hover:bg-[#0055AA] focus:outline-none focus:ring-2 focus:ring-[#0066CC] focus:ring-offset-2 transition-colors"
             >
-              Kirim
+              {isSubmitting ? 'Mengirim...' : 'Kirim'}
             </button>
+
+            {/* Feedback message */}
+            {message && (
+              <div className="mt-4 text-center text-sm text-gray-600">
+                {message}
+              </div>
+            )}
           </form>
         </div>
       </div>
     </div>
-  )
+  );
 }

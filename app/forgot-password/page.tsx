@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { emailSubmitAPI } from '@/services/api';
+import { emailSubmitAPI } from '../../services/api';
 
 // Email validation pattern
 const EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
             <h1 className="text-3xl font-bold text-[#0A2463]">Lupa Kata Sandi</h1>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit} noValidate data-testid="forgot-password-form">
             <div className="space-y-2">
               <label htmlFor="email" className="block text-lg font-medium">
                 Email
@@ -90,9 +90,16 @@ export default function ForgotPasswordPage() {
                   emailError ? 'border-red-500' : 'border-gray-300'
                 } p-3 focus:border-[#0066CC] focus:outline-none focus:ring-1 focus:ring-[#0066CC]`}
                 required
+                data-testid="email-input"
               />
+              {/* Only render the error element when there's an error */}
               {emailError && (
-                <p className="text-red-500 text-sm mt-1">{emailError}</p>
+                <p 
+                  className="text-red-500 text-sm mt-1" 
+                  data-testid="email-error"
+                >
+                  {emailError}
+                </p>
               )}
             </div>
 
@@ -107,13 +114,17 @@ export default function ForgotPasswordPage() {
               type="submit"
               disabled={isSubmitting}
               className="w-full rounded-md bg-[#0066CC] py-3 text-white hover:bg-[#0055AA] focus:outline-none focus:ring-2 focus:ring-[#0066CC] focus:ring-offset-2 transition-colors"
+              data-testid="submit-button"
             >
               {isSubmitting ? 'Mengirim...' : 'Kirim'}
             </button>
 
-            {/* Feedback message */}
+            {/* Only render the message element when there's a message */}
             {message && (
-              <div className="mt-4 text-center text-sm text-gray-600">
+              <div 
+                className="mt-4 text-center text-sm text-gray-600"
+                data-testid="feedback-message"
+              >
                 {message}
               </div>
             )}

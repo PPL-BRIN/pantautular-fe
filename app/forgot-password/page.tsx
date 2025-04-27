@@ -1,32 +1,50 @@
 'use client';
 
 import { useState } from 'react';
+import { emailSubmitAPI } from '@/services/api';
+
+// Email validation pattern
+const EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const validateEmail = (email: string): boolean => {
+    if (!email) {
+      setEmailError('Email tidak boleh kosong');
+      return false;
+    }
+    
+    if (!EMAIL_PATTERN.test(email)) {
+      setEmailError('Format email tidak valid');
+      return false;
+    }
+    
+    setEmailError('');
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Validate email before submitting
+    if (!validateEmail(email)) {
+      return;
+    }
+    
     setIsSubmitting(true);
     setMessage('');
 
     try {
-      const response = await fetch('https://<your-backend-domain>/authentication/password-reset-request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Api-Key <API_KEY_JIKA_DIBUTUHKAN>'  // kalau endpoint kamu pakai API key auth
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
+      const result = await emailSubmitAPI.requestPasswordReset(email);
+      
+      if (result.success) {
         setMessage('Jika email terdaftar, kami telah mengirimkan link reset password ke email Anda.');
       } else {
-        const data = await response.json();
-        setMessage(data.error || 'Terjadi kesalahan. Silakan coba lagi.');
+        setMessage(result.error || 'Terjadi kesalahan. Silakan coba lagi.');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -64,10 +82,18 @@ export default function ForgotPasswordPage() {
                 type="email"
                 placeholder="Masukkan email terdaftar"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md border border-gray-300 p-3 focus:border-[#0066CC] focus:outline-none focus:ring-1 focus:ring-[#0066CC]"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) validateEmail(e.target.value);
+                }}
+                className={`w-full rounded-md border ${
+                  emailError ? 'border-red-500' : 'border-gray-300'
+                } p-3 focus:border-[#0066CC] focus:outline-none focus:ring-1 focus:ring-[#0066CC]`}
                 required
               />
+              {emailError && (
+                <p className="text-red-500 text-sm mt-1">{emailError}</p>
+              )}
             </div>
 
             <div className="flex items-start">

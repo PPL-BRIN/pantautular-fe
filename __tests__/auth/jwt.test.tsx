@@ -5,11 +5,20 @@ import { TEST_CONFIG } from "../test-config";
 // Mock fetch globally
 global.fetch = jest.fn();
 
-// Mock credentials
+// Credential constants - using test config to avoid hard-coded passwords
 const MOCK_CREDENTIALS = {
-  valid: { email: "valid@example.com", password: "valid-password" },
-  invalid: { email: "invalid@example.com", password: "wrong-password" },
-  networkError: { email: "network@example.com", password: "network-password" }
+  valid: { 
+    email: "valid@example.com", 
+    password: TEST_CONFIG.mockData.credentials.validPassword 
+  },
+  invalid: { 
+    email: "invalid@example.com", 
+    password: TEST_CONFIG.mockData.credentials.invalidPassword 
+  },
+  networkError: { 
+    email: "network@example.com", 
+    password: TEST_CONFIG.mockData.credentials.networkPassword 
+  }
 };
 
 // Mock localStorage

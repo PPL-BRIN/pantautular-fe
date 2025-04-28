@@ -1,9 +1,16 @@
-// NOSONAR - This is a test file
-// sonar-disable-next-line
+// Test file for JWT authentication strategy
 import { JWTStrategy } from "../../app/auth/strategies/jwt"
+import { TEST_CONFIG } from "../test-config";
 
 // Mock fetch globally
 global.fetch = jest.fn();
+
+// Mock credentials
+const MOCK_CREDENTIALS = {
+  valid: { email: "valid@example.com", password: "valid-password" },
+  invalid: { email: "invalid@example.com", password: "wrong-password" },
+  networkError: { email: "network@example.com", password: "network-password" }
+};
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -22,13 +29,11 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock process.env
-// sonar:ignore:start - Test credentials
 process.env = {
   ...process.env,
-  NEXT_PUBLIC_API_URL: 'http://test-api.com',
-  NEXT_PUBLIC_API_KEY: 'test-api-key',
+  NEXT_PUBLIC_API_URL: TEST_CONFIG.api.url,
+  NEXT_PUBLIC_API_KEY: TEST_CONFIG.api.key,
 };
-// sonar:ignore:end
 
 describe("JWTStrategy", () => {
   const jwt = new JWTStrategy();
@@ -38,26 +43,25 @@ describe("JWTStrategy", () => {
     localStorageMock.clear();
   });
 
-  // sonar:ignore:start - Test credentials in test files are allowed
   it("logs in successfully", async () => {
     // Mock successful API response
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ token: "mock-jwt-token" }),
+      json: async () => ({ token: TEST_CONFIG.mockData.token }),
     });
 
-    const credentials = { email: "testUser@example.com", password: "password123" };
+    const credentials = MOCK_CREDENTIALS.valid;
     const res = await jwt.login(credentials);
     
     // Verify fetch was called correctly
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://test-api.com/authentication/login',
+      TEST_CONFIG.api.url + '/authentication/login',
       {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'x-api-key': 'test-api-key',
+          'x-api-key': TEST_CONFIG.api.key,
         },
         credentials: 'include',
         body: JSON.stringify(credentials),
@@ -71,10 +75,9 @@ describe("JWTStrategy", () => {
     );
     
     // Verify return value
-    expect(res.token).toBe("mock-jwt-token");
+    expect(res.token).toBe(TEST_CONFIG.mockData.token);
     expect(res.user.username).toBe(credentials.email);
   });
-  // sonar:ignore:end
 
   it("handles login failure", async () => {
     // Mock failed API response
@@ -83,9 +86,7 @@ describe("JWTStrategy", () => {
       status: 401,
     });
 
-    // sonar:ignore:start - Test credentials
-    const credentials = { email: "invalid@example.com", password: "wrongpass" };
-    // sonar:ignore:end
+    const credentials = MOCK_CREDENTIALS.invalid;
     
     await expect(jwt.login(credentials)).rejects.toThrow("Authentication failed: 401");
     
@@ -97,9 +98,7 @@ describe("JWTStrategy", () => {
     // Mock network error
     (global.fetch as jest.Mock).mockRejectedValueOnce(new Error("Network error"));
 
-    // sonar:ignore:start - Test credentials
-    const credentials = { email: "user@example.com", password: "password" };
-    // sonar:ignore:end
+    const credentials = MOCK_CREDENTIALS.networkError;
     
     await expect(jwt.login(credentials)).rejects.toThrow("Network error");
   });
@@ -129,12 +128,5 @@ describe("JWTStrategy", () => {
     await expect(jwt.logout()).resolves.toBeUndefined();
   });
 })
-
-// app/auth/strategies/base.ts
-export interface AuthStrategy {
-    login(credentials: any): Promise<any>
-    logout(): Promise<void>
-    getUser(): Promise<any>
-  }
 
 

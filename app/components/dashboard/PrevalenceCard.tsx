@@ -1,9 +1,9 @@
 import React from "react";
 
 interface PrevalenceCardProps {
-  prevalenceRate: number;
+  prevalenceRate: number | string;
   populationYear: number;
-  populationCount: number;
+  populationCount: number | string;
 }
 
 const PrevalenceCard: React.FC<PrevalenceCardProps> = ({
@@ -12,7 +12,13 @@ const PrevalenceCard: React.FC<PrevalenceCardProps> = ({
   populationCount,
 }) => {
   // Format the population number with commas
-  const formattedPopulation = populationCount.toLocaleString();
+  let formattedPopulation = null
+  if (typeof populationCount !== 'string') {
+    formattedPopulation = populationCount.toLocaleString();
+  }
+  else {
+    formattedPopulation = populationCount;
+  }
 
   return (
     <div className="bg-white rounded-lg p-4 shadow content-center">
@@ -28,14 +34,16 @@ const PrevalenceCard: React.FC<PrevalenceCardProps> = ({
           </div>
           <span className="text-5xl font-bold">
             {prevalenceRate}
-            <span className="text-blue-600">%</span>
+            {typeof prevalenceRate !== 'string' && <span className="text-blue-600">%</span>}
           </span>
         </div>
       </div>
 
       <p className="text-xs text-rose-500 text-center">
-        *Jumlah kasus dibandingkan dengan populasi masyarakat Indonesia pada tahun {populationYear} ({formattedPopulation} jiwa)
+        *Jumlah kasus dibandingkan dengan populasi masyarakat Indonesia pada tahun {populationYear} ({formattedPopulation} 
+        {typeof populationCount !== 'string' && " jiwa"})
       </p>
+
     </div>
   );
 };

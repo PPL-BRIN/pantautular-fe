@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import LoginPage from '../../app/login/page';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../app/auth/hooks/useAuth';
+import { Image } from 'lucide-react';
 
 // Mock Next.js hooks
 jest.mock('next/navigation', () => ({
@@ -13,7 +14,7 @@ jest.mock('next/navigation', () => ({
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: React.ComponentProps<'img'>) => {
-    return <img {...props} />;
+    return <img alt={props.alt || ""} {...props} />;
   },
 }));
 

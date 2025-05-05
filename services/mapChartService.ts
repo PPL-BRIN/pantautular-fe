@@ -677,5 +677,8 @@ export class MapChartService {
     } else {
       this.hideHumidityLayer();
     }
+    
+
+    
   }
 }

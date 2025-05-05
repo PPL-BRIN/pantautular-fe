@@ -10,6 +10,7 @@ export function useIndonesiaMap(
   provinceHumidityData: ProvinceData[],
   provinceTemperatureData: ProvinceData[],
   provincePrecipitationData: ProvinceData[],
+  provinceSeverityData: ProvinceData[],
   onError: (message: string) => void,
   initialized = false
 ) {
@@ -31,7 +32,7 @@ export function useIndonesiaMap(
     try {
       service.initialize(containerId, config);
       service.populateLocations(locations);
-      service.populateProvinceHumidityData(provinceHumidityData);
+      service.populateProvinceSeverityData(provinceSeverityData);
       mapServiceRef.current = service;
       setMapService(service);
       setMapServiceStore(service); // Update the Zustand store

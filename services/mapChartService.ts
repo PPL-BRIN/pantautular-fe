@@ -13,14 +13,15 @@ export class MapChartService {
   private locationSeries: am5map.MapPointSeries | null = null;
   private basePolygonSeries: am5map.MapPolygonSeries | null = null;
   private highlightSeries: am5map.MapPolygonSeries | null = null;
-  private humiditySeries: am5map.MapPolygonSeries | null = null;
-  private humidityHeatLegend: am5.Container | null = null;
+  private severitySeries: am5map.MapPolygonSeries | null = null;
+  private severityHeatLegend: am5.Container | null = null;
   private readonly onError: ((message: string) => void) | null = null;
   private locations: MapLocation[] | null = null;
   private _countSelectedPoints: number = 0;
   private provinceHumidityData: ProvinceData[] | null  = null;
   private provinceTemperatureData: ProvinceData[] | null = null;
   private provincePrecipitationData: ProvinceData[] | null = null;
+  private provinceSeverityData: ProvinceData[] | null = null;
 
   constructor(onError?: (message: string) => void) {
     this.onError = onError || null;
@@ -141,7 +142,7 @@ export class MapChartService {
       });
 
       // Add colored province layer
-      this.humiditySeries = this.chart.series.push(
+      this.severitySeries = this.chart.series.push(
         am5map.MapPolygonSeries.new(root, {
           geoJSON: am5geodata_indonesiaLow,
           valueField: "value",
@@ -151,40 +152,26 @@ export class MapChartService {
       );
 
       // Set up the colored province layer
-      this.humiditySeries.mapPolygons.template.setAll({
+      this.severitySeries.mapPolygons.template.setAll({
         fill: am5.color("#FFFFFF"),
         stroke: am5.color("#CCCCCC"),
         strokeWidth: 0.5,
         fillOpacity: 0.8,
       });
 
-      this.humiditySeries.set("heatRules", [{
-        target: this.humiditySeries.mapPolygons.template,
+      this.severitySeries.set("heatRules", [{
+        target: this.severitySeries.mapPolygons.template,
         dataField: "value",
         customFunction: function(sprite: am5.Sprite, min, max, value) {
-          if (value <= 0) {
-            (sprite as am5.Graphics).set("fill", am5.color("#C41A0A"));
-          } else if (value <= 10) {
-            (sprite as am5.Graphics).set("fill", am5.color("#F4440B"));
-          } else if (value <= 20) {
-            (sprite as am5.Graphics).set("fill", am5.color("#F47A0B"));
-          } else if (value <= 30) {
-            (sprite as am5.Graphics).set("fill", am5.color("#F4B00B"));
-          } else if (value <= 40) {
-            (sprite as am5.Graphics).set("fill", am5.color("#F4E60B"));
-          } else if (value <= 50) {
-            (sprite as am5.Graphics).set("fill", am5.color("#D2EE3C"));
-          } else if (value <= 60) {
-            (sprite as am5.Graphics).set("fill", am5.color("#AFF474"));
-          } else if (value <= 70) {
-            (sprite as am5.Graphics).set("fill", am5.color("#A3D4FF"));
-          } else if (value <= 80) {
-            (sprite as am5.Graphics).set("fill", am5.color("#6DBCFF"));
-          } else if (value <= 90) {
-            (sprite as am5.Graphics).set("fill", am5.color("#1392FF"));
-          } else {
-            (sprite as am5.Graphics).set("fill", am5.color("#00528F"));
-          }
+          if (value == "katastropik") {
+            (sprite as am5.Graphics).set("fill", am5.color("#DC3545"));
+          } else if (value == "bahaya") {
+            (sprite as am5.Graphics).set("fill", am5.color("#FD7E14"));
+          } else if (value == "biasa") {
+            (sprite as am5.Graphics).set("fill", am5.color("#FFC107"));
+          } else if (value == "minimal") {
+            (sprite as am5.Graphics).set("fill", am5.color("#CACBCB"));
+          } 
         }
       }]);
 
@@ -224,17 +211,10 @@ export class MapChartService {
 
       // Define the colors and value ranges for each block
       const colorBlocks = [
-        { color: "#C41A0A", range: "0%" },
-        { color: "#F4440B", range: "10%" },
-        { color: "#F47A0B", range: "20%" },
-        { color: "#F4B00B", range: "30%" },
-        { color: "#F4E60B", range: "40%" },
-        { color: "#D2EE3C", range: "50%" },
-        { color: "#AFF474", range: "60%" },
-        { color: "#A3D4FF", range: "70%" },
-        { color: "#6DBCFF", range: "80%" },
-        { color: "#1392FF", range: "90%" },
-        { color: "#00528F", range: "100%" }
+        { color: "#DC3545", range: "Katastropik" },
+        { color: "#FD7E14", range: "Bahaya" },
+        { color: "#FFC107", range: "Biasa" },
+        { color: "#CACBCB", range: "Minimal" },
       ];
 
       // Create a higher container for block styling
@@ -260,18 +240,18 @@ export class MapChartService {
           fontWeight: "500",
           fill: am5.color(0xFFFFFF),
           // textAlign: "center",
-          centerX: am5.percent(-75),
+          centerX: am5.percent(-100),
           marginTop: -25,
         }));
       });
 
       // Store the legend for later use
-      this.humidityHeatLegend = legend;
+      this.severityHeatLegend = legend;
       
       /* istanbul ignore next */
-      // Initially hide the humidity layer
-      this.humiditySeries.hide();
-      this.humidityHeatLegend.hide()
+      // Initially hide the severity layer
+      this.severitySeries.hide();
+      this.severityHeatLegend.hide()
 
       // Add a second layer for highlighting
       this.highlightSeries = this.chart.series.push(
@@ -454,20 +434,20 @@ export class MapChartService {
     this.pointSeries.set("tooltip", tooltip);
   }
 
-  populateProvinceHumidityData(provinceHumidityData: ProvinceData[]): void {
-    if (!this.humiditySeries) return;
-    this.provinceHumidityData = provinceHumidityData;
-    this.humiditySeries.data.clear();
-    console.log(provinceHumidityData);
+  populateProvinceSeverityData(provinceSeverityData: ProvinceData[]): void {
+    if (!this.severitySeries) return;
+    this.provinceSeverityData = provinceSeverityData;
+    this.severitySeries.data.clear();
+    console.log(provinceSeverityData);
 
-    provinceHumidityData.forEach(data => {
-      this.humiditySeries!.data.push({
+    provinceSeverityData.forEach(data => {
+      this.severitySeries!.data.push({
         id: data.id,
-        value: data.value
+        value: data.status
       });
     });
     
-    console.log(this.humiditySeries.data);   
+    console.log(this.severitySeries.data);   
   }
   
   populateLocations(locations: MapLocation[]): void {
@@ -617,10 +597,10 @@ export class MapChartService {
   // Add methods to control province layer visibility
     
   /* istanbul ignore next */
-  public showHumidityLayer(): void {
-    if (this.humiditySeries && this.humidityHeatLegend && this.root && this.chart) {
-      this.humiditySeries.show();
-      this.humidityHeatLegend.show();
+  public showSeverityLayer(): void {
+    if (this.severitySeries && this.severityHeatLegend && this.root && this.chart) {
+      this.severitySeries.show();
+      this.severityHeatLegend.show();
       
       // Remove any existing background and set the new 
       this.chart.get("background")?.set("fill", am5.color("#D0F4FC"))
@@ -629,17 +609,17 @@ export class MapChartService {
       this.chart.markDirty();
       
       // Make sure the legend is visible by bringing it to the front
-      if (this.humidityHeatLegend.parent) {
-        this.humidityHeatLegend.toFront();
+      if (this.severityHeatLegend.parent) {
+        this.severityHeatLegend.toFront();
       }
     }
   }
   
   /* istanbul ignore next */
-  public hideHumidityLayer(): void {
-    if (this.humiditySeries && this.humidityHeatLegend && this.root && this.chart) {
-      this.humiditySeries.hide();
-      this.humidityHeatLegend.hide();
+  public hideSeverityLayer(): void {
+    if (this.severitySeries && this.severityHeatLegend && this.root && this.chart) {
+      this.severitySeries.hide();
+      this.severityHeatLegend.hide();
       
       // Remove any existing background and set the new one
       this.chart.get("background")?.set("fill", am5.color("#E0E0E0"))
@@ -653,7 +633,7 @@ export class MapChartService {
   // Update the toggleLayers method to include province layer
     
   /* istanbul ignore next */
-  public toggleLayers(showBase: boolean, showHighlight: boolean, showPoints: boolean, showHumidity: boolean): void {
+  public toggleLayers(showBase: boolean, showHighlight: boolean, showPoints: boolean, showSeverity: boolean): void {
     if (showBase) {
       this.showBaseLayer();
     } else {
@@ -672,10 +652,10 @@ export class MapChartService {
       this.hidePointLayer();
     }
 
-    if (showHumidity) {
-      this.showHumidityLayer();
+    if (showSeverity) {
+      this.showSeverityLayer();
     } else {
-      this.hideHumidityLayer();
+      this.hideSeverityLayer();
     }
   }
 }

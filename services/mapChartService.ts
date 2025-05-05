@@ -189,7 +189,7 @@ export class MapChartService {
       }]);
 
       // Create custom legend - positioned at the bottom center
-      let legend = this.chart.children.push(am5.Container.new(root, {
+      let humidityLegend = this.chart.children.push(am5.Container.new(root, {
         width: am5.percent(80),
         height: 50,
         layout: root.horizontalLayout,
@@ -205,7 +205,7 @@ export class MapChartService {
       }));
 
       // Create a container for the labels and color blocks
-      let labelsContainer = legend.children.push(am5.Container.new(root, {
+      let humidityLabelsContainer = humidityLegend.children.push(am5.Container.new(root, {
         width: am5.percent(100),
         height: am5.percent(100),
         layout: root.horizontalLayout,
@@ -213,7 +213,7 @@ export class MapChartService {
       }));
 
       // Create color blocks container
-      let blocksContainer = labelsContainer.children.push(am5.Container.new(root, {
+      let humidityBlocksContainer = humidityLabelsContainer.children.push(am5.Container.new(root, {
         width: am5.percent(60),
         height: 20,
         layout: root.horizontalLayout,
@@ -223,7 +223,7 @@ export class MapChartService {
       }));
 
       // Define the colors and value ranges for each block
-      const colorBlocks = [
+      const humidityColorBlocks = [
         { color: "#C41A0A", range: "0%" },
         { color: "#F4440B", range: "10%" },
         { color: "#F47A0B", range: "20%" },
@@ -238,23 +238,23 @@ export class MapChartService {
       ];
 
       // Create a higher container for block styling
-      colorBlocks.forEach(block => {
+      humidityColorBlocks.forEach(block => {
         // Create a container for each block (to hold both rectangle and label)
-        let blockContainer = blocksContainer.children.push(am5.Container.new(root, {
-          width: am5.percent(100 / colorBlocks.length),
+        let humidityBlockContainer = humidityBlocksContainer.children.push(am5.Container.new(root, {
+          width: am5.percent(100 / humidityColorBlocks.length),
           height: 25,
           layout: root.verticalLayout
         }));
 
         // Add the colored rectangle
-        let colorBlock = blockContainer.children.push(am5.Rectangle.new(root, {
+        humidityBlockContainer.children.push(am5.Rectangle.new(root, {
           width: am5.percent(100),
           height: 20,
           fill: am5.color(block.color),
         }));
 
         // Add the label inside the colored rectangle
-        let label = blockContainer.children.push(am5.Label.new(root, {
+        humidityBlockContainer.children.push(am5.Label.new(root, {
           text: block.range,
           fontSize: 11.5,
           fontWeight: "500",
@@ -266,7 +266,7 @@ export class MapChartService {
       });
 
       // Store the legend for later use
-      this.humidityHeatLegend = legend;
+      this.humidityHeatLegend = humidityLegend;
       
       /* istanbul ignore next */
       // Initially hide the humidity layer
@@ -679,6 +679,6 @@ export class MapChartService {
     }
     
 
-    
+
   }
 }

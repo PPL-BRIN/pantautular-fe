@@ -73,4 +73,5 @@ export interface StatisticsData {
 export interface ProvinceData {
   id: string;
   value: string | number;
+  status: string | null;
 }

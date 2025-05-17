@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     // !! WARNING !!
     ignoreBuildErrors: true,
   },
+  output: 'standalone',
 };
 
 export default nextConfig;

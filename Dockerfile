@@ -1,32 +1,57 @@
-# Stage 1: Build environment
-FROM node:18-alpine AS build
-
-# Set working directory
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Copy package files first (for better layer caching)
+# Copy package files
 COPY package.json package-lock.json* ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy source files
+# Stage 2: Builder
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Build the application
 RUN npm run build
 
-# Stage 2: Production environment
-FROM nginx:alpine
+# Stage 3: Runner (production)
+FROM node:18-alpine AS runner
 
-# Copy the build output from the build stage
-COPY --from=build /app/build /usr/share/nginx/html
+# Set working directory
+WORKDIR /app
 
-# Copy custom nginx configuration if needed
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Set to production environment
+ENV NODE_ENV production
 
-# Expose port 80
-EXPOSE 80
+# Create a non-root user for security
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
 
-# Start nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Copy only necessary files for production
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Install curl for health check (using --no-cache to avoid adding extra layers)
+RUN apk --no-cache add curl
+
+# Set proper permissions
+RUN chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
+
+# Expose port 3000
+EXPOSE 3000
+
+# Start Next.js in production mode
+CMD ["node", "server.js"]

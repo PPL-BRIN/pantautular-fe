@@ -1,6 +1,6 @@
 export default function AdvantagesSection() {
     return (
-      <section className="relative w-full h-auto">
+      <section className="relative w-full h-auto z-0">
         <div className="bg-gradient-to-br from-green-100/30 to-transparent w-full h-1/2 absolute top-0 left-0 z-0"></div> 
   
         <div className="relative w-full h-auto grid grid-cols-1 md:grid-cols-3 gap-4 p-6 z-10 max-w-7xl mx-auto">

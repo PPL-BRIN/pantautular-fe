@@ -3,10 +3,10 @@ FROM node:18-alpine AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
@@ -14,7 +14,35 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+
+# Copy all necessary files for building
+COPY app ./app
+COPY public ./public
+COPY utils ./utils
+COPY types ./types
+COPY store ./store
+COPY styles ./styles
+COPY hooks ./hooks
+COPY data ./data
+COPY __tests__ ./__tests__
+COPY __mocks__ ./__mocks__
+COPY services ./services
+COPY next.config.ts ./
+COPY tsconfig.json ./
+COPY pnpm-lock.yaml ./
+COPY nginx.conf ./
+COPY tailwind.config.ts ./
+COPY postcss.config.mjs ./
+COPY eslint.config.mjs ./
+COPY babel.config.js ./
+COPY jest.config.js ./
+COPY setupTest.js ./
+COPY jest.setup.js ./
+COPY setupTests.js ./
+COPY next-env.d.ts ./
+COPY CHANGELOG.md ./
+COPY README.md ./
+COPY VERSION ./
 
 # Build the application
 RUN npm run build

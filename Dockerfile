@@ -41,7 +41,6 @@ COPY jest.setup.js ./
 COPY setupTests.js ./
 COPY next-env.d.ts ./
 COPY CHANGELOG.md ./
-COPY README.md ./
 COPY VERSION ./
 
 # Build the application
@@ -65,18 +64,20 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Install curl for health check (using --no-cache to avoid adding extra layers)
-RUN apk --no-cache add curl
+# Install curl for health check and set proper permissions
+RUN apk --no-cache add curl && \
+    chown -R nextjs:nodejs /app
 
-# Set proper permissions
-RUN chown -R nextjs:nodejs /app
+# Copy health check script
+COPY healthcheck.sh /healthcheck.sh
+RUN chmod +x /healthcheck.sh
 
 # Switch to non-root user
 USER nextjs
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:3000/ || exit 1
+  CMD ["/healthcheck.sh"]
 
 # Expose port 3000
 EXPOSE 3000

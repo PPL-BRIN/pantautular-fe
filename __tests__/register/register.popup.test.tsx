@@ -50,7 +50,7 @@ const TEST = {
   FIRST_NAME: 'Pop',
   LAST_NAME: 'Up',
   EMAIL: 'popup@example.com',
-  PASSWORD: 'TestPass123!',
+  PASSWORD: 'TestPass123!', //NOSONAR
 } as const;
 
 /* ------------------------------------------------------------------ */

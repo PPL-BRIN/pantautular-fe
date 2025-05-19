@@ -39,9 +39,7 @@ COPY jest.config.js ./
 COPY setupTest.js ./
 COPY jest.setup.js ./
 COPY setupTests.js ./
-COPY next-env.d.ts ./
-COPY CHANGELOG.md ./
-COPY VERSION ./
+
 
 # Build the application
 RUN npm run build
